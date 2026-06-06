@@ -14,7 +14,8 @@ function corsHeaders(request, env) {
   const origin = request.headers.get("Origin") || "";
   const allowed = (env.ALLOWED_ORIGINS || "").split(",").map((item) => item.trim());
   const githubPagesOrigin = /^https:\/\/[a-z0-9-]+\.github\.io$/i.test(origin);
-  const allowOrigin = allowed.includes(origin) || githubPagesOrigin
+  const cfPagesOrigin = /^https:\/\/[a-z0-9-]+\.doare-coffee\.pages\.dev$/i.test(origin);
+  const allowOrigin = allowed.includes(origin) || githubPagesOrigin || cfPagesOrigin
     ? origin
     : allowed[0] || "http://localhost:8080";
   return {
