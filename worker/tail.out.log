@@ -172,3 +172,7 @@ OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/6
 OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/posts?limit=6 - Ok @ 6/6/2026, 11:37:20 PM
 OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/6/2026, 11:41:12 PM
 OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/posts?limit=6 - Ok @ 6/6/2026, 11:41:12 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/posts?limit=6 - Ok @ 6/6/2026, 11:44:08 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/6/2026, 11:44:08 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/6/2026, 11:44:08 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/posts?limit=6 - Ok @ 6/6/2026, 11:44:08 PM
