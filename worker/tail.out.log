@@ -341,3 +341,10 @@ GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/posts - Ok @ 6/7/
 OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/7/2026, 1:26:25 AM
 OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/posts?limit=6 - Ok @ 6/7/2026, 1:26:25 AM
 GET https://doare-coffee-api.trannntunnn.workers.dev/api/posts?limit=6 - Ok @ 6/7/2026, 1:26:25 AM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/7/2026, 1:28:19 AM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/posts?limit=6 - Ok @ 6/7/2026, 1:28:19 AM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/7/2026, 1:28:19 AM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/posts?limit=6 - Ok @ 6/7/2026, 1:28:19 AM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/posts/cac-loai-ca-phe-pho-bien-va-cach-chon-loai-phu-hop - Ok @ 6/7/2026, 1:29:04 AM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/posts?limit=6 - Ok @ 6/7/2026, 1:29:10 AM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/7/2026, 1:29:10 AM

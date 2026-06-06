@@ -47,3 +47,18 @@ env.ADMIN_API_KEY ("(hidden)")                                                En
 ⎔ Local server updated and ready
 ⎔ Reloading local server...
 ⎔ Local server updated and ready
+Your Worker has access to the following bindings:
+Binding                                                                       Resource                  Mode
+env.DB (doare-coffee)                                                         D1 Database               local
+env.ALLOWED_ORIGINS ("http://localhost:5500,http://127.0.0....")              Environment Variable      local
+env.FREE_SHIPPING_THRESHOLD ("500000")                                        Environment Variable      local
+env.SHIPPING_FEE ("30000")                                                    Environment Variable      local
+env.BANK_ID ("MB")                                                            Environment Variable      local
+env.BANK_ACCOUNT_NO ("REPLACE_WITH_BANK_ACCOUNT")                             Environment Variable      local
+env.BANK_ACCOUNT_NAME ("DOARE COFFEE")                                        Environment Variable      local
+env.ADMIN_API_KEY ("(hidden)")                                                Environment Variable      local
+
+⎔ Reloading local server...
+⎔ Local server updated and ready
+⎔ Reloading local server...
+⎔ Local server updated and ready
