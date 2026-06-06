@@ -3,11 +3,14 @@ import { execFileSync } from "node:child_process";
 
 const required = [
   "index.html",
+  "blog.html",
   "admin.html",
   "assets/css/styles.css",
   "assets/css/admin.css",
   "assets/js/app.js",
   "assets/js/admin.js",
+  "assets/js/blog.js",
+  "assets/js/markdown.js",
   "assets/js/api.js",
   "assets/images/brand-logo.png",
   "assets/images/products/doare-pack-02.webp",
@@ -17,7 +20,7 @@ const required = [
 
 for (const file of required) await access(file);
 
-for (const file of ["assets/js/config.js", "assets/js/catalog.js", "assets/js/api.js", "assets/js/app.js", "assets/js/admin.js"]) {
+for (const file of ["assets/js/config.js", "assets/js/catalog.js", "assets/js/api.js", "assets/js/app.js", "assets/js/admin.js", "assets/js/blog.js", "assets/js/markdown.js", "worker/src/index.js"]) {
   execFileSync(process.execPath, ["--check", file], { stdio: "inherit" });
 }
 
@@ -27,5 +30,8 @@ for (const id of ["featured-price", "featured-quantity", "cart-items", "checkout
   if (!index.includes(`id="${id}"`)) throw new Error(`Thiếu phần tử #${id}`);
 }
 if (!admin.includes('id="dashboard-view"')) throw new Error("Thiếu dashboard admin");
+for (const id of ["product-form", "post-form", "markdown-preview"]) {
+  if (!admin.includes(`id="${id}"`)) throw new Error(`Thiếu phần tử admin #${id}`);
+}
 
 console.log(`Validation passed: ${required.length} required files and JavaScript syntax.`);

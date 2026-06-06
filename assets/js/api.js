@@ -46,6 +46,16 @@
       }
     },
 
+    async getPosts(limit = 6) {
+      try {
+        const data = await request(`/api/posts?limit=${limit}`);
+        return data.posts;
+      } catch (error) {
+        if (error.message !== "MOCK_MODE") console.warn("Posts API:", error.message);
+        return [];
+      }
+    },
+
     async createOrder(payload) {
       try {
         return await request("/api/orders", {

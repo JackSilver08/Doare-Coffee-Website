@@ -1,6 +1,7 @@
 (function () {
   const state = {
     products: [],
+    posts: [],
     cart: JSON.parse(localStorage.getItem("doare_cart") || "[]"),
     featuredQuantity: 1
   };
@@ -13,6 +14,13 @@
 
   const $ = (selector, scope = document) => scope.querySelector(selector);
   const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
+  const escapeHtml = (value) =>
+    String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
 
   function formatMoney(value) {
     return money.format(value).replace("₫", "đ");
@@ -41,6 +49,29 @@
     if (!product) return;
     $("#featured-price").textContent = formatMoney(product.price);
     $("#featured-quantity").textContent = state.featuredQuantity;
+    const gallery = product.gallery?.length
+      ? product.gallery
+      : [{ image_url: product.image, alt_text: product.name }];
+    const mainImage = $(".single-product-image");
+    mainImage.src = gallery[0].image_url;
+    mainImage.alt = gallery[0].alt_text || product.name;
+    $("#product-thumbnails").innerHTML = gallery.map((image, index) => `
+      <button type="button" class="${index === 0 ? "active" : ""}" data-gallery-image="${escapeHtml(image.image_url)}" data-gallery-alt="${escapeHtml(image.alt_text || product.name)}">
+        <img src="${escapeHtml(image.image_url)}" alt="" />
+      </button>`).join("");
+  }
+
+  function renderPosts() {
+    $("#journal-grid").innerHTML = state.posts.map((post) => `
+      <article class="journal-card">
+        <a class="journal-image" href="blog.html?slug=${encodeURIComponent(post.slug)}">
+          ${post.thumbnail_url ? `<img src="${escapeHtml(post.thumbnail_url)}" alt="" />` : "<span>DOARE JOURNAL</span>"}
+        </a>
+        <div><time>${new Date(post.published_at || post.created_at).toLocaleDateString("vi-VN")}</time>
+        <h3><a href="blog.html?slug=${encodeURIComponent(post.slug)}">${escapeHtml(post.title)}</a></h3>
+        <p>${escapeHtml(post.excerpt || "")}</p><a class="journal-link" href="blog.html?slug=${encodeURIComponent(post.slug)}">Đọc bài viết →</a></div>
+      </article>`).join("");
+    $("#journal-empty").hidden = state.posts.length > 0;
   }
 
   function renderCart() {
@@ -206,11 +237,17 @@
       const add = event.target.closest("[data-add]");
       const quantity = event.target.closest("[data-quantity]");
       const remove = event.target.closest("[data-remove]");
+      const galleryImage = event.target.closest("[data-gallery-image]");
       if (add) addToCart(add.dataset.add);
       if (quantity) updateQuantity(quantity.dataset.quantity, Number(quantity.dataset.delta));
       if (remove) {
         state.cart = state.cart.filter((item) => item.id !== remove.dataset.remove);
         saveCart();
+      }
+      if (galleryImage) {
+        $(".single-product-image").src = galleryImage.dataset.galleryImage;
+        $(".single-product-image").alt = galleryImage.dataset.galleryAlt;
+        $$("[data-gallery-image]").forEach((button) => button.classList.toggle("active", button === galleryImage));
       }
     });
 
@@ -246,7 +283,8 @@
       if (event.target === event.currentTarget) closeCheckout();
     });
     $("#checkout-form").addEventListener("submit", submitOrder);
-    $(".announcement button").addEventListener("click", () => $(".announcement").remove());
+    const announcementClose = $(".announcement button");
+    if (announcementClose) announcementClose.addEventListener("click", () => $(".announcement").remove());
 
     $(".menu-button").addEventListener("click", (event) => {
       const expanded = event.currentTarget.getAttribute("aria-expanded") === "true";
@@ -276,12 +314,50 @@
     });
   }
 
+  function initExperience() {
+    const main = $("#main");
+    [$(".hero"), $(".trust-strip"), $("#story"), $("#process"), $("#products"), $("#journal"), $("#contact")]
+      .filter(Boolean)
+      .forEach((section) => main.append(section));
+
+    const intro = $("#brand-intro");
+    const finishIntro = () => {
+      if (!intro || intro.classList.contains("leaving")) return;
+      intro.classList.add("leaving");
+      document.body.classList.add("intro-complete");
+      setTimeout(() => intro.remove(), 850);
+    };
+    $("#skip-intro")?.addEventListener("click", finishIntro);
+    setTimeout(finishIntro, 3000);
+
+    const header = $("#site-header");
+    const updateHeader = () => header?.classList.toggle("scrolled", window.scrollY > 40);
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        }
+      }),
+      { threshold: 0.12 }
+    );
+    $$("[data-reveal]").forEach((section) => revealObserver.observe(section));
+  }
+
   async function init() {
-    state.products = await window.DoareAPI.getProducts();
+    initExperience();
+    [state.products, state.posts] = await Promise.all([
+      window.DoareAPI.getProducts(),
+      window.DoareAPI.getPosts()
+    ]);
     const validIds = new Set(state.products.map((product) => product.id));
     state.cart = state.cart.filter((item) => validIds.has(item.id));
     localStorage.setItem("doare_cart", JSON.stringify(state.cart));
     renderFeaturedProduct();
+    renderPosts();
     renderCart();
     bindEvents();
   }

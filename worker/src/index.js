@@ -13,17 +13,39 @@ function json(data, status = 200, extraHeaders = {}) {
 function corsHeaders(request, env) {
   const origin = request.headers.get("Origin") || "";
   const allowed = (env.ALLOWED_ORIGINS || "").split(",").map((item) => item.trim());
-  const allowOrigin = allowed.includes(origin) ? origin : allowed[0] || "http://localhost:8080";
+  const githubPagesOrigin = /^https:\/\/[a-z0-9-]+\.github\.io$/i.test(origin);
+  const allowOrigin = allowed.includes(origin) || githubPagesOrigin
+    ? origin
+    : allowed[0] || "http://localhost:8080";
   return {
     "Access-Control-Allow-Origin": allowOrigin,
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Vary": "Origin"
   };
 }
 
 function cleanText(value, maxLength) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
+function validImageUrl(value) {
+  const url = cleanText(value, 400000);
+  return url === "" ||
+    url.startsWith("https://") ||
+    url.startsWith("http://localhost") ||
+    url.startsWith("assets/") ||
+    /^data:image\/(?:webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(url);
+}
+
+function cleanImageUrl(value) {
+  const url = cleanText(value, 400000);
+  if (!validImageUrl(url)) throw new Error("IMAGE_URL_INVALID");
+  return url;
+}
+
+function makePostId() {
+  return `BP${crypto.randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
 }
 
 function makeOrderId() {
@@ -84,20 +106,149 @@ async function isAdmin(request, env) {
   return Boolean(await getAdminSession(request, env));
 }
 
-function unauthorized() {
-  return json({ message: "Không có quyền truy cập." }, 401);
+function unauthorized(headers = {}) {
+  return json({ message: "Không có quyền truy cập." }, 401, headers);
 }
 
 async function getProducts(env) {
-  const result = await env.DB.prepare(
-    `SELECT id, name, subtitle, category, roast, notes, price, weight, accent, image, badge
-     FROM products WHERE active = 1 ORDER BY sort_order ASC, created_at DESC`
-  ).all();
+  const [result, imageResult] = await env.DB.batch([
+    env.DB.prepare(
+      `SELECT id, name, subtitle, category, roast, notes, price, weight, accent, image, badge
+       FROM products WHERE active = 1 ORDER BY sort_order ASC, created_at DESC`
+    ),
+    env.DB.prepare(
+      `SELECT id, product_id, image_url, alt_text, sort_order
+       FROM product_images WHERE active = 1 ORDER BY product_id, sort_order ASC, id ASC`
+    )
+  ]);
+
+  const galleries = new Map();
+  for (const image of imageResult.results) {
+    if (!galleries.has(image.product_id)) galleries.set(image.product_id, []);
+    galleries.get(image.product_id).push(image);
+  }
 
   return result.results.map((product) => ({
     ...product,
-    notes: JSON.parse(product.notes || "[]")
+    notes: JSON.parse(product.notes || "[]"),
+    gallery: galleries.get(product.id) || []
   }));
+}
+
+async function getPublishedPosts(url, env) {
+  const limit = Math.max(1, Math.min(20, Number.parseInt(url.searchParams.get("limit"), 10) || 6));
+  const result = await env.DB.prepare(
+    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, published_at, created_at, updated_at
+     FROM blog_posts
+     WHERE status = 'published'
+     ORDER BY COALESCE(published_at, created_at) DESC
+     LIMIT ?`
+  ).bind(limit).all();
+  return result.results;
+}
+
+async function getPublishedPost(slug, env) {
+  return env.DB.prepare(
+    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, published_at, created_at, updated_at
+     FROM blog_posts WHERE slug = ? AND status = 'published'`
+  ).bind(slug).first();
+}
+
+async function getAdminPosts(env) {
+  const result = await env.DB.prepare(
+    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, status,
+            published_at, created_at, updated_at
+     FROM blog_posts ORDER BY updated_at DESC`
+  ).all();
+  return result.results;
+}
+
+function normalizePost(body) {
+  const post = {
+    title: cleanText(body.title, 180),
+    slug: cleanText(body.slug, 120).toLowerCase(),
+    excerpt: cleanText(body.excerpt, 360),
+    markdown: cleanText(body.markdown, 30000),
+    thumbnailUrl: cleanImageUrl(body.thumbnailUrl),
+    status: body.status === "published" ? "published" : "draft"
+  };
+  if (!post.title || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.slug)) {
+    throw new Error("POST_INVALID");
+  }
+  return post;
+}
+
+async function createAdminPost(request, env) {
+  const post = normalizePost(await request.json().catch(() => ({})));
+  const id = makePostId();
+  await env.DB.prepare(
+    `INSERT INTO blog_posts
+     (id, slug, title, excerpt, markdown, thumbnail_url, status, published_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'published' THEN CURRENT_TIMESTAMP ELSE NULL END)`
+  ).bind(id, post.slug, post.title, post.excerpt, post.markdown, post.thumbnailUrl, post.status, post.status).run();
+  return env.DB.prepare("SELECT * FROM blog_posts WHERE id = ?").bind(id).first();
+}
+
+async function updateAdminPost(request, id, env) {
+  const post = normalizePost(await request.json().catch(() => ({})));
+  const result = await env.DB.prepare(
+    `UPDATE blog_posts SET
+       slug = ?, title = ?, excerpt = ?, markdown = ?, thumbnail_url = ?, status = ?,
+       published_at = CASE
+         WHEN ? = 'published' AND published_at IS NULL THEN CURRENT_TIMESTAMP
+         WHEN ? = 'draft' THEN NULL
+         ELSE published_at
+       END,
+       updated_at = CURRENT_TIMESTAMP
+     WHERE id = ?`
+  ).bind(
+    post.slug, post.title, post.excerpt, post.markdown, post.thumbnailUrl, post.status,
+    post.status, post.status, id
+  ).run();
+  if (!result.meta.changes) return null;
+  return env.DB.prepare("SELECT * FROM blog_posts WHERE id = ?").bind(id).first();
+}
+
+async function updateAdminProduct(request, id, env) {
+  const body = await request.json().catch(() => ({}));
+  const name = cleanText(body.name, 140);
+  const subtitle = cleanText(body.subtitle, 220);
+  const category = cleanText(body.category, 80) || "ground";
+  const roast = cleanText(body.roast, 120);
+  const weight = cleanText(body.weight, 60);
+  const accent = cleanText(body.accent, 20) || "#c9e5f2";
+  const badge = cleanText(body.badge, 80);
+  const price = Math.max(0, Number.parseInt(body.price, 10) || 0);
+  const active = body.active === false ? 0 : 1;
+  const notes = Array.isArray(body.notes)
+    ? body.notes.map((item) => cleanText(item, 80)).filter(Boolean).slice(0, 12)
+    : [];
+  const images = Array.isArray(body.images)
+    ? body.images.map((item, index) => ({
+        imageUrl: cleanImageUrl(typeof item === "string" ? item : item.imageUrl),
+        altText: cleanText(typeof item === "string" ? name : item.altText, 180),
+        sortOrder: index
+      })).filter((item) => item.imageUrl).slice(0, 12)
+    : [];
+  if (!name || !subtitle || !roast || !weight || !price) throw new Error("PRODUCT_INVALID");
+  const primaryImage = images[0]?.imageUrl || cleanImageUrl(body.image);
+  if (!primaryImage) throw new Error("PRODUCT_IMAGE_REQUIRED");
+
+  const existing = await env.DB.prepare("SELECT id FROM products WHERE id = ?").bind(id).first();
+  if (!existing) return null;
+  await env.DB.batch([
+    env.DB.prepare(
+      `UPDATE products SET name = ?, subtitle = ?, category = ?, roast = ?, notes = ?,
+       price = ?, weight = ?, accent = ?, image = ?, badge = ?, active = ?, updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`
+    ).bind(name, subtitle, category, roast, JSON.stringify(notes), price, weight, accent, primaryImage, badge, active, id),
+    env.DB.prepare("DELETE FROM product_images WHERE product_id = ?").bind(id),
+    ...images.map((image) => env.DB.prepare(
+      `INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
+       VALUES (?, ?, ?, ?)`
+    ).bind(id, image.imageUrl, image.altText, image.sortOrder))
+  ]);
+  return (await getProducts(env)).find((product) => product.id === id) || null;
 }
 
 async function createOrder(request, env) {
@@ -326,6 +477,17 @@ export default {
           "Cache-Control": "public, max-age=60"
         });
       }
+      if (request.method === "GET" && url.pathname === "/api/posts") {
+        return json({ posts: await getPublishedPosts(url, env) }, 200, {
+          ...cors,
+          "Cache-Control": "public, max-age=60"
+        });
+      }
+      const publicPostMatch = url.pathname.match(/^\/api\/posts\/([a-z0-9-]+)$/);
+      if (request.method === "GET" && publicPostMatch) {
+        const post = await getPublishedPost(publicPostMatch[1], env);
+        return post ? json({ post }, 200, cors) : json({ message: "Không tìm thấy bài viết." }, 404, cors);
+      }
       if (request.method === "POST" && url.pathname === "/api/orders") {
         const response = await createOrder(request, env);
         Object.entries(cors).forEach(([key, value]) => response.headers.set(key, value));
@@ -347,20 +509,56 @@ export default {
         return response;
       }
       if (request.method === "GET" && url.pathname === "/api/admin/dashboard") {
-        if (!(await isAdmin(request, env))) return unauthorized();
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
         return json(await getAdminDashboard(env), 200, cors);
       }
       if (request.method === "GET" && url.pathname === "/api/admin/orders") {
-        if (!(await isAdmin(request, env))) return unauthorized();
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
         return json({ orders: await getAdminOrders(url, env) }, 200, cors);
       }
       if (request.method === "GET" && url.pathname === "/api/admin/customers") {
-        if (!(await isAdmin(request, env))) return unauthorized();
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
         return json({ customers: await getAdminCustomers(url, env) }, 200, cors);
+      }
+      if (request.method === "GET" && url.pathname === "/api/admin/posts") {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        return json({ posts: await getAdminPosts(env) }, 200, cors);
+      }
+      if (request.method === "POST" && url.pathname === "/api/admin/posts") {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        return json({ post: await createAdminPost(request, env) }, 201, cors);
+      }
+      const adminPostMatch = url.pathname.match(/^\/api\/admin\/posts\/([A-Z0-9]+)$/);
+      if (request.method === "PUT" && adminPostMatch) {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        const post = await updateAdminPost(request, adminPostMatch[1], env);
+        return post ? json({ post }, 200, cors) : json({ message: "Không tìm thấy bài viết." }, 404, cors);
+      }
+      if (request.method === "DELETE" && adminPostMatch) {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        const result = await env.DB.prepare("DELETE FROM blog_posts WHERE id = ?").bind(adminPostMatch[1]).run();
+        return result.meta.changes
+          ? json({ success: true }, 200, cors)
+          : json({ message: "Không tìm thấy bài viết." }, 404, cors);
+      }
+      const adminProductMatch = url.pathname.match(/^\/api\/admin\/products\/([a-z0-9-]+)$/);
+      if (request.method === "PUT" && adminProductMatch) {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        const product = await updateAdminProduct(request, adminProductMatch[1], env);
+        return product
+          ? json({ product }, 200, cors)
+          : json({ message: "Không tìm thấy sản phẩm." }, 404, cors);
       }
       return json({ message: "Không tìm thấy API." }, 404, cors);
     } catch (error) {
       console.error(error);
+      if (error.message === "IMAGE_URL_INVALID") return json({ message: "Đường dẫn ảnh không hợp lệ." }, 400, cors);
+      if (error.message === "POST_INVALID") return json({ message: "Tiêu đề hoặc slug bài viết không hợp lệ." }, 400, cors);
+      if (error.message === "PRODUCT_INVALID") return json({ message: "Thông tin sản phẩm chưa đầy đủ." }, 400, cors);
+      if (error.message === "PRODUCT_IMAGE_REQUIRED") return json({ message: "Sản phẩm cần ít nhất một ảnh." }, 400, cors);
+      if (String(error.message).includes("UNIQUE constraint failed: blog_posts.slug")) {
+        return json({ message: "Slug bài viết đã tồn tại." }, 409, cors);
+      }
       return json({ message: "Máy chủ gặp lỗi. Vui lòng thử lại." }, 500, cors);
     }
   }

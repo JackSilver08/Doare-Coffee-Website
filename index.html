@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Doare Coffee - cà phê rang mới, tuyển chọn từ nông trại Việt Nam và giao tận nhà."
+      content="Doare Coffee - cà phê đóng gói gần gũi, tiện lợi cho nhịp sống mỗi ngày."
     />
     <meta name="theme-color" content="#1f120c" />
-    <meta property="og:title" content="Doare Coffee - Đánh thức vị nguyên bản" />
+    <meta property="og:title" content="Doare Coffee - Cà phê cho nhịp sống thật" />
     <meta
       property="og:description"
-      content="Cà phê rang mới mỗi tuần, nguồn gốc minh bạch và giao tận nhà."
+      content="Một lựa chọn cà phê dễ thưởng thức, dễ đặt mua và gần gũi mỗi ngày."
     />
-    <title>Doare Coffee | Cà phê rang mới mỗi tuần</title>
+    <title>Doare Coffee | Cà phê cho nhịp sống thật</title>
     <link rel="icon" href="assets/images/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,80 +31,106 @@
   <body>
     <a class="skip-link" href="#main">Đi đến nội dung chính</a>
 
-    <div class="announcement">
-      <p>Miễn phí giao hàng cho đơn từ 500.000đ</p>
-      <button type="button" aria-label="Đóng thông báo">×</button>
+    <div class="brand-intro" id="brand-intro" aria-label="Giới thiệu Doare Coffee">
+      <div class="brand-intro-ring"></div>
+      <img src="assets/images/brand-logo.png" alt="" />
+      <p>DOARE COFFEE</p>
+      <h2>Một khoảng dừng nhỏ.<br /><em>Một ngày nhiều cảm hứng.</em></h2>
+      <div class="intro-progress"><span></span></div>
+      <button type="button" id="skip-intro">Bỏ qua</button>
     </div>
 
     <header class="site-header" id="site-header">
-      <div class="container nav-wrap">
+      <div class="nav-wrap">
         <a class="brand" href="#" aria-label="Doare Coffee - Trang chủ">
           <img class="brand-logo" src="assets/images/brand-logo.png" alt="" />
-          <span>DOARE<small>COFFEE ROASTERS</small></span>
+          <span>DOARE<small>COFFEE · ĐỒNG NAI</small></span>
         </a>
         <nav class="desktop-nav" aria-label="Điều hướng chính">
-          <a href="#products">Cà phê</a>
-          <a href="#story">Câu chuyện</a>
-          <a href="#process">Cách pha</a>
-          <a href="#contact">Liên hệ</a>
+          <a href="#story"><span>01</span>Câu chuyện</a>
+          <a href="#process"><span>02</span>Trải nghiệm</a>
+          <a href="#products"><span>03</span>Sản phẩm</a>
+          <a href="#journal"><span>04</span>Tin tức</a>
         </nav>
         <div class="nav-actions">
+          <a class="header-contact" href="#contact">Liên hệ</a>
+          <button class="cart-button" type="button" aria-label="Mở giỏ hàng">
+            Giỏ <span class="cart-count">0</span>
+          </button>
           <button class="icon-button menu-button" type="button" aria-label="Mở menu" aria-expanded="false">
             <span></span><span></span>
-          </button>
-          <button class="cart-button" type="button" aria-label="Mở giỏ hàng">
-            Giỏ hàng <span class="cart-count">0</span>
           </button>
         </div>
       </div>
       <nav class="mobile-nav" aria-label="Điều hướng di động">
-        <a href="#products">Cà phê</a>
         <a href="#story">Câu chuyện</a>
-        <a href="#process">Cách pha</a>
+        <a href="#process">Trải nghiệm</a>
+        <a href="#products">Sản phẩm</a>
+        <a href="#journal">Tin tức</a>
         <a href="#contact">Liên hệ</a>
       </nav>
     </header>
 
     <main id="main">
-      <section class="hero">
+      <section class="hero reveal-section" data-reveal>
         <div class="hero-decor hero-decor-one"></div>
         <div class="hero-decor hero-decor-two"></div>
         <div class="hero-overlay"></div>
         <div class="container hero-content">
           <div class="hero-copy-wrap">
-            <p class="eyebrow">CÀ PHÊ NGON · NĂNG LƯỢNG TRÀN ĐẦY</p>
-            <h1>Khởi đầu ngày mới<br /><em>theo cách của bạn.</em></h1>
+            <p class="eyebrow">DOARE COFFEE · ĐỒNG NAI</p>
+            <h1>Cà phê cho<br /><em>nhịp sống thật.</em></h1>
             <p class="hero-copy">
-              Cà phê Việt được chọn lọc và rang mới, mang đến hương vị cân bằng,
-              dễ thưởng thức và đủ năng lượng cho mỗi hành trình.
+              Không cần một nghi thức phức tạp. Chỉ cần một tách cà phê vừa đủ để bắt đầu,
+              tập trung và tiếp tục điều bạn đang theo đuổi.
             </p>
             <div class="hero-actions">
-              <a class="button button-primary" href="#products">Khám phá cà phê</a>
-              <a class="text-link" href="#story">Câu chuyện Doare <span>↗</span></a>
+              <a class="button button-primary" href="#story">Bắt đầu câu chuyện</a>
+              <a class="text-link" href="#products">Xem sản phẩm <span>↘</span></a>
             </div>
           </div>
-          <div class="hero-product">
-            <div class="hero-product-halo"></div>
-            <img src="assets/images/products/doare-pack-02.webp" alt="Bao bì cà phê Doare Coffee" />
-            <img class="hero-emblem" src="assets/images/brand-emblem.png" alt="" />
-            <div class="hero-note"><strong>100%</strong><span>Cà phê<br />Việt Nam</span></div>
+          <div class="hero-brand-visual" aria-hidden="true">
+            <div class="hero-brand-orbit orbit-a"></div>
+            <div class="hero-brand-orbit orbit-b"></div>
+            <div class="coffee-illustration">
+              <div class="coffee-glow"></div>
+              <svg class="coffee-steam-svg" viewBox="0 0 240 210" aria-hidden="true">
+                <defs>
+                  <filter id="steam-blur">
+                    <feGaussianBlur stdDeviation="3.5" />
+                  </filter>
+                </defs>
+                <path class="steam-path steam-path-one" d="M65 190 C35 150 95 130 61 89 C37 59 74 35 66 8" />
+                <path class="steam-path steam-path-two" d="M122 190 C91 151 147 126 116 91 C89 61 136 39 126 6" />
+                <path class="steam-path steam-path-three" d="M178 190 C149 155 207 131 174 93 C148 63 194 40 185 11" />
+              </svg>
+              <img
+                class="coffee-art"
+                src="assets/images/hero/coffee-cup-illustration.webp"
+                alt=""
+              />
+              <div class="coffee-shadow"></div>
+            </div>
+            <span class="hero-word word-one">GẦN GŨI</span>
+            <span class="hero-word word-two">TIỆN LỢI</span>
+            <span class="hero-word word-three">MỖI NGÀY</span>
           </div>
         </div>
-        <div class="hero-stat">
-          <strong>72H</strong>
-          <span>Đóng gói sau khi rang</span>
+        <div class="hero-scroll">
+          <span>CUỘN ĐỂ KHÁM PHÁ</span>
+          <i></i>
         </div>
       </section>
 
-      <section class="trust-strip" aria-label="Cam kết">
+      <section class="trust-strip reveal-section" aria-label="Giá trị Doare" data-reveal>
         <div class="container trust-grid">
-          <article><span>01</span><div><strong>Rang mới mỗi tuần</strong><p>Ngày rang rõ trên từng gói</p></div></article>
-          <article><span>02</span><div><strong>Nguồn gốc minh bạch</strong><p>Từ vùng trồng Việt Nam</p></div></article>
-          <article><span>03</span><div><strong>Hỗ trợ chọn vị</strong><p>Tư vấn theo cách pha của bạn</p></div></article>
+          <article><span>01</span><div><strong>Dễ bắt đầu</strong><p>Một lựa chọn cà phê gọn gàng cho mỗi ngày</p></div></article>
+          <article><span>02</span><div><strong>Dễ thưởng thức</strong><p>Hương vị gần gũi, phù hợp nhiều khoảnh khắc</p></div></article>
+          <article><span>03</span><div><strong>Dễ đặt mua</strong><p>Thông tin rõ ràng và đặt hàng trực tuyến</p></div></article>
         </div>
       </section>
 
-      <section class="section products-section" id="products">
+      <section class="section products-section reveal-section" id="products" data-reveal>
         <div class="single-product-orbit orbit-one"></div>
         <div class="single-product-orbit orbit-two"></div>
         <div class="container single-product">
@@ -116,6 +142,7 @@
               src="assets/images/products/doare-pack-02.webp"
               alt="Bịch cà phê xay Doare Coffee"
             />
+            <div class="product-thumbnails" id="product-thumbnails" aria-label="Thư viện ảnh sản phẩm"></div>
             <div class="origin-stamp"><strong>100%</strong><span>Cà phê<br />Việt Nam</span></div>
             <div class="floating-note note-aroma"><span>HƯƠNG</span><strong>Đậm đà</strong></div>
             <div class="floating-note note-finish"><span>HẬU VỊ</span><strong>Êm dịu</strong></div>
@@ -157,29 +184,42 @@
         </div>
       </section>
 
-      <section class="story section" id="story">
+      <section class="story section reveal-section" id="story" data-reveal>
         <div class="container story-grid">
           <div class="story-art">
-            <div class="story-number">08°</div>
-            <div class="altitude">1.500M<br /><span>ĐỘ CAO VÙNG TRỒNG</span></div>
+            <div class="story-number">01</div>
+            <div class="story-art-copy">
+              <span>MỘT GÓI CÀ PHÊ</span>
+              <strong>Nhiều khoảnh khắc<br />đáng để bắt đầu.</strong>
+            </div>
+            <div class="altitude">ĐỒNG NAI<br /><span>NƠI CÂU CHUYỆN BẮT ĐẦU</span></div>
           </div>
           <div class="story-copy">
-            <p class="eyebrow">TỪ CAO NGUYÊN VIỆT NAM</p>
-            <h2>Mỗi vùng đất<br />kể một câu chuyện.</h2>
+            <p class="eyebrow">CÂU CHUYỆN DOARE COFFEE</p>
+            <h2>Cà phê gần gũi<br />cho mỗi ngày bận rộn.</h2>
             <p>
-              Chúng tôi cộng tác trực tiếp với những nông hộ đặt chất lượng lên hàng đầu,
-              lựa chọn từng mùa vụ và rang theo cách tôn trọng đặc tính nguyên bản của hạt.
+              Doare Coffee được xây dựng từ một mong muốn giản dị: mang cà phê đóng gói
+              dễ pha, dễ thưởng thức và có mức giá hợp lý đến gần hơn với nhịp sống hằng ngày.
+              Một tách cà phê có thể bắt đầu buổi học, tiếp sức cho giờ làm hoặc nối dài
+              một cuộc trò chuyện cùng bạn bè.
             </p>
             <p>
-              Không chạy theo vị đắng quen thuộc. Doare tìm kiếm độ ngọt, hương trái cây
-              và hậu vị sạch trong từng tách cà phê Việt.
+              Từ Đồng Nai, chúng tôi hướng đến những người trẻ, sinh viên, nhân viên văn phòng
+              và bất kỳ ai yêu thích sự tiện lợi nhưng vẫn trân trọng một tách cà phê chỉn chu.
+              Doare hiện diện trên các kênh trực tuyến để việc tìm hiểu, lựa chọn và đặt mua
+              cà phê trở nên nhanh chóng, rõ ràng và gần gũi hơn.
             </p>
-            <a class="text-link light" href="#process">Xem hành trình hạt cà phê <span>↗</span></a>
+            <div class="story-values" aria-label="Giá trị thương hiệu">
+              <div><strong>Dễ tiếp cận</strong><span>Phù hợp nhu cầu sử dụng mỗi ngày</span></div>
+              <div><strong>Tiện lợi</strong><span>Tìm hiểu và đặt hàng trực tuyến</span></div>
+              <div><strong>Gần gũi</strong><span>Đồng hành cùng nhịp sống trẻ</span></div>
+            </div>
+            <a class="text-link light" href="#products">Khám phá cà phê Doare <span>↗</span></a>
           </div>
         </div>
       </section>
 
-      <section class="section process" id="process">
+      <section class="section process reveal-section" id="process" data-reveal>
         <div class="container">
           <div class="section-heading centered">
             <p class="eyebrow dark">RANG ĐÚNG · PHA DỄ</p>
@@ -193,13 +233,32 @@
         </div>
       </section>
 
-      <section class="newsletter">
-        <div class="container newsletter-inner">
-          <div>
-            <p class="eyebrow">NHẬT KÝ DOARE</p>
-            <h2>Chuyện cà phê,<br />gửi vừa đủ.</h2>
+      <section class="section journal reveal-section" id="journal" data-reveal>
+        <div class="container">
+          <div class="section-heading split-heading">
+            <div><p class="eyebrow dark">TIN TỨC & NHẬT KÝ</p><h2>Chuyện bên tách cà phê.</h2></div>
+            <p>Cách pha, thói quen thưởng thức và những ghi chép mới từ Doare Coffee.</p>
           </div>
-          <form id="newsletter-form">
+          <div class="journal-grid" id="journal-grid"></div>
+          <div class="journal-empty" id="journal-empty">Những bài viết đầu tiên đang được chuẩn bị.</div>
+        </div>
+      </section>
+
+      <section class="contact-section reveal-section" id="contact" data-reveal>
+        <div class="container contact-grid">
+          <div class="contact-copy">
+            <p class="eyebrow">KẾT NỐI VỚI DOARE</p>
+            <h2>Một lời chào,<br />một cuộc trò chuyện.</h2>
+            <p>Bạn cần tư vấn sản phẩm, đơn hàng hoặc muốn hợp tác cùng Doare? Hãy để lại lời nhắn hoặc liên hệ trực tiếp với chúng tôi.</p>
+            <div class="contact-details">
+              <a href="mailto:hello@doare.coffee"><span>Email</span><strong>hello@doare.coffee</strong></a>
+              <a href="tel:0900000000"><span>Điện thoại</span><strong>0900 000 000</strong></a>
+              <div><span>Khu vực</span><strong>Đồng Nai, Việt Nam</strong></div>
+            </div>
+          </div>
+          <form class="contact-card" id="newsletter-form">
+            <p>NHẬN TIN TỪ DOARE</p>
+            <h3>Đừng bỏ lỡ câu chuyện mới.</h3>
             <label for="newsletter-email">Email của bạn</label>
             <div>
               <input id="newsletter-email" name="email" type="email" placeholder="hello@example.com" required />
@@ -211,15 +270,15 @@
       </section>
     </main>
 
-    <footer id="contact">
+    <footer>
       <div class="container footer-grid">
         <div>
           <a class="brand footer-brand" href="#"><img class="brand-logo" src="assets/images/brand-logo.png" alt="" /><span>DOARE<small>COFFEE ROASTERS</small></span></a>
-          <p>Cà phê Việt được làm tử tế,<br />cho những buổi sáng nhiều cảm hứng.</p>
+          <p>Cà phê gần gũi cho nhịp sống thật,<br />bắt đầu từ Đồng Nai.</p>
         </div>
         <div><strong>Mua hàng</strong><a href="#products">Cà phê xay Doare</a><a href="#process">Hướng dẫn pha</a><a href="#">Chính sách giao hàng</a></div>
         <div><strong>Hỗ trợ</strong><a href="#">Chính sách giao hàng</a><a href="#">Đổi trả & hoàn tiền</a><a href="#">Bảo mật thông tin</a></div>
-        <div><strong>Liên hệ</strong><p>hello@doare.coffee</p><p>0900 000 000</p><p>TP. Hồ Chí Minh, Việt Nam</p></div>
+        <div><strong>Liên hệ</strong><p>hello@doare.coffee</p><p>0900 000 000</p><p>Đồng Nai, Việt Nam</p></div>
       </div>
       <div class="container footer-bottom"><span>© 2026 Doare Coffee.</span><span>Facebook · Instagram · TikTok</span></div>
     </footer>
