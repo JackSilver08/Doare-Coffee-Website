@@ -32,6 +32,62 @@ function makeOrderId() {
   return `DR${date}${suffix}`;
 }
 
+function makeCustomerId() {
+  return `CU${crypto.randomUUID().replaceAll("-", "").slice(0, 12).toUpperCase()}`;
+}
+
+function bytesToHex(bytes) {
+  return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function hexToBytes(hex) {
+  return new Uint8Array(hex.match(/.{1,2}/g).map((byte) => Number.parseInt(byte, 16)));
+}
+
+async function sha256(value) {
+  return bytesToHex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)));
+}
+
+async function passwordHash(password, saltHex, iterations) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-256", salt: hexToBytes(saltHex), iterations },
+    key,
+    256
+  );
+  return bytesToHex(bits);
+}
+
+async function getAdminSession(request, env) {
+  const authorization = request.headers.get("Authorization") || "";
+  if (!authorization.startsWith("Bearer ")) return null;
+  const token = authorization.slice(7);
+  if (!token) return null;
+  const tokenHash = await sha256(token);
+  return env.DB.prepare(
+    `SELECT s.id AS session_id, u.id AS user_id, u.email, u.display_name
+     FROM admin_sessions s
+     JOIN admin_users u ON u.id = s.admin_user_id
+     WHERE s.token_hash = ? AND s.expires_at > CURRENT_TIMESTAMP AND u.active = 1`
+  ).bind(tokenHash).first();
+}
+
+async function isAdmin(request, env) {
+  const expected = cleanText(env.ADMIN_API_KEY, 300);
+  if (expected && request.headers.get("Authorization") === `Bearer ${expected}`) return true;
+  return Boolean(await getAdminSession(request, env));
+}
+
+function unauthorized() {
+  return json({ message: "Không có quyền truy cập." }, 401);
+}
+
 async function getProducts(env) {
   const result = await env.DB.prepare(
     `SELECT id, name, subtitle, category, roast, notes, price, weight, accent, image, badge
@@ -93,16 +149,45 @@ async function createOrder(request, env) {
   const shipping = subtotal >= freeShippingThreshold ? 0 : Number(env.SHIPPING_FEE || 30000);
   const total = subtotal + shipping;
   const paymentMethod = body.paymentMethod === "bank_transfer" ? "bank_transfer" : "cod";
+  if (
+    paymentMethod === "bank_transfer" &&
+    (!env.BANK_ACCOUNT_NO || env.BANK_ACCOUNT_NO.includes("REPLACE_"))
+  ) {
+    return json({ message: "Thanh toán chuyển khoản chưa được cấu hình." }, 503);
+  }
   const status = paymentMethod === "cod" ? "confirmed" : "waiting_payment";
   const id = makeOrderId();
 
+  const existingCustomer = await env.DB.prepare(
+    "SELECT id FROM customers WHERE phone = ?"
+  ).bind(normalizedCustomer.phone).first();
+  const customerId = existingCustomer?.id || makeCustomerId();
+
   const statements = [
     env.DB.prepare(
-      `INSERT INTO orders
-       (id, customer_name, phone, email, address, city, district, note, payment_method, payment_status, order_status, subtotal, shipping_fee, total)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO customers
+       (id, name, phone, email, order_count, total_spent, first_order_at, last_order_at)
+       VALUES (?, ?, ?, ?, 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+       ON CONFLICT(phone) DO UPDATE SET
+         name = excluded.name,
+         email = CASE WHEN excluded.email != '' THEN excluded.email ELSE customers.email END,
+         order_count = customers.order_count + 1,
+         total_spent = customers.total_spent + excluded.total_spent,
+         last_order_at = CURRENT_TIMESTAMP,
+         updated_at = CURRENT_TIMESTAMP`
     ).bind(
-      id, normalizedCustomer.name, normalizedCustomer.phone, normalizedCustomer.email,
+      customerId,
+      normalizedCustomer.name,
+      normalizedCustomer.phone,
+      normalizedCustomer.email,
+      total
+    ),
+    env.DB.prepare(
+      `INSERT INTO orders
+       (id, customer_id, customer_name, phone, email, address, city, district, note, payment_method, payment_status, order_status, subtotal, shipping_fee, total)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(
+      id, customerId, normalizedCustomer.name, normalizedCustomer.phone, normalizedCustomer.email,
       normalizedCustomer.address, normalizedCustomer.city, normalizedCustomer.district,
       cleanText(body.note, 500), paymentMethod, "unpaid", status,
       subtotal, shipping, total
@@ -128,7 +213,7 @@ async function createOrder(request, env) {
         }
       : null;
 
-  return json({ id, status, subtotal, shipping, total, payment }, 201);
+  return json({ id, customerId, status, subtotal, shipping, total, payment }, 201);
 }
 
 async function subscribe(request, env) {
@@ -141,6 +226,88 @@ async function subscribe(request, env) {
     "INSERT INTO subscribers (email) VALUES (?) ON CONFLICT(email) DO NOTHING"
   ).bind(email).run();
   return json({ success: true }, 201);
+}
+
+async function getAdminDashboard(env) {
+  const [orders, customers, revenue, waiting] = await env.DB.batch([
+    env.DB.prepare("SELECT COUNT(*) AS value FROM orders"),
+    env.DB.prepare("SELECT COUNT(*) AS value FROM customers"),
+    env.DB.prepare("SELECT COALESCE(SUM(total), 0) AS value FROM orders"),
+    env.DB.prepare("SELECT COUNT(*) AS value FROM orders WHERE payment_status = 'unpaid' AND payment_method = 'bank_transfer'")
+  ]);
+  return {
+    orders: orders.results[0]?.value || 0,
+    customers: customers.results[0]?.value || 0,
+    revenue: revenue.results[0]?.value || 0,
+    waitingPayment: waiting.results[0]?.value || 0
+  };
+}
+
+async function getAdminOrders(url, env) {
+  const limit = Math.max(1, Math.min(100, Number.parseInt(url.searchParams.get("limit"), 10) || 30));
+  const result = await env.DB.prepare(
+    `SELECT id, customer_name, phone, email, city, district, payment_method,
+            payment_status, order_status, subtotal, shipping_fee, total, created_at
+     FROM orders ORDER BY created_at DESC LIMIT ?`
+  ).bind(limit).all();
+  return result.results;
+}
+
+async function getAdminCustomers(url, env) {
+  const limit = Math.max(1, Math.min(100, Number.parseInt(url.searchParams.get("limit"), 10) || 30));
+  const result = await env.DB.prepare(
+    `SELECT id, name, phone, email, order_count, total_spent, first_order_at, last_order_at
+     FROM customers ORDER BY last_order_at DESC LIMIT ?`
+  ).bind(limit).all();
+  return result.results;
+}
+
+async function loginAdmin(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const email = cleanText(body.email, 160).toLowerCase();
+  const password = cleanText(body.password, 200);
+  if (!email || !password) return json({ message: "Vui lòng nhập tài khoản và mật khẩu." }, 400);
+
+  const user = await env.DB.prepare(
+    `SELECT id, email, password_hash, password_salt, password_iterations, display_name
+     FROM admin_users WHERE email = ? AND active = 1`
+  ).bind(email).first();
+  if (!user) return json({ message: "Tài khoản hoặc mật khẩu không đúng." }, 401);
+
+  const candidate = await passwordHash(password, user.password_salt, user.password_iterations);
+  if (candidate !== user.password_hash) {
+    return json({ message: "Tài khoản hoặc mật khẩu không đúng." }, 401);
+  }
+
+  const tokenBytes = crypto.getRandomValues(new Uint8Array(32));
+  const token = bytesToHex(tokenBytes);
+  const tokenHash = await sha256(token);
+  const sessionId = `AS${crypto.randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
+
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM admin_sessions WHERE expires_at <= CURRENT_TIMESTAMP"),
+    env.DB.prepare(
+      `INSERT INTO admin_sessions (id, admin_user_id, token_hash, expires_at)
+       VALUES (?, ?, ?, datetime('now', '+30 days'))`
+    ).bind(sessionId, user.id, tokenHash),
+    env.DB.prepare(
+      "UPDATE admin_users SET last_login_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?"
+    ).bind(user.id)
+  ]);
+
+  return json({
+    token,
+    expiresIn: 2592000,
+    user: { email: user.email, displayName: user.display_name }
+  });
+}
+
+async function logoutAdmin(request, env) {
+  const session = await getAdminSession(request, env);
+  if (session) {
+    await env.DB.prepare("DELETE FROM admin_sessions WHERE id = ?").bind(session.session_id).run();
+  }
+  return json({ success: true });
 }
 
 export default {
@@ -168,6 +335,28 @@ export default {
         const response = await subscribe(request, env);
         Object.entries(cors).forEach(([key, value]) => response.headers.set(key, value));
         return response;
+      }
+      if (request.method === "POST" && url.pathname === "/api/admin/login") {
+        const response = await loginAdmin(request, env);
+        Object.entries(cors).forEach(([key, value]) => response.headers.set(key, value));
+        return response;
+      }
+      if (request.method === "POST" && url.pathname === "/api/admin/logout") {
+        const response = await logoutAdmin(request, env);
+        Object.entries(cors).forEach(([key, value]) => response.headers.set(key, value));
+        return response;
+      }
+      if (request.method === "GET" && url.pathname === "/api/admin/dashboard") {
+        if (!(await isAdmin(request, env))) return unauthorized();
+        return json(await getAdminDashboard(env), 200, cors);
+      }
+      if (request.method === "GET" && url.pathname === "/api/admin/orders") {
+        if (!(await isAdmin(request, env))) return unauthorized();
+        return json({ orders: await getAdminOrders(url, env) }, 200, cors);
+      }
+      if (request.method === "GET" && url.pathname === "/api/admin/customers") {
+        if (!(await isAdmin(request, env))) return unauthorized();
+        return json({ customers: await getAdminCustomers(url, env) }, 200, cors);
       }
       return json({ message: "Không tìm thấy API." }, 404, cors);
     } catch (error) {

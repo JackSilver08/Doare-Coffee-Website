@@ -3,5 +3,6 @@ worker/node_modules/
 worker/.wrangler/
 worker/wrangler.toml
 .dev.vars
+.admin-api-key.local
 .DS_Store
 Thumbs.db

@@ -175,11 +175,21 @@
       form.reset();
       const paymentText =
         order.status === "waiting_payment"
-          ? " Hệ thống sẽ hiển thị QR sau khi kết nối backend thanh toán."
+          ? " Vui lòng chuyển khoản đúng số tiền và nội dung bên dưới."
           : " Chúng tôi sẽ gọi xác nhận trước khi giao.";
-      message.innerHTML = `<strong>Đặt hàng thành công: ${order.id}</strong>${paymentText}`;
+      const paymentMarkup = order.payment
+        ? `<div class="payment-result">
+            <img src="${order.payment.qrImageUrl}" alt="Mã QR thanh toán đơn ${order.id}" />
+            <div>
+              <span>Số tiền</span><strong>${formatMoney(order.payment.amount)}</strong>
+              <span>Nội dung chuyển khoản</span><strong>${order.payment.content}</strong>
+              <small>${order.payment.accountName} · ${order.payment.accountNo}</small>
+            </div>
+          </div>`
+        : "";
+      message.innerHTML = `<strong>Đặt hàng thành công: ${order.id}</strong>${paymentText}${paymentMarkup}`;
       button.textContent = "Đã tạo đơn hàng";
-      setTimeout(closeCheckout, 4200);
+      if (!order.payment) setTimeout(closeCheckout, 4200);
     } catch (error) {
       message.textContent = error.message || "Có lỗi xảy ra. Vui lòng thử lại.";
       button.disabled = false;
@@ -188,6 +198,10 @@
   }
 
   function bindEvents() {
+    if (!window.DOARE_CONFIG.BANK_TRANSFER_ENABLED) {
+      $("#bank-transfer-option").hidden = true;
+    }
+
     document.addEventListener("click", (event) => {
       const add = event.target.closest("[data-add]");
       const quantity = event.target.closest("[data-quantity]");

@@ -1,0 +1,42 @@
+
+ ⛅️ wrangler 4.98.0
+───────────────────
+Successfully created tail, expires at 2026-06-06T20:28:41Z
+Connected to doare-coffee-api, waiting for logs...
+POST https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:28:45 PM
+  (error) NotSupportedError: Pbkdf2 failed: iteration counts above 100000 are not supported (requested 210000).
+GET https://doare-coffee-api.trannntunnn.workers.dev/ - Ok @ 6/6/2026, 9:31:08 PM
+POST https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:31:41 PM
+POST https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:31:44 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/dashboard - Ok @ 6/6/2026, 9:31:44 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/orders?limit=100 - Ok @ 6/6/2026, 9:32:27 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/dashboard - Ok @ 6/6/2026, 9:32:27 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/customers?limit=100 - Ok @ 6/6/2026, 9:32:27 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:32:26 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/orders?limit=100 - Ok @ 6/6/2026, 9:32:27 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/dashboard - Ok @ 6/6/2026, 9:32:27 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/customers?limit=100 - Ok @ 6/6/2026, 9:32:27 PM
+POST https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:32:26 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:33:42 PM
+POST https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:33:43 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/dashboard - Ok @ 6/6/2026, 9:33:44 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/orders?limit=100 - Ok @ 6/6/2026, 9:33:44 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/customers?limit=100 - Ok @ 6/6/2026, 9:33:44 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/dashboard - Ok @ 6/6/2026, 9:33:44 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/orders?limit=100 - Ok @ 6/6/2026, 9:33:44 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/customers?limit=100 - Ok @ 6/6/2026, 9:33:44 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:34:18 PM
+POST https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:34:18 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/customers?limit=100 - Ok @ 6/6/2026, 9:34:18 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/orders?limit=100 - Ok @ 6/6/2026, 9:34:18 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/admin/dashboard - Ok @ 6/6/2026, 9:34:18 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/customers?limit=100 - Ok @ 6/6/2026, 9:34:18 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/dashboard - Ok @ 6/6/2026, 9:34:18 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/orders?limit=100 - Ok @ 6/6/2026, 9:34:18 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/admin/dashboard - Ok @ 6/6/2026, 9:35:25 PM
+POST https://doare-coffee-api.trannntunnn.workers.dev/api/admin/login - Ok @ 6/6/2026, 9:35:25 PM
+POST https://doare-coffee-api.trannntunnn.workers.dev/api/admin/logout - Ok @ 6/6/2026, 9:35:25 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/6/2026, 10:22:22 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/6/2026, 10:22:22 PM
+OPTIONS https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/6/2026, 10:23:59 PM
+GET https://doare-coffee-api.trannntunnn.workers.dev/api/products - Ok @ 6/6/2026, 10:23:59 PM

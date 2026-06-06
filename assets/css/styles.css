@@ -1659,6 +1659,50 @@ legend {
   font-size: 15px;
 }
 
+.payment-result {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  gap: 18px;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  padding: 14px;
+  background: white;
+  color: var(--ink);
+}
+
+.payment-result img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+}
+
+.payment-result div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.payment-result span {
+  margin-top: 6px;
+  color: #82949d;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.payment-result div strong {
+  color: var(--navy);
+  font-family: var(--serif);
+  font-size: 18px;
+}
+
+.payment-result small {
+  margin-top: 8px;
+  color: #768a94;
+  font-size: 9px;
+}
+
 .checkout-summary {
   padding: 70px 35px 35px;
   background: #ede4d8;
@@ -2090,6 +2134,12 @@ legend {
   .form-grid {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .payment-result {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
   }
 }
 

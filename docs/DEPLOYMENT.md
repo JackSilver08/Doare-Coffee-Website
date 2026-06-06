@@ -64,6 +64,14 @@ Edit `assets/js/config.js`:
 API_BASE_URL: "https://YOUR-WORKER.workers.dev"
 ```
 
+For the current deployment this is:
+
+```text
+https://doare-coffee-api.trannntunnn.workers.dev
+```
+
+The admin page uses a D1-backed login and stores a 30-day session token in the browser. The initial account is seeded by `worker/seed-admin.sql`; change the default password before handing the store to production staff. `ADMIN_API_KEY` remains an ignored emergency credential rather than the normal login method.
+
 Commit and push. Confirm a real order appears in D1:
 
 ```powershell

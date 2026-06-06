@@ -14,6 +14,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="assets/css/admin.css" />
+    <script src="assets/js/config.js" defer></script>
     <script src="assets/js/catalog.js" defer></script>
     <script src="assets/js/admin.js" defer></script>
   </head>
@@ -23,6 +24,7 @@
       <nav>
         <button class="active" type="button" data-view="dashboard">Tổng quan</button>
         <button type="button" data-view="orders">Đơn hàng <span id="pending-count">0</span></button>
+        <button type="button" data-view="customers">Khách hàng</button>
         <button type="button" data-view="products">Sản phẩm</button>
         <button type="button" data-view="content">Nội dung</button>
       </nav>
@@ -36,7 +38,10 @@
     <main>
       <header>
         <div><p>DOARE COFFEE</p><h1 id="page-title">Tổng quan</h1></div>
-        <div class="admin-user"><span>DC</span><div><strong>Doare Owner</strong><small>Quản trị viên</small></div></div>
+        <div class="header-actions">
+          <button class="connect-api" id="connect-api" type="button">Đăng nhập</button>
+          <div class="admin-user"><span>DC</span><div><strong>Doare Owner</strong><small>Quản trị viên</small></div></div>
+        </div>
       </header>
 
       <section class="view active" id="dashboard-view">
@@ -58,6 +63,14 @@
           <div class="panel-heading"><div><p>QUẢN LÝ BÁN HÀNG</p><h2>Tất cả đơn hàng</h2></div><button type="button" id="export-orders">Xuất CSV</button></div>
           <div class="table-wrap"><table><thead><tr><th>Mã đơn</th><th>Ngày tạo</th><th>Khách hàng</th><th>Điện thoại</th><th>Thanh toán</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead><tbody id="all-orders"></tbody></table></div>
           <div class="empty-state" id="orders-empty"><strong>Chưa có dữ liệu</strong><p>Đơn demo sẽ xuất hiện tại đây sau khi checkout.</p></div>
+        </div>
+      </section>
+
+      <section class="view" id="customers-view">
+        <div class="panel">
+          <div class="panel-heading"><div><p>DỮ LIỆU NGƯỜI MUA</p><h2>Khách hàng</h2></div></div>
+          <div class="table-wrap"><table><thead><tr><th>Khách hàng</th><th>Điện thoại</th><th>Email</th><th>Số đơn</th><th>Tổng chi tiêu</th><th>Lần mua gần nhất</th></tr></thead><tbody id="all-customers"></tbody></table></div>
+          <div class="empty-state" id="customers-empty"><strong>Chưa có dữ liệu</strong><p>Khách hàng sẽ xuất hiện sau khi đơn đầu tiên được tạo trên backend.</p></div>
         </div>
       </section>
 

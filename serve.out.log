@@ -1,0 +1,79 @@
+ INFO  Accepting connections at http://localhost:5500
+ HTTP  6/6/2026 8:50:48 PM 127.0.0.1 GET /
+ HTTP  6/6/2026 8:50:48 PM 127.0.0.1 Returned 200 in 37 ms
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 GET /
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 Returned 200 in 8 ms
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 GET /assets/css/styles.css
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 GET /assets/images/brand-logo.png
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 GET /assets/images/products/doare-pack-02.webp
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 GET /assets/images/brand-emblem.png
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 GET /assets/js/config.js
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 GET /assets/js/catalog.js
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 Returned 200 in 21 ms
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 Returned 200 in 21 ms
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 Returned 200 in 20 ms
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 Returned 200 in 12 ms
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 Returned 200 in 11 ms
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 Returned 200 in 19 ms
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 GET /assets/js/app.js
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 GET /assets/js/api.js
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 Returned 200 in 7 ms
+ HTTP  6/6/2026 8:51:28 PM 127.0.0.1 Returned 200 in 7 ms
+ HTTP  6/6/2026 8:51:29 PM 127.0.0.1 GET /assets/images/favicon.png
+ HTTP  6/6/2026 8:51:29 PM 127.0.0.1 Returned 200 in 3 ms
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 GET /
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 Returned 200 in 14 ms
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 GET /assets/css/styles.css
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 GET /assets/images/brand-logo.png
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 GET /assets/images/products/doare-pack-02.webp
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 Returned 200 in 3 ms
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 Returned 200 in 4 ms
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 GET /assets/images/brand-emblem.png
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 Returned 200 in 6 ms
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 GET /assets/js/config.js
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 Returned 200 in 4 ms
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 GET /assets/js/catalog.js
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 Returned 200 in 5 ms
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 Returned 200 in 4 ms
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 GET /assets/js/api.js
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 GET /assets/js/app.js
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 Returned 200 in 6 ms
+ HTTP  6/6/2026 8:52:14 PM 127.0.0.1 Returned 200 in 4 ms
+ HTTP  6/6/2026 8:52:15 PM 127.0.0.1 GET /assets/images/favicon.png
+ HTTP  6/6/2026 8:52:15 PM 127.0.0.1 Returned 200 in 1 ms
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 GET /admin.html
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 Returned 301 in 3 ms
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 GET /admin
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 Returned 200 in 4 ms
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 GET /assets/css/admin.css
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 GET /assets/images/brand-logo.png
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 Returned 200 in 4 ms
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 GET /assets/js/config.js
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 GET /assets/js/catalog.js
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 GET /assets/js/admin.js
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 Returned 200 in 4 ms
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 GET /assets/images/products/doare-pack-02.webp
+ HTTP  6/6/2026 8:56:23 PM 127.0.0.1 Returned 200 in 1 ms
+ HTTP  6/6/2026 8:56:24 PM 127.0.0.1 GET /assets/images/favicon.png
+ HTTP  6/6/2026 8:56:24 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 GET /admin.html
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 Returned 301 in 2 ms
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 GET /admin
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 GET /assets/css/admin.css
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 GET /assets/images/brand-logo.png
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 GET /assets/js/config.js
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 GET /assets/js/catalog.js
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 GET /assets/js/admin.js
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:58:38 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:58:39 PM 127.0.0.1 GET /assets/images/products/doare-pack-02.webp
+ HTTP  6/6/2026 8:58:39 PM 127.0.0.1 Returned 200 in 2 ms
+ HTTP  6/6/2026 8:58:39 PM 127.0.0.1 GET /assets/images/favicon.png
+ HTTP  6/6/2026 8:58:39 PM 127.0.0.1 Returned 200 in 1 ms

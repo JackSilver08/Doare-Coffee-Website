@@ -34,6 +34,9 @@ button { font: inherit; }
 .back-link { margin: 18px 8px 0; color: #baa99e; font-size: 11px; text-decoration: none; }
 main { min-height: 100vh; margin-left: 248px; padding: 0 38px 50px; }
 header { display: flex; min-height: 108px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.header-actions { display: flex; align-items: center; gap: 20px; }
+.connect-api { border: 1px solid var(--line); padding: 10px 14px; background: white; cursor: pointer; color: var(--ink); font-size: 10px; font-weight: 700; }
+.connect-api.connected { border-color: #8fb99a; background: #edf7ef; color: #467052; }
 header p, .panel-heading p { margin: 0 0 5px; color: #9c7863; font-size: 9px; font-weight: 700; letter-spacing: .17em; }
 header h1 { margin: 0; font-family: var(--serif); font-size: 30px; }
 .admin-user { display: flex; align-items: center; gap: 10px; }
@@ -89,6 +92,7 @@ th { color: #8f7d72; font-size: 8px; letter-spacing: .09em; text-transform: uppe
   main { margin-left: 0; padding: 0 16px 35px; }
   header { min-height: 90px; }
   .admin-user div { display: none; }
+  .connect-api { padding: 9px; }
   .stat-grid, .product-admin-grid { grid-template-columns: 1fr; }
   .panel { padding: 18px; }
 }

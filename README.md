@@ -11,6 +11,7 @@ Static-first storefront for a real coffee business. The customer-facing site is 
 - Mock API mode that creates demo orders without a backend
 - Demo admin dashboard at `/admin.html`
 - Cloudflare Worker API, D1 schema and seed products
+- Remembered admin login backed by hashed credentials and 30-day sessions
 - Server-side price recalculation before an order is stored
 
 ## Run locally
@@ -59,13 +60,13 @@ npm run validate
 
 `assets/js/config.js` ships with an empty `API_BASE_URL`. The site therefore uses `catalog.js` and stores demo orders in the current browser.
 
-After the Worker is deployed, set:
+The production Worker is deployed at:
 
 ```js
-API_BASE_URL: "https://your-worker.workers.dev"
+API_BASE_URL: "https://doare-coffee-api.trannntunnn.workers.dev"
 ```
 
-The frontend then uses the live product and order APIs.
+The frontend now uses the live product and order APIs. Bank transfer remains disabled until real bank details are configured.
 
 ## Production status
 

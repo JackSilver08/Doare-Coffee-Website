@@ -1,0 +1,41 @@
+
+ ⛅️ wrangler 4.98.0
+───────────────────
+Your Worker has access to the following bindings:
+Binding                                                                       Resource                  Mode
+env.DB (doare-coffee)                                                         D1 Database               local
+env.ALLOWED_ORIGINS ("http://localhost:8080,https://your-do...")              Environment Variable      local
+env.FREE_SHIPPING_THRESHOLD ("500000")                                        Environment Variable      local
+env.SHIPPING_FEE ("30000")                                                    Environment Variable      local
+env.BANK_ID ("MB")                                                            Environment Variable      local
+env.BANK_ACCOUNT_NO ("REPLACE_WITH_BANK_ACCOUNT")                             Environment Variable      local
+env.BANK_ACCOUNT_NAME ("DOARE COFFEE")                                        Environment Variable      local
+env.ADMIN_API_KEY ("(hidden)")                                                Environment Variable      local
+
+⎔ Starting local server...
+[wrangler:info] Ready on http://127.0.0.1:8787
+[wrangler:info] GET /api/health 200 OK (13ms)
+[wrangler:info] POST /api/orders 201 Created (441ms)
+[wrangler:info] POST /api/orders 201 Created (23ms)
+[wrangler:info] GET /api/admin/dashboard 401 Unauthorized (5ms)
+[wrangler:info] GET /api/admin/dashboard 200 OK (15ms)
+[wrangler:info] GET /api/admin/customers 200 OK (12ms)
+Your Worker has access to the following bindings:
+Binding                                                                       Resource                  Mode
+env.DB (doare-coffee)                                                         D1 Database               local
+env.ALLOWED_ORIGINS ("http://localhost:5500,http://127.0.0....")              Environment Variable      local
+env.FREE_SHIPPING_THRESHOLD ("500000")                                        Environment Variable      local
+env.SHIPPING_FEE ("30000")                                                    Environment Variable      local
+env.BANK_ID ("MB")                                                            Environment Variable      local
+env.BANK_ACCOUNT_NO ("REPLACE_WITH_BANK_ACCOUNT")                             Environment Variable      local
+env.BANK_ACCOUNT_NAME ("DOARE COFFEE")                                        Environment Variable      local
+env.ADMIN_API_KEY ("(hidden)")                                                Environment Variable      local
+
+⎔ Reloading local server...
+⎔ Local server updated and ready
+⎔ Reloading local server...
+⎔ Local server updated and ready
+⎔ Reloading local server...
+⎔ Local server updated and ready
+⎔ Reloading local server...
+⎔ Local server updated and ready
