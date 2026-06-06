@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Doare Admin | Quản lý cửa hàng</title>
+    <link rel="icon" href="assets/images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/admin.css" />
+    <script src="assets/js/catalog.js" defer></script>
+    <script src="assets/js/admin.js" defer></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="admin-brand" href="index.html"><img src="assets/images/brand-logo.png" alt="" /><strong>DOARE<small>ADMIN CONSOLE</small></strong></a>
+      <nav>
+        <button class="active" type="button" data-view="dashboard">Tổng quan</button>
+        <button type="button" data-view="orders">Đơn hàng <span id="pending-count">0</span></button>
+        <button type="button" data-view="products">Sản phẩm</button>
+        <button type="button" data-view="content">Nội dung</button>
+      </nav>
+      <div class="sidebar-note">
+        <strong>Chế độ demo</strong>
+        <p>Dữ liệu đang lưu trong trình duyệt. Production sẽ dùng Cloudflare Access và D1.</p>
+      </div>
+      <a class="back-link" href="index.html">← Xem cửa hàng</a>
+    </aside>
+
+    <main>
+      <header>
+        <div><p>DOARE COFFEE</p><h1 id="page-title">Tổng quan</h1></div>
+        <div class="admin-user"><span>DC</span><div><strong>Doare Owner</strong><small>Quản trị viên</small></div></div>
+      </header>
+
+      <section class="view active" id="dashboard-view">
+        <div class="stat-grid">
+          <article><p>Doanh thu demo</p><strong id="revenue-stat">0đ</strong><small>Từ đơn hàng trên trình duyệt này</small></article>
+          <article><p>Tổng đơn hàng</p><strong id="orders-stat">0</strong><small>Đơn được tạo từ storefront</small></article>
+          <article><p>Chờ thanh toán</p><strong id="payment-stat">0</strong><small>Cần kiểm tra chuyển khoản</small></article>
+          <article><p>Sản phẩm</p><strong id="products-stat">0</strong><small>Đang hiển thị trên cửa hàng</small></article>
+        </div>
+        <div class="panel">
+          <div class="panel-heading"><div><p>HOẠT ĐỘNG GẦN ĐÂY</p><h2>Đơn hàng mới</h2></div><button type="button" data-go="orders">Xem tất cả</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Thanh toán</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead><tbody id="recent-orders"></tbody></table></div>
+          <div class="empty-state" id="dashboard-empty"><strong>Chưa có đơn hàng</strong><p>Hãy mở cửa hàng và thử tạo một đơn demo.</p></div>
+        </div>
+      </section>
+
+      <section class="view" id="orders-view">
+        <div class="panel">
+          <div class="panel-heading"><div><p>QUẢN LÝ BÁN HÀNG</p><h2>Tất cả đơn hàng</h2></div><button type="button" id="export-orders">Xuất CSV</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Mã đơn</th><th>Ngày tạo</th><th>Khách hàng</th><th>Điện thoại</th><th>Thanh toán</th><th>Tổng tiền</th><th>Trạng thái</th></tr></thead><tbody id="all-orders"></tbody></table></div>
+          <div class="empty-state" id="orders-empty"><strong>Chưa có dữ liệu</strong><p>Đơn demo sẽ xuất hiện tại đây sau khi checkout.</p></div>
+        </div>
+      </section>
+
+      <section class="view" id="products-view">
+        <div class="panel">
+          <div class="panel-heading"><div><p>SẢN PHẨM CHÍNH</p><h2>Cà phê Doare</h2></div><button type="button" id="add-product" disabled>Chỉnh thông tin</button></div>
+          <div class="product-admin-grid" id="admin-products"></div>
+          <p class="feature-note">Giá bán, khối lượng và trạng thái còn hàng sẽ được chỉnh tại đây khi kết nối Worker API và xác thực admin.</p>
+        </div>
+      </section>
+
+      <section class="view" id="content-view">
+        <div class="panel content-placeholder">
+          <span>✦</span>
+          <h2>Quản lý nội dung</h2>
+          <p>Banner, câu chuyện thương hiệu và chính sách cửa hàng sẽ được quản lý tại đây sau khi backend được kết nối.</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

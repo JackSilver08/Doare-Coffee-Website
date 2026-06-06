@@ -1,0 +1,16 @@
+name = "doare-coffee-api"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "doare-coffee"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[vars]
+ALLOWED_ORIGINS = "http://localhost:8080,https://your-domain.example"
+FREE_SHIPPING_THRESHOLD = "500000"
+SHIPPING_FEE = "30000"
+BANK_ID = "MB"
+BANK_ACCOUNT_NO = "REPLACE_WITH_BANK_ACCOUNT"
+BANK_ACCOUNT_NAME = "DOARE COFFEE"

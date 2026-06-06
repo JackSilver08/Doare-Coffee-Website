@@ -1,0 +1,94 @@
+:root {
+  --ink: #233640;
+  --brown: #173f5b;
+  --cream: #eff7fb;
+  --paper: #f8fcfe;
+  --orange: #2f87c8;
+  --green: #527052;
+  --line: rgba(36, 24, 17, 0.12);
+  --serif: "Playfair Display", Georgia, serif;
+  --sans: "DM Sans", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); }
+button { font: inherit; }
+.sidebar {
+  position: fixed; inset: 0 auto 0 0; display: flex; width: 248px; flex-direction: column;
+  padding: 30px 20px; background: var(--brown); color: white;
+}
+.admin-brand { display: flex; align-items: center; gap: 12px; margin: 0 8px 45px; color: white; text-decoration: none; letter-spacing: .13em; }
+.admin-brand > img { width: 44px; height: 44px; border-radius: 50%; object-fit: contain; background: white; }
+.admin-brand strong { font-size: 13px; }
+.admin-brand small { display: block; margin-top: 4px; color: #a99182; font-size: 7px; letter-spacing: .18em; }
+.sidebar nav { display: flex; flex-direction: column; gap: 6px; }
+.sidebar nav button {
+  display: flex; min-height: 44px; align-items: center; justify-content: space-between; border: 0; border-radius: 3px;
+  padding: 0 14px; background: transparent; color: #bfaea3; cursor: pointer; font-size: 12px; text-align: left;
+}
+.sidebar nav button:hover, .sidebar nav button.active { background: rgba(255,255,255,.08); color: white; }
+.sidebar nav button span { display: grid; min-width: 22px; height: 22px; place-items: center; border-radius: 50%; background: var(--orange); color: white; font-size: 9px; }
+.sidebar-note { margin-top: auto; border: 1px solid rgba(255,255,255,.1); padding: 14px; }
+.sidebar-note strong { color: #dfa47a; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.sidebar-note p { margin: 7px 0 0; color: #9f8c80; font-size: 10px; line-height: 1.6; }
+.back-link { margin: 18px 8px 0; color: #baa99e; font-size: 11px; text-decoration: none; }
+main { min-height: 100vh; margin-left: 248px; padding: 0 38px 50px; }
+header { display: flex; min-height: 108px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+header p, .panel-heading p { margin: 0 0 5px; color: #9c7863; font-size: 9px; font-weight: 700; letter-spacing: .17em; }
+header h1 { margin: 0; font-family: var(--serif); font-size: 30px; }
+.admin-user { display: flex; align-items: center; gap: 10px; }
+.admin-user > span { display: grid; width: 37px; height: 37px; place-items: center; border-radius: 50%; background: var(--orange); color: white; font-size: 11px; }
+.admin-user div { display: flex; flex-direction: column; gap: 2px; }
+.admin-user strong { font-size: 11px; }
+.admin-user small { color: #917e72; font-size: 9px; }
+.view { display: none; padding-top: 32px; }
+.view.active { display: block; }
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 25px; }
+.stat-grid article { min-height: 145px; border: 1px solid var(--line); padding: 22px; background: white; }
+.stat-grid p { margin: 0 0 18px; color: #88756a; font-size: 11px; }
+.stat-grid strong { display: block; margin-bottom: 12px; font-family: var(--serif); font-size: 30px; }
+.stat-grid small { color: #a08e83; font-size: 9px; }
+.panel { border: 1px solid var(--line); padding: 25px; background: white; }
+.panel-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.panel-heading h2 { margin: 0; font-family: var(--serif); font-size: 24px; }
+.panel-heading button { border: 1px solid var(--line); padding: 9px 13px; background: transparent; cursor: pointer; font-size: 10px; font-weight: 700; }
+.panel-heading button:hover:not(:disabled) { border-color: var(--ink); background: var(--ink); color: white; }
+.panel-heading button:disabled { cursor: not-allowed; opacity: .45; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 13px 10px; border-bottom: 1px solid var(--line); font-size: 10px; text-align: left; white-space: nowrap; }
+th { color: #8f7d72; font-size: 8px; letter-spacing: .09em; text-transform: uppercase; }
+.status { display: inline-flex; border-radius: 999px; padding: 6px 8px; background: #f1e7dc; color: #8a5d40; font-size: 8px; font-weight: 700; text-transform: uppercase; }
+.status.confirmed { background: #e2eee2; color: var(--green); }
+.empty-state { padding: 55px 10px; text-align: center; }
+.empty-state strong { font-family: var(--serif); font-size: 20px; }
+.empty-state p { margin: 7px 0; color: #8e7a6e; font-size: 11px; }
+.product-admin-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+.admin-product { border: 1px solid var(--line); }
+.admin-product-visual { display: grid; height: 170px; place-items: center; overflow: hidden; background: color-mix(in srgb, var(--accent), white 75%); }
+.admin-packshot { width: 82%; height: 96%; object-fit: contain; filter: drop-shadow(0 10px 10px rgba(35,86,116,.14)); mix-blend-mode: multiply; }
+.admin-mini-bag { display: grid; width: 65px; height: 92px; place-items: center; background: var(--accent); color: white; font-family: var(--serif); clip-path: polygon(4% 3%,96% 0,100% 95%,91% 100%,7% 98%,0 8%); }
+.admin-product-info { padding: 14px; }
+.admin-product-info h3 { margin: 0 0 4px; font-family: var(--serif); font-size: 16px; }
+.admin-product-info p { margin: 0 0 12px; color: #8d7a6f; font-size: 9px; }
+.admin-product-info div { display: flex; justify-content: space-between; font-size: 10px; }
+.feature-note { margin: 18px 0 0; color: #8e7b70; font-size: 10px; }
+.content-placeholder { padding: 90px 25px; text-align: center; }
+.content-placeholder > span { color: var(--orange); font-size: 35px; }
+.content-placeholder h2 { margin: 15px 0 8px; font-family: var(--serif); font-size: 28px; }
+.content-placeholder p { max-width: 450px; margin: auto; color: #88766b; font-size: 12px; line-height: 1.7; }
+@media (max-width: 1000px) {
+  .stat-grid, .product-admin-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 700px) {
+  .sidebar { position: static; width: 100%; padding: 18px; }
+  .admin-brand { margin-bottom: 18px; }
+  .sidebar nav { flex-direction: row; overflow-x: auto; }
+  .sidebar nav button { flex: 0 0 auto; }
+  .sidebar-note, .back-link { display: none; }
+  main { margin-left: 0; padding: 0 16px 35px; }
+  header { min-height: 90px; }
+  .admin-user div { display: none; }
+  .stat-grid, .product-admin-grid { grid-template-columns: 1fr; }
+  .panel { padding: 18px; }
+}

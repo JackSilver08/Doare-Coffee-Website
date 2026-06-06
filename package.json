@@ -1,0 +1,10 @@
+{
+  "name": "doare-coffee-website",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static-first serverless coffee storefront",
+  "scripts": {
+    "dev": "npx serve . -l 8080",
+    "validate": "node scripts/validate.mjs"
+  }
+}

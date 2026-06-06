@@ -1,0 +1,276 @@
+(function () {
+  const state = {
+    products: [],
+    cart: JSON.parse(localStorage.getItem("doare_cart") || "[]"),
+    featuredQuantity: 1
+  };
+
+  const money = new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0
+  });
+
+  const $ = (selector, scope = document) => scope.querySelector(selector);
+  const $$ = (selector, scope = document) => [...scope.querySelectorAll(selector)];
+
+  function formatMoney(value) {
+    return money.format(value).replace("₫", "đ");
+  }
+
+  function saveCart() {
+    localStorage.setItem("doare_cart", JSON.stringify(state.cart));
+    renderCart();
+  }
+
+  function cartDetails() {
+    return state.cart
+      .map((item) => {
+        const product = state.products.find((entry) => entry.id === item.id);
+        return product ? { ...product, quantity: item.quantity } : null;
+      })
+      .filter(Boolean);
+  }
+
+  function cartSubtotal() {
+    return cartDetails().reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }
+
+  function renderFeaturedProduct() {
+    const product = state.products[0];
+    if (!product) return;
+    $("#featured-price").textContent = formatMoney(product.price);
+    $("#featured-quantity").textContent = state.featuredQuantity;
+  }
+
+  function renderCart() {
+    const details = cartDetails();
+    const count = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+    $$(".cart-count").forEach((node) => (node.textContent = count));
+
+    $("#cart-empty").hidden = details.length > 0;
+    $(".cart-summary").hidden = details.length === 0;
+    $("#cart-items").innerHTML = details
+      .map(
+        (item) => `
+          <article class="cart-item">
+            <div class="mini-bag" style="--accent:${item.accent}"><img src="${item.image}" alt="" /></div>
+            <div>
+              <h3>${item.name}</h3>
+              <p>${item.weight} · ${item.roast}</p>
+              <div class="quantity">
+                <button type="button" data-quantity="${item.id}" data-delta="-1" aria-label="Giảm số lượng">−</button>
+                <span>${item.quantity}</span>
+                <button type="button" data-quantity="${item.id}" data-delta="1" aria-label="Tăng số lượng">+</button>
+              </div>
+            </div>
+            <strong>${formatMoney(item.price * item.quantity)}</strong>
+            <button class="remove-item" type="button" data-remove="${item.id}" aria-label="Xóa sản phẩm">×</button>
+          </article>`
+      )
+      .join("");
+    $("#cart-subtotal").textContent = formatMoney(cartSubtotal());
+  }
+
+  function addToCart(id, quantity = 1) {
+    const current = state.cart.find((item) => item.id === id);
+    if (current) current.quantity += quantity;
+    else state.cart.push({ id, quantity });
+    saveCart();
+    showToast("Đã thêm cà phê vào giỏ hàng.");
+  }
+
+  function updateQuantity(id, delta) {
+    const item = state.cart.find((entry) => entry.id === id);
+    if (!item) return;
+    item.quantity += delta;
+    if (item.quantity <= 0) state.cart = state.cart.filter((entry) => entry.id !== id);
+    saveCart();
+  }
+
+  function openCart() {
+    $(".drawer-backdrop").hidden = false;
+    $(".cart-drawer").setAttribute("aria-hidden", "false");
+    document.body.classList.add("no-scroll");
+  }
+
+  function closeCart() {
+    $(".drawer-backdrop").hidden = true;
+    $(".cart-drawer").setAttribute("aria-hidden", "true");
+    document.body.classList.remove("no-scroll");
+  }
+
+  function renderCheckout() {
+    const items = cartDetails();
+    const subtotal = cartSubtotal();
+    const shipping =
+      subtotal >= window.DOARE_CONFIG.FREE_SHIPPING_THRESHOLD
+        ? 0
+        : window.DOARE_CONFIG.STANDARD_SHIPPING_FEE;
+    $("#checkout-items").innerHTML = items
+      .map(
+        (item) =>
+          `<div class="checkout-item"><span>${item.quantity}× ${item.name}</span><strong>${formatMoney(item.price * item.quantity)}</strong></div>`
+      )
+      .join("");
+    $("#checkout-subtotal").textContent = formatMoney(subtotal);
+    $("#checkout-shipping").textContent = shipping ? formatMoney(shipping) : "Miễn phí";
+    $("#checkout-total").textContent = formatMoney(subtotal + shipping);
+  }
+
+  function openCheckout() {
+    closeCart();
+    renderCheckout();
+    $(".modal-backdrop").hidden = false;
+    document.body.classList.add("no-scroll");
+  }
+
+  function closeCheckout() {
+    $(".modal-backdrop").hidden = true;
+    document.body.classList.remove("no-scroll");
+  }
+
+  function showToast(message) {
+    const toast = $(".toast");
+    toast.textContent = message;
+    toast.classList.add("visible");
+    clearTimeout(showToast.timeout);
+    showToast.timeout = setTimeout(() => toast.classList.remove("visible"), 2600);
+  }
+
+  async function submitOrder(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const button = $(".submit-order", form);
+    const message = $(".form-message", form);
+    const data = Object.fromEntries(new FormData(form));
+    const subtotal = cartSubtotal();
+    const shipping =
+      subtotal >= window.DOARE_CONFIG.FREE_SHIPPING_THRESHOLD
+        ? 0
+        : window.DOARE_CONFIG.STANDARD_SHIPPING_FEE;
+
+    button.disabled = true;
+    button.textContent = "Đang tạo đơn...";
+    message.textContent = "";
+
+    try {
+      const order = await window.DoareAPI.createOrder({
+        customer: {
+          name: data.name.trim(),
+          phone: data.phone.trim(),
+          email: data.email.trim(),
+          address: data.address.trim(),
+          city: data.city.trim(),
+          district: data.district.trim()
+        },
+        note: data.note.trim(),
+        paymentMethod: data.payment,
+        items: state.cart.map(({ id, quantity }) => ({ productId: id, quantity })),
+        pricingPreview: { subtotal, shipping, total: subtotal + shipping }
+      });
+
+      state.cart = [];
+      saveCart();
+      form.reset();
+      const paymentText =
+        order.status === "waiting_payment"
+          ? " Hệ thống sẽ hiển thị QR sau khi kết nối backend thanh toán."
+          : " Chúng tôi sẽ gọi xác nhận trước khi giao.";
+      message.innerHTML = `<strong>Đặt hàng thành công: ${order.id}</strong>${paymentText}`;
+      button.textContent = "Đã tạo đơn hàng";
+      setTimeout(closeCheckout, 4200);
+    } catch (error) {
+      message.textContent = error.message || "Có lỗi xảy ra. Vui lòng thử lại.";
+      button.disabled = false;
+      button.textContent = "Xác nhận đặt hàng";
+    }
+  }
+
+  function bindEvents() {
+    document.addEventListener("click", (event) => {
+      const add = event.target.closest("[data-add]");
+      const quantity = event.target.closest("[data-quantity]");
+      const remove = event.target.closest("[data-remove]");
+      if (add) addToCart(add.dataset.add);
+      if (quantity) updateQuantity(quantity.dataset.quantity, Number(quantity.dataset.delta));
+      if (remove) {
+        state.cart = state.cart.filter((item) => item.id !== remove.dataset.remove);
+        saveCart();
+      }
+    });
+
+    $$("[data-feature-quantity]").forEach((button) =>
+      button.addEventListener("click", () => {
+        state.featuredQuantity = Math.max(
+          1,
+          Math.min(20, state.featuredQuantity + Number(button.dataset.featureQuantity))
+        );
+        renderFeaturedProduct();
+      })
+    );
+
+    $(".featured-buy").addEventListener("click", () => {
+      addToCart(state.products[0].id, state.featuredQuantity);
+      state.featuredQuantity = 1;
+      renderFeaturedProduct();
+    });
+
+    $(".featured-buy-now").addEventListener("click", () => {
+      addToCart(state.products[0].id, state.featuredQuantity);
+      state.featuredQuantity = 1;
+      renderFeaturedProduct();
+      openCart();
+    });
+
+    $(".cart-button").addEventListener("click", openCart);
+    $(".close-drawer").addEventListener("click", closeCart);
+    $(".drawer-backdrop").addEventListener("click", closeCart);
+    $(".checkout-button").addEventListener("click", openCheckout);
+    $(".close-checkout").addEventListener("click", closeCheckout);
+    $(".modal-backdrop").addEventListener("click", (event) => {
+      if (event.target === event.currentTarget) closeCheckout();
+    });
+    $("#checkout-form").addEventListener("submit", submitOrder);
+    $(".announcement button").addEventListener("click", () => $(".announcement").remove());
+
+    $(".menu-button").addEventListener("click", (event) => {
+      const expanded = event.currentTarget.getAttribute("aria-expanded") === "true";
+      event.currentTarget.setAttribute("aria-expanded", String(!expanded));
+      $(".mobile-nav").classList.toggle("open", !expanded);
+    });
+    $$(".mobile-nav a").forEach((link) =>
+      link.addEventListener("click", () => {
+        $(".mobile-nav").classList.remove("open");
+        $(".menu-button").setAttribute("aria-expanded", "false");
+      })
+    );
+
+    $("#newsletter-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const input = $("#newsletter-email");
+      await window.DoareAPI.subscribe(input.value);
+      input.value = "";
+      showToast("Cảm ơn bạn đã đăng ký nhận tin.");
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeCart();
+        closeCheckout();
+      }
+    });
+  }
+
+  async function init() {
+    state.products = await window.DoareAPI.getProducts();
+    const validIds = new Set(state.products.map((product) => product.id));
+    state.cart = state.cart.filter((item) => validIds.has(item.id));
+    localStorage.setItem("doare_cart", JSON.stringify(state.cart));
+    renderFeaturedProduct();
+    renderCart();
+    bindEvents();
+  }
+
+  init();
+})();
