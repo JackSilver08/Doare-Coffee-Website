@@ -482,7 +482,7 @@ async function createContactMessage(request, env) {
     ).bind(id).run();
   }
 
-  return json({ success: true, id, emailSent }, 201);
+  return json({ success: true, id, emailSent, delivery: emailSent ? "accepted" : "stored" }, 201);
 }
 
 async function getAdminDashboard(env) {

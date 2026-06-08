@@ -319,11 +319,11 @@
         });
         form.reset();
         status.textContent = result.emailSent
-          ? "Lời nhắn đã được gửi. Doare sẽ phản hồi bạn sớm."
+          ? "Lời nhắn đã được chuyển đến hệ thống tiếp nhận. Doare sẽ phản hồi bạn sớm."
           : "Lời nhắn đã được lưu. Hệ thống email đang chờ kích hoạt.";
         showToast(
           result.emailSent
-            ? "Email liên hệ đã được gửi đến Doare Coffee."
+            ? "Lời nhắn đã được chuyển đến Doare Coffee."
             : "Đã lưu lời nhắn, nhưng email chưa được gửi."
         );
       } catch (error) {
