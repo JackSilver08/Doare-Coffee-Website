@@ -3,7 +3,8 @@
     products: [],
     posts: [],
     cart: JSON.parse(localStorage.getItem("doare_cart") || "[]"),
-    featuredQuantity: 1
+    featuredQuantity: 1,
+    currentProductIndex: 0
   };
 
   const money = new Intl.NumberFormat("vi-VN", {
@@ -44,21 +45,81 @@
     return cartDetails().reduce((sum, item) => sum + item.price * item.quantity, 0);
   }
 
+  function getCurrentProduct() {
+    return state.products[state.currentProductIndex] || state.products[0];
+  }
+
   function renderFeaturedProduct() {
-    const product = state.products[0];
+    const product = getCurrentProduct();
     if (!product) return;
+
+    /* Main image with animation */
+    const mainImage = $(".single-product-image");
+    mainImage.classList.add("product-image-exit");
+    setTimeout(() => {
+      mainImage.src = product.image;
+      mainImage.alt = product.name;
+      mainImage.classList.remove("product-image-exit");
+      mainImage.classList.add("product-image-enter");
+      setTimeout(() => mainImage.classList.remove("product-image-enter"), 350);
+    }, 180);
+
+    /* Price & quantity */
     $("#featured-price").textContent = formatMoney(product.price);
     $("#featured-quantity").textContent = state.featuredQuantity;
-    const gallery = product.gallery?.length
-      ? product.gallery
-      : [{ image_url: product.image, alt_text: product.name }];
-    const mainImage = $(".single-product-image");
-    mainImage.src = gallery[0].image_url;
-    mainImage.alt = gallery[0].alt_text || product.name;
-    $("#product-thumbnails").innerHTML = gallery.map((image, index) => `
-      <button type="button" class="${index === 0 ? "active" : ""}" data-gallery-image="${escapeHtml(image.image_url)}" data-gallery-alt="${escapeHtml(image.alt_text || product.name)}">
-        <img src="${escapeHtml(image.image_url)}" alt="" />
+
+    /* Heading & description */
+    const heading = $("#product-heading");
+    if (heading) {
+      heading.innerHTML = `${escapeHtml(product.name)}<br /><em>${escapeHtml(product.subtitle)}</em>`;
+    }
+    const lead = $("#product-lead");
+    if (lead) {
+      lead.textContent = `${product.name} – ${product.subtitle}. Mức rang: ${product.roast}. Khối lượng: ${product.weight}.`;
+    }
+
+    /* Flavor notes */
+    const notes = product.notes || ["Thơm đậm", "Cân bằng", "Hậu vị êm"];
+    const flavorProfile = $("#flavor-profile");
+    if (flavorProfile) {
+      flavorProfile.innerHTML = notes.map((note, i) =>
+        `<div><span>0${i + 1}</span><strong>${escapeHtml(note)}</strong><small>${escapeHtml(product.roast)}</small></div>`
+      ).join("");
+    }
+
+    /* Floating notes */
+    const aromaText = $("#note-aroma-text");
+    const finishText = $("#note-finish-text");
+    if (aromaText) aromaText.textContent = notes[0] || "Đậm đà";
+    if (finishText) finishText.textContent = notes[notes.length - 1] || "Êm dịu";
+
+    /* Specs */
+    const specs = $("#product-specs");
+    if (specs) {
+      specs.innerHTML = `
+        <div><span>Loại</span><strong>Cà phê xay</strong></div>
+        <div><span>Khối lượng</span><strong>${escapeHtml(product.weight)}</strong></div>
+        <div><span>Mức rang</span><strong>${escapeHtml(product.roast)}</strong></div>`;
+    }
+
+    /* Carousel strip */
+    renderCarouselStrip();
+  }
+
+  function renderCarouselStrip() {
+    const strip = $("#product-carousel-strip");
+    if (!strip) return;
+    strip.innerHTML = state.products.map((p, i) => `
+      <button type="button" class="carousel-thumb${i === state.currentProductIndex ? " active" : ""}" data-product-index="${i}" aria-label="${escapeHtml(p.name)}">
+        <img src="${escapeHtml(p.image)}" alt="" />
       </button>`).join("");
+  }
+
+  function switchProduct(index) {
+    if (state.products.length === 0) return;
+    state.currentProductIndex = ((index % state.products.length) + state.products.length) % state.products.length;
+    state.featuredQuantity = 1;
+    renderFeaturedProduct();
   }
 
   function renderPosts() {
@@ -237,18 +298,24 @@
       const add = event.target.closest("[data-add]");
       const quantity = event.target.closest("[data-quantity]");
       const remove = event.target.closest("[data-remove]");
-      const galleryImage = event.target.closest("[data-gallery-image]");
+      const carouselThumb = event.target.closest("[data-product-index]");
       if (add) addToCart(add.dataset.add);
       if (quantity) updateQuantity(quantity.dataset.quantity, Number(quantity.dataset.delta));
       if (remove) {
         state.cart = state.cart.filter((item) => item.id !== remove.dataset.remove);
         saveCart();
       }
-      if (galleryImage) {
-        $(".single-product-image").src = galleryImage.dataset.galleryImage;
-        $(".single-product-image").alt = galleryImage.dataset.galleryAlt;
-        $$("[data-gallery-image]").forEach((button) => button.classList.toggle("active", button === galleryImage));
+      if (carouselThumb) {
+        switchProduct(Number(carouselThumb.dataset.productIndex));
       }
+    });
+
+    /* Product navigation arrows */
+    $("#product-prev")?.addEventListener("click", () => {
+      switchProduct(state.currentProductIndex - 1);
+    });
+    $("#product-next")?.addEventListener("click", () => {
+      switchProduct(state.currentProductIndex + 1);
     });
 
     $$("[data-feature-quantity]").forEach((button) =>
@@ -257,21 +324,27 @@
           1,
           Math.min(20, state.featuredQuantity + Number(button.dataset.featureQuantity))
         );
-        renderFeaturedProduct();
+        $("#featured-quantity").textContent = state.featuredQuantity;
       })
     );
 
     $(".featured-buy").addEventListener("click", () => {
-      addToCart(state.products[0].id, state.featuredQuantity);
-      state.featuredQuantity = 1;
-      renderFeaturedProduct();
+      const product = getCurrentProduct();
+      if (product) {
+        addToCart(product.id, state.featuredQuantity);
+        state.featuredQuantity = 1;
+        renderFeaturedProduct();
+      }
     });
 
     $(".featured-buy-now").addEventListener("click", () => {
-      addToCart(state.products[0].id, state.featuredQuantity);
-      state.featuredQuantity = 1;
-      renderFeaturedProduct();
-      openCart();
+      const product = getCurrentProduct();
+      if (product) {
+        addToCart(product.id, state.featuredQuantity);
+        state.featuredQuantity = 1;
+        renderFeaturedProduct();
+        openCart();
+      }
     });
 
     $(".cart-button").addEventListener("click", openCart);
@@ -385,6 +458,7 @@
     const validIds = new Set(state.products.map((product) => product.id));
     state.cart = state.cart.filter((item) => validIds.has(item.id));
     localStorage.setItem("doare_cart", JSON.stringify(state.cart));
+    state.currentProductIndex = 0;
     renderFeaturedProduct();
     renderPosts();
     renderCart();

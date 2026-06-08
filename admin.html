@@ -77,27 +77,38 @@
 
       <section class="view" id="products-view">
         <div class="panel">
-          <div class="panel-heading"><div><p>SẢN PHẨM CHÍNH</p><h2>Thông tin & thư viện ảnh</h2></div></div>
-          <form class="editor-form product-editor" id="product-form">
-            <div class="admin-preview" id="admin-products"></div>
-            <div class="editor-fields">
-              <div class="field-grid">
-                <label>Tên sản phẩm<input name="name" required /></label>
-                <label>Giá bán (VND)<input name="price" type="number" min="1000" required /></label>
-                <label>Mô tả ngắn<input name="subtitle" required /></label>
-                <label>Khối lượng<input name="weight" required /></label>
-                <label>Mức rang<input name="roast" required /></label>
-                <label>Nhãn nổi bật<input name="badge" /></label>
-              </div>
-              <label>Hương vị, cách nhau bằng dấu phẩy<input name="notes" /></label>
-              <label>Danh sách ảnh, mỗi dòng một URL hoặc đường dẫn assets/...
-                <textarea name="images" rows="7" required></textarea>
-              </label>
-              <p class="form-help">Dòng đầu tiên là ảnh chính. Có thể dùng ảnh trong repo như <code>assets/images/products/ten-anh.webp</code> hoặc URL HTTPS.</p>
-              <button class="admin-primary" type="submit">Lưu sản phẩm</button>
-              <span class="save-message" id="product-message" role="status"></span>
+          <div class="panel-heading"><div><p>QUẢN LÝ SẢN PHẨM</p><h2>8 Loại cà phê Dorae</h2></div></div>
+          <div class="admin-product-grid" id="admin-product-grid"></div>
+        </div>
+
+        <div class="admin-modal-backdrop" id="product-edit-modal" hidden>
+          <section class="product-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-product-title">
+            <button class="login-close" id="close-product-edit" type="button" aria-label="Đóng">×</button>
+            <div class="login-heading" style="margin-top:0">
+              <p>CHỈNH SỬA SẢN PHẨM</p>
+              <h2 id="edit-product-title">Chỉnh sửa</h2>
             </div>
-          </form>
+            <form class="editor-form" id="product-edit-form">
+              <input name="editIndex" type="hidden" />
+              <div class="product-edit-preview" id="product-edit-preview"></div>
+              <div class="field-grid">
+                <label>Tên sản phẩm<input name="editName" required /></label>
+                <label>Giá bán (VND)<input name="editPrice" type="number" min="1000" required /></label>
+              </div>
+              <label>Mô tả ngắn<input name="editSubtitle" required /></label>
+              <div class="field-grid">
+                <label>Khối lượng<input name="editWeight" required /></label>
+                <label>Mức rang<input name="editRoast" required /></label>
+              </div>
+              <label>Hương vị (cách nhau bằng dấu phẩy)<input name="editNotes" /></label>
+              <label>Nhãn nổi bật<input name="editBadge" /></label>
+              <label>URL / Đường dẫn ảnh sản phẩm<input name="editImage" required /></label>
+              <div class="editor-actions">
+                <button class="admin-primary" type="submit">Lưu thay đổi</button>
+                <span class="save-message" id="product-edit-message" role="status"></span>
+              </div>
+            </form>
+          </section>
         </div>
       </section>
 

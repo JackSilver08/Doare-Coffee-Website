@@ -125,41 +125,47 @@
         <div class="single-product-orbit orbit-two"></div>
         <div class="container single-product">
           <div class="single-product-stage">
-            <span class="stage-caption">MỘT SẢN PHẨM · MỘT CHẤT LƯỢNG</span>
+            <span class="stage-caption">8 LOẠI CÀ PHÊ · DORAE COFFEE</span>
             <div class="stage-halo"></div>
             <img
               class="single-product-image"
-              src="assets/images/products/doare-pack-02.webp"
+              src="assets/images/products/dorae-nguyen-chat.webp"
               alt="Bịch cà phê xay Dorae Coffee"
             />
-            <div class="product-thumbnails" id="product-thumbnails" aria-label="Thư viện ảnh sản phẩm"></div>
+            <button class="product-nav product-nav-prev" type="button" id="product-prev" aria-label="Sản phẩm trước">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="product-nav product-nav-next" type="button" id="product-next" aria-label="Sản phẩm tiếp theo">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
             <div class="origin-stamp"><strong>100%</strong><span>Cà phê<br />Việt Nam</span></div>
-            <div class="floating-note note-aroma"><span>HƯƠNG</span><strong>Đậm đà</strong></div>
-            <div class="floating-note note-finish"><span>HẬU VỊ</span><strong>Êm dịu</strong></div>
+            <div class="floating-note note-aroma"><span>HƯƠNG</span><strong id="note-aroma-text">Đậm đà</strong></div>
+            <div class="floating-note note-finish"><span>HẬU VỊ</span><strong id="note-finish-text">Êm dịu</strong></div>
+            <div class="product-carousel-strip" id="product-carousel-strip" aria-label="Chọn loại cà phê"></div>
           </div>
 
           <div class="single-product-copy">
-            <p class="eyebrow dark">SẢN PHẨM DUY NHẤT CỦA DORAE</p>
-            <h2>Không cần thật nhiều.<br /><em>Chỉ cần thật ngon.</em></h2>
-            <p class="single-product-lead">
+            <p class="eyebrow dark">BỘ SƯU TẬP DORAE COFFEE</p>
+            <h2 id="product-heading">Không cần thật nhiều.<br /><em>Chỉ cần thật ngon.</em></h2>
+            <p class="single-product-lead" id="product-lead">
               Một bịch cà phê xay được Dorae chăm chút từ lựa chọn hạt, mức rang
               đến độ xay, để bạn dễ dàng pha một tách thơm ngon mỗi ngày.
             </p>
 
-            <div class="flavor-profile" aria-label="Đặc tính hương vị">
+            <div class="flavor-profile" aria-label="Đặc tính hương vị" id="flavor-profile">
               <div><span>01</span><strong>Hương thơm</strong><small>Cà phê rang mới</small></div>
               <div><span>02</span><strong>Vị cân bằng</strong><small>Đậm vừa, dễ uống</small></div>
               <div><span>03</span><strong>Hậu vị</strong><small>Êm và lưu hương</small></div>
             </div>
 
-            <div class="product-specs">
+            <div class="product-specs" id="product-specs">
               <div><span>Loại</span><strong>Cà phê xay</strong></div>
               <div><span>Khối lượng</span><strong>250g</strong></div>
               <div><span>Phù hợp</span><strong>Phin · Máy · Pha lọc</strong></div>
             </div>
 
             <div class="single-product-purchase">
-              <div class="single-price"><span>Giá bán</span><strong id="featured-price">185.000đ</strong></div>
+              <div class="single-price"><span>Giá bán</span><strong id="featured-price">219.000đ</strong></div>
               <div class="featured-quantity" aria-label="Chọn số lượng">
                 <button type="button" data-feature-quantity="-1" aria-label="Giảm số lượng">−</button>
                 <span id="featured-quantity">1</span>

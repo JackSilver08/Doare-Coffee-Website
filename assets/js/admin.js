@@ -10,7 +10,8 @@
     customers: [],
     products: window.DOARE_CATALOG || [],
     posts: [],
-    dashboard: null
+    dashboard: null,
+    editingProductIndex: -1
   };
   const titles = {
     dashboard: "Tổng quan",
@@ -77,35 +78,101 @@
     </tr>`;
   }
 
-  function renderProduct() {
-    const product = state.products[0];
-    if (!product) return;
-    const gallery = product.gallery?.length
-      ? product.gallery
-      : [{ image_url: product.image, alt_text: product.name }];
-    $("#admin-products").innerHTML = `
-      <article class="admin-product">
+  function renderProductGrid() {
+    const grid = $("#admin-product-grid");
+    if (!grid) return;
+    grid.innerHTML = state.products.map((product, index) => `
+      <article class="admin-product-card" data-edit-product="${index}">
         <div class="admin-product-visual" style="--accent:${escapeHtml(product.accent)}">
-          <img class="admin-packshot" src="${escapeHtml(gallery[0].image_url)}" alt="" />
+          <img class="admin-packshot" src="${escapeHtml(product.image)}" alt="" />
         </div>
         <div class="admin-product-info">
-          <h3>${escapeHtml(product.name)}</h3><p>${escapeHtml(product.subtitle)}</p>
-          <div><strong>${formatMoney(product.price)}</strong><span>${escapeHtml(product.weight)}</span></div>
+          <h3>${escapeHtml(product.name)}</h3>
+          <p>${escapeHtml(product.subtitle)}</p>
+          <div class="admin-product-meta">
+            <strong>${formatMoney(product.price)}</strong>
+            <span>${escapeHtml(product.weight)} · ${escapeHtml(product.roast)}</span>
+          </div>
+          ${product.badge ? `<span class="admin-badge">${escapeHtml(product.badge)}</span>` : ""}
+          <button class="admin-edit-btn" type="button" data-edit-product="${index}">Chỉnh sửa</button>
         </div>
-      </article>
-      <div class="admin-gallery">${gallery.map((image) => `
-        <img src="${escapeHtml(image.image_url)}" alt="${escapeHtml(image.alt_text || product.name)}" />`).join("")}
-      </div>`;
+      </article>`).join("");
+  }
 
-    const form = $("#product-form");
-    form.elements.name.value = product.name;
-    form.elements.price.value = product.price;
-    form.elements.subtitle.value = product.subtitle;
-    form.elements.weight.value = product.weight;
-    form.elements.roast.value = product.roast;
-    form.elements.badge.value = product.badge || "";
-    form.elements.notes.value = (product.notes || []).join(", ");
-    form.elements.images.value = gallery.map((image) => image.image_url).join("\n");
+  function openProductEdit(index) {
+    const product = state.products[index];
+    if (!product) return;
+    state.editingProductIndex = index;
+    const form = $("#product-edit-form");
+    form.elements.editIndex.value = index;
+    form.elements.editName.value = product.name;
+    form.elements.editPrice.value = product.price;
+    form.elements.editSubtitle.value = product.subtitle;
+    form.elements.editWeight.value = product.weight;
+    form.elements.editRoast.value = product.roast;
+    form.elements.editNotes.value = (product.notes || []).join(", ");
+    form.elements.editBadge.value = product.badge || "";
+    form.elements.editImage.value = product.image;
+    $("#edit-product-title").textContent = product.name;
+    $("#product-edit-preview").innerHTML = `
+      <div class="admin-product-visual" style="--accent:${escapeHtml(product.accent)}">
+        <img class="admin-packshot" src="${escapeHtml(product.image)}" alt="" />
+      </div>`;
+    $("#product-edit-message").textContent = "";
+    $("#product-edit-modal").hidden = false;
+    document.body.classList.add("modal-open");
+  }
+
+  function closeProductEdit() {
+    $("#product-edit-modal").hidden = true;
+    document.body.classList.remove("modal-open");
+    state.editingProductIndex = -1;
+  }
+
+  async function saveProductEdit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const index = Number(form.elements.editIndex.value);
+    const product = state.products[index];
+    if (!product) return;
+    const message = $("#product-edit-message");
+
+    const updatedProduct = {
+      ...product,
+      name: form.elements.editName.value.trim(),
+      price: Number(form.elements.editPrice.value),
+      subtitle: form.elements.editSubtitle.value.trim(),
+      weight: form.elements.editWeight.value.trim(),
+      roast: form.elements.editRoast.value.trim(),
+      notes: form.elements.editNotes.value.split(",").map(s => s.trim()).filter(Boolean),
+      badge: form.elements.editBadge.value.trim(),
+      image: form.elements.editImage.value.trim()
+    };
+
+    if (state.token && window.DOARE_CONFIG.API_BASE_URL) {
+      try {
+        message.textContent = "Đang lưu...";
+        const result = await adminRequest(`/api/admin/products/${product.id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            ...updatedProduct,
+            images: [updatedProduct.image]
+          })
+        });
+        state.products[index] = result.product || updatedProduct;
+        renderProductGrid();
+        message.textContent = "Đã lưu và cập nhật storefront.";
+        setTimeout(closeProductEdit, 1200);
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    } else {
+      /* Demo mode: save to local catalog */
+      state.products[index] = updatedProduct;
+      renderProductGrid();
+      message.textContent = "Đã cập nhật (chế độ demo).";
+      setTimeout(closeProductEdit, 1200);
+    }
   }
 
   function renderPosts() {
@@ -134,7 +201,7 @@
     $("#dashboard-empty").hidden = state.orders.length > 0;
     $("#orders-empty").hidden = state.orders.length > 0;
     $("#customers-empty").hidden = state.customers.length > 0;
-    renderProduct();
+    renderProductGrid();
     renderPosts();
   }
 
@@ -342,36 +409,6 @@
       <h1>${title}</h1>${window.DoareMarkdown.render(form.elements.markdown.value)}`;
   }
 
-  async function saveProduct(event) {
-    event.preventDefault();
-    if (!requireLogin()) return;
-    const product = state.products[0];
-    const data = Object.fromEntries(new FormData(event.currentTarget));
-    const message = $("#product-message");
-    try {
-      message.textContent = "Đang lưu...";
-      const result = await adminRequest(`/api/admin/products/${product.id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          ...product,
-          name: data.name,
-          price: Number(data.price),
-          subtitle: data.subtitle,
-          weight: data.weight,
-          roast: data.roast,
-          badge: data.badge,
-          notes: data.notes.split(",").map((item) => item.trim()).filter(Boolean),
-          images: data.images.split("\n").map((item) => item.trim()).filter(Boolean)
-        })
-      });
-      state.products = [result.product];
-      renderProduct();
-      message.textContent = "Đã lưu và cập nhật storefront.";
-    } catch (error) {
-      message.textContent = error.message;
-    }
-  }
-
   async function savePost(event) {
     event.preventDefault();
     if (!requireLogin()) return;
@@ -439,7 +476,19 @@
     event.currentTarget.textContent = showing ? "Hiện" : "Ẩn";
   });
   $("#export-orders").addEventListener("click", exportOrders);
-  $("#product-form").addEventListener("submit", saveProduct);
+
+  /* Product editing events */
+  $("#admin-product-grid").addEventListener("click", (event) => {
+    const editBtn = event.target.closest("[data-edit-product]");
+    if (editBtn) openProductEdit(Number(editBtn.dataset.editProduct));
+  });
+  $("#product-edit-form").addEventListener("submit", saveProductEdit);
+  $("#close-product-edit").addEventListener("click", closeProductEdit);
+  $("#product-edit-modal").addEventListener("click", (event) => {
+    if (event.target === event.currentTarget) closeProductEdit();
+  });
+
+  /* Post editing events */
   $("#post-form").addEventListener("submit", savePost);
   $("#delete-post").addEventListener("click", deletePost);
   $("#new-post").addEventListener("click", () => selectPost(null));
@@ -457,7 +506,10 @@
     updateMarkdownPreview();
   });
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !$("#login-modal").hidden) closeLoginModal();
+    if (event.key === "Escape") {
+      if (!$("#product-edit-modal").hidden) closeProductEdit();
+      else if (!$("#login-modal").hidden) closeLoginModal();
+    }
   });
 
   render();
