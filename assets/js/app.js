@@ -298,12 +298,41 @@
       })
     );
 
-    $("#newsletter-form").addEventListener("submit", async (event) => {
+    $("#contact-form").addEventListener("submit", async (event) => {
       event.preventDefault();
-      const input = $("#newsletter-email");
-      await window.DoareAPI.subscribe(input.value);
-      input.value = "";
-      showToast("Cảm ơn bạn đã đăng ký nhận tin.");
+      const form = event.currentTarget;
+      const button = $(".contact-submit", form);
+      const status = $(".contact-form-status", form);
+      const data = Object.fromEntries(new FormData(form));
+
+      button.disabled = true;
+      button.firstChild.textContent = "Đang gửi... ";
+      status.textContent = "";
+      status.classList.remove("is-error");
+
+      try {
+        const result = await window.DoareAPI.sendContact({
+          name: data.name.trim(),
+          phone: data.phone.trim(),
+          email: data.email.trim(),
+          message: data.message.trim()
+        });
+        form.reset();
+        status.textContent = result.emailSent
+          ? "Lời nhắn đã được gửi. Doare sẽ phản hồi bạn sớm."
+          : "Lời nhắn đã được lưu. Hệ thống email đang chờ kích hoạt.";
+        showToast(
+          result.emailSent
+            ? "Email liên hệ đã được gửi đến Doare Coffee."
+            : "Đã lưu lời nhắn, nhưng email chưa được gửi."
+        );
+      } catch (error) {
+        status.textContent = error.message || "Chưa thể gửi lời nhắn. Vui lòng thử lại.";
+        status.classList.add("is-error");
+      } finally {
+        button.disabled = false;
+        button.firstChild.textContent = "Gửi lời nhắn ";
+      }
     });
 
     document.addEventListener("keydown", (event) => {

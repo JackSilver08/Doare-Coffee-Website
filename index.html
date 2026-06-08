@@ -235,42 +235,72 @@
       </section>
 
       <section class="contact-section reveal-section" id="contact" data-reveal>
-        <div class="container contact-grid">
+        <div class="container contact-layout">
           <div class="contact-copy">
             <p class="eyebrow">KẾT NỐI VỚI DOARE</p>
-            <h2>Một lời chào,<br />một cuộc trò chuyện.</h2>
-            <p>Bạn cần tư vấn sản phẩm, đơn hàng hoặc muốn hợp tác cùng Doare? Hãy để lại lời nhắn hoặc liên hệ trực tiếp với chúng tôi.</p>
+            <h2>Một lời chào,<br />mở đầu câu chuyện.</h2>
+            <p>Bạn cần tư vấn sản phẩm, đơn hàng hoặc muốn hợp tác cùng Doare? Hãy để lại lời nhắn, chúng tôi sẽ phản hồi sớm nhất có thể.</p>
             <div class="contact-details">
-              <a href="mailto:hello@doare.coffee"><span>Email</span><strong>hello@doare.coffee</strong></a>
-              <a href="tel:0900000000"><span>Điện thoại</span><strong>0900 000 000</strong></a>
-              <div><span>Khu vực</span><strong>Đồng Nai, Việt Nam</strong></div>
+              <a href="mailto:huyntttb01626@gmail.com"><span>Email</span><strong>huyntttb01626@gmail.com</strong></a>
+              <a href="tel:0902061241"><span>Điện thoại</span><strong>0902 061 241</strong></a>
+              <div><span>Địa điểm</span><strong>Ga Biên Hòa, Đồng Nai</strong></div>
             </div>
           </div>
-          <form class="contact-card" id="newsletter-form">
-            <p>NHẬN TIN TỪ DOARE</p>
-            <h3>Đừng bỏ lỡ câu chuyện mới.</h3>
-            <label for="newsletter-email">Email của bạn</label>
-            <div>
-              <input id="newsletter-email" name="email" type="email" placeholder="hello@example.com" required />
-              <button type="submit" aria-label="Đăng ký nhận tin">→</button>
+
+          <form class="contact-card" id="contact-form">
+            <p>GỬI LỜI NHẮN</p>
+            <h3>Chúng tôi đang lắng nghe.</h3>
+            <div class="contact-form-grid">
+              <label>Họ và tên<input name="name" autocomplete="name" required /></label>
+              <label>Số điện thoại<input name="phone" inputmode="tel" autocomplete="tel" /></label>
             </div>
-            <small>Nhận hướng dẫn pha và ưu đãi mới. Không gửi thư rác.</small>
+            <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+            <label>Nội dung<textarea name="message" rows="4" placeholder="Bạn muốn Doare hỗ trợ điều gì?" required></textarea></label>
+            <button class="button contact-submit" type="submit">Gửi lời nhắn <span>↗</span></button>
+            <p class="contact-form-status" role="status" aria-live="polite"></p>
           </form>
+
+          <div class="contact-map">
+            <div class="map-caption">
+              <span>GHÉ THĂM DOARE</span>
+              <strong>Ga Biên Hòa, Đồng Nai</strong>
+            </div>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5280.047322199055!2d106.82347116875114!3d10.95016220394869!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174deaed5c6fdbd%3A0x4d95f8f7767c8d5a!2zR2EgQmnDqm4gSMOyYQ!5e1!3m2!1svi!2s!4v1780923948833!5m2!1svi!2s"
+              title="Bản đồ Ga Biên Hòa"
+              loading="lazy"
+              allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
         </div>
       </section>
     </main>
 
     <footer>
-      <div class="container footer-grid">
-        <div>
-          <a class="brand footer-brand" href="#"><img class="brand-logo" src="assets/images/brand-logo.png" alt="" /><span>DOARE<small>COFFEE ROASTERS</small></span></a>
-          <p>Cà phê gần gũi cho nhịp sống thật,<br />bắt đầu từ Đồng Nai.</p>
+      <div class="container footer-main">
+        <div class="footer-identity">
+          <a class="footer-logo-card" href="#" aria-label="Doare Coffee - Trang chủ">
+            <img src="assets/images/brand-logo.png" alt="Doare Coffee" />
+          </a>
+          <div>
+            <strong>DOARE COFFEE</strong>
+            <p>Cà phê gần gũi cho nhịp sống thật, bắt đầu từ Đồng Nai.</p>
+          </div>
         </div>
-        <div><strong>Mua hàng</strong><a href="#products">Cà phê xay Doare</a><a href="#process">Hướng dẫn pha</a><a href="#">Chính sách giao hàng</a></div>
-        <div><strong>Hỗ trợ</strong><a href="#">Chính sách giao hàng</a><a href="#">Đổi trả & hoàn tiền</a><a href="#">Bảo mật thông tin</a></div>
-        <div><strong>Liên hệ</strong><p>hello@doare.coffee</p><p>0900 000 000</p><p>Đồng Nai, Việt Nam</p></div>
+        <nav class="footer-nav" aria-label="Liên kết cuối trang">
+          <a href="#story">Câu chuyện</a>
+          <a href="#process">Trải nghiệm</a>
+          <a href="#products">Sản phẩm</a>
+          <a href="#journal">Tin tức</a>
+        </nav>
+        <div class="footer-contact">
+          <span>LIÊN HỆ</span>
+          <a href="tel:0902061241">0902 061 241</a>
+          <a href="mailto:huyntttb01626@gmail.com">huyntttb01626@gmail.com</a>
+        </div>
       </div>
-      <div class="container footer-bottom"><span>© 2026 Doare Coffee.</span><span>Facebook · Instagram · TikTok</span></div>
+      <div class="container footer-bottom"><span>© 2026 Doare Coffee.</span><span>doraecoffee.io.vn · Đồng Nai, Việt Nam</span></div>
     </footer>
 
     <div class="drawer-backdrop" hidden></div>

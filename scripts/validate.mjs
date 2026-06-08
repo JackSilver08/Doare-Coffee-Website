@@ -26,7 +26,7 @@ for (const file of ["assets/js/config.js", "assets/js/catalog.js", "assets/js/ap
 
 const index = await readFile("index.html", "utf8");
 const admin = await readFile("admin.html", "utf8");
-for (const id of ["featured-price", "featured-quantity", "cart-items", "checkout-form", "newsletter-form"]) {
+for (const id of ["featured-price", "featured-quantity", "cart-items", "checkout-form", "contact-form"]) {
   if (!index.includes(`id="${id}"`)) throw new Error(`Thiếu phần tử #${id}`);
 }
 if (!admin.includes('id="dashboard-view"')) throw new Error("Thiếu dashboard admin");

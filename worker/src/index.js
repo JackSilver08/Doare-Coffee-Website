@@ -59,6 +59,19 @@ function makeCustomerId() {
   return `CU${crypto.randomUUID().replaceAll("-", "").slice(0, 12).toUpperCase()}`;
 }
 
+function makeContactId() {
+  return `CT${crypto.randomUUID().replaceAll("-", "").slice(0, 14).toUpperCase()}`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function bytesToHex(bytes) {
   return [...new Uint8Array(bytes)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
@@ -380,6 +393,69 @@ async function subscribe(request, env) {
   return json({ success: true }, 201);
 }
 
+async function createContactMessage(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const contact = {
+    name: cleanText(body.name, 100),
+    phone: cleanText(body.phone, 20),
+    email: cleanText(body.email, 160).toLowerCase(),
+    message: cleanText(body.message, 3000)
+  };
+  if (
+    !contact.name ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email) ||
+    contact.message.length < 10
+  ) {
+    return json({ message: "Vui lòng nhập đủ họ tên, email và nội dung lời nhắn." }, 400);
+  }
+
+  const id = makeContactId();
+  await env.DB.prepare(
+    `INSERT INTO contact_messages (id, name, phone, email, message)
+     VALUES (?, ?, ?, ?, ?)`
+  ).bind(id, contact.name, contact.phone, contact.email, contact.message).run();
+
+  let emailSent = false;
+  if (env.EMAIL) {
+    const destination = cleanText(env.CONTACT_EMAIL, 160) || "huyntttb01626@gmail.com";
+    const fromEmail = cleanText(env.CONTACT_FROM_EMAIL, 160) || "contact@doraecoffee.io.vn";
+    const safeMessage = escapeHtml(contact.message).replaceAll("\n", "<br />");
+    try {
+      await env.EMAIL.send({
+        to: destination,
+        from: { email: fromEmail, name: "Doare Coffee Website" },
+        replyTo: contact.email,
+        subject: `[Doare Coffee] Lời nhắn mới từ ${contact.name}`,
+        text: [
+          `Mã lời nhắn: ${id}`,
+          `Họ tên: ${contact.name}`,
+          `Email: ${contact.email}`,
+          `Điện thoại: ${contact.phone || "Không cung cấp"}`,
+          "",
+          contact.message
+        ].join("\n"),
+        html: `
+          <h2>Lời nhắn mới từ website Doare Coffee</h2>
+          <p><strong>Mã:</strong> ${id}</p>
+          <p><strong>Họ tên:</strong> ${escapeHtml(contact.name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(contact.email)}</p>
+          <p><strong>Điện thoại:</strong> ${escapeHtml(contact.phone || "Không cung cấp")}</p>
+          <hr />
+          <p>${safeMessage}</p>
+        `
+      });
+      emailSent = true;
+      await env.DB.prepare(
+        "UPDATE contact_messages SET email_sent = 1 WHERE id = ?"
+      ).bind(id).run();
+    } catch (error) {
+      console.error("Contact email failed", error);
+    }
+  }
+
+  return json({ success: true, id, emailSent }, 201);
+}
+
 async function getAdminDashboard(env) {
   const [orders, customers, revenue, waiting] = await env.DB.batch([
     env.DB.prepare("SELECT COUNT(*) AS value FROM orders"),
@@ -496,6 +572,11 @@ export default {
       }
       if (request.method === "POST" && url.pathname === "/api/subscribers") {
         const response = await subscribe(request, env);
+        Object.entries(cors).forEach(([key, value]) => response.headers.set(key, value));
+        return response;
+      }
+      if (request.method === "POST" && url.pathname === "/api/contact") {
+        const response = await createContactMessage(request, env);
         Object.entries(cors).forEach(([key, value]) => response.headers.set(key, value));
         return response;
       }

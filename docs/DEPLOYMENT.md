@@ -23,6 +23,19 @@ The files use relative URLs and include `.nojekyll`, so the storefront can also 
 
 Each push to `main` will deploy the static site automatically.
 
+For the current production domain:
+
+1. Add `doraecoffee.io.vn` to Cloudflare as a zone.
+2. At the domain registrar, replace the current nameservers with the two
+   nameservers assigned by Cloudflare.
+3. In Workers & Pages, open the `doare-coffee` Pages project.
+4. Open Custom domains, select Set up a domain, and add `doraecoffee.io.vn`.
+5. Add `www.doraecoffee.io.vn` as a second custom domain, then redirect it to
+   `https://doraecoffee.io.vn` with a Cloudflare Redirect Rule.
+
+Use `doraecoffee.io.vn` for the storefront. Do not attach the apex domain to the
+`doare-coffee-api` Worker, because that Worker only serves the JSON API.
+
 ## 3. Create D1 and deploy the Worker
 
 Install Worker dependencies:
@@ -78,7 +91,31 @@ Commit and push. Confirm a real order appears in D1:
 npx wrangler d1 execute doare-coffee --remote --command "SELECT * FROM orders ORDER BY created_at DESC LIMIT 5"
 ```
 
-## 5. Required production configuration
+## 5. Enable contact email delivery
+
+Contact messages are always stored in the D1 `contact_messages` table. To also
+send each message to `huyntttb01626@gmail.com`:
+
+1. In Cloudflare, open **Compute > Email Service > Email Sending**.
+2. Onboard `doraecoffee.io.vn` and finish the DNS verification shown there.
+3. Add this binding to `worker/wrangler.toml`:
+
+```toml
+[[send_email]]
+name = "EMAIL"
+```
+
+4. Deploy the Worker again:
+
+```powershell
+cd worker
+npx wrangler deploy
+```
+
+The sender is `contact@doraecoffee.io.vn`, while replies are directed to the
+email address entered by the visitor.
+
+## 6. Required production configuration
 
 - Replace all placeholder bank, email, phone and address data.
 - Restrict `ALLOWED_ORIGINS` to the production and preview domains.

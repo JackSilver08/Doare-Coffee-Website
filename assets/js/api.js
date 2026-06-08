@@ -78,6 +78,13 @@
         if (error.message !== "MOCK_MODE") throw error;
         return { success: true };
       }
+    },
+
+    async sendContact(payload) {
+      return request("/api/contact", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
     }
   };
 })();
