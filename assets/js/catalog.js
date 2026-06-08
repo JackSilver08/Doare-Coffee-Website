@@ -6,6 +6,7 @@ window.DOARE_CATALOG = [
     category: "ground",
     roast: "Rang vừa",
     notes: ["Thơm nhẹ", "Thanh mát", "Dịu êm"],
+
     price: 219000,
     weight: "250g",
     accent: "#c9e5f2",
