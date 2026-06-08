@@ -29,10 +29,7 @@
         <button type="button" data-view="products">Sản phẩm</button>
         <button type="button" data-view="content">Nội dung</button>
       </nav>
-      <div class="sidebar-note">
-        <strong>Chế độ demo</strong>
-        <p>Dữ liệu đang lưu trong trình duyệt. Production sẽ dùng Cloudflare Access và D1.</p>
-      </div>
+
       <a class="back-link" href="index.html">← Xem cửa hàng</a>
     </aside>
 
@@ -102,7 +99,22 @@
               </div>
               <label>Hương vị (cách nhau bằng dấu phẩy)<input name="editNotes" /></label>
               <label>Nhãn nổi bật<input name="editBadge" /></label>
-              <label>URL / Đường dẫn ảnh sản phẩm<input name="editImage" required /></label>
+              <div class="thumbnail-field">
+                <span class="field-label">Ảnh sản phẩm (nền trong suốt)</span>
+                <input name="editImage" type="hidden" />
+                <label class="thumbnail-uploader" for="product-image-file">
+                  <input id="product-image-file" type="file" accept="image/jpeg,image/png,image/webp" />
+                  <span class="thumbnail-upload-preview" id="product-image-preview">
+                    <strong>Chọn ảnh</strong>
+                    <small>JPEG, PNG hoặc WebP</small>
+                  </span>
+                </label>
+                <div class="thumbnail-actions">
+                  <button id="replace-product-image" type="button">Đổi ảnh</button>
+                  <button id="remove-product-image" type="button">Xóa ảnh</button>
+                </div>
+                <span class="thumbnail-status" id="product-image-status"></span>
+              </div>
               <div class="editor-actions">
                 <button class="admin-primary" type="submit">Lưu thay đổi</button>
                 <span class="save-message" id="product-edit-message" role="status"></span>

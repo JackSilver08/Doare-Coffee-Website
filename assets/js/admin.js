@@ -119,6 +119,8 @@
         <img class="admin-packshot" src="${escapeHtml(product.image)}" alt="" />
       </div>`;
     $("#product-edit-message").textContent = "";
+    $("#product-image-status").textContent = "";
+    renderProductImageUpload(product.image);
     $("#product-edit-modal").hidden = false;
     document.body.classList.add("modal-open");
   }
@@ -380,6 +382,71 @@
     return output;
   }
 
+  function renderProductImageUpload(source) {
+    const preview = $("#product-image-preview");
+    if (!preview) return;
+    const hasImage = Boolean(source);
+    preview.classList.toggle("has-image", hasImage);
+    preview.innerHTML = hasImage
+      ? `<img src="${escapeHtml(source)}" alt="Xem trước ảnh" />`
+      : "<strong>Chọn ảnh</strong><small>JPEG, PNG hoặc WebP</small>";
+    if ($("#replace-product-image")) $("#replace-product-image").hidden = !hasImage;
+    if ($("#remove-product-image")) $("#remove-product-image").hidden = !hasImage;
+  }
+
+  async function makeTransparentThumbnail(file) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      throw new Error("Chỉ hỗ trợ ảnh JPEG, PNG hoặc WebP.");
+    }
+    if (file.size > 12 * 1024 * 1024) throw new Error("Ảnh gốc không được lớn hơn 12MB.");
+    const image = await readImage(file);
+    const side = Math.min(image.naturalWidth, image.naturalHeight);
+    const sourceX = Math.floor((image.naturalWidth - side) / 2);
+    const sourceY = Math.floor((image.naturalHeight - side) / 2);
+    const canvas = document.createElement("canvas");
+    canvas.width = 720;
+    canvas.height = 720;
+    const context = canvas.getContext("2d");
+    context.clearRect(0, 0, 720, 720);
+    context.drawImage(image, sourceX, sourceY, side, side, 0, 0, 720, 720);
+    const output = canvas.toDataURL("image/webp", 0.9);
+    if (output.length > 500000) {
+      return canvas.toDataURL("image/webp", 0.75);
+    }
+    return output;
+  }
+
+  async function selectProductImageFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const status = $("#product-image-status");
+    try {
+      status.textContent = "Đang xử lý ảnh...";
+      const thumbnail = await makeTransparentThumbnail(file);
+      if (thumbnail.length > 550000) throw new Error("Ảnh sau khi nén vẫn quá lớn. Hãy chọn ảnh khác.");
+      $("#product-edit-form").elements.editImage.value = thumbnail;
+      renderProductImageUpload(thumbnail);
+      $("#product-edit-preview").innerHTML = `
+        <div class="admin-product-visual" style="--accent:${escapeHtml(state.products[state.editingProductIndex]?.accent || '#c9e5f2')}">
+          <img class="admin-packshot" src="${escapeHtml(thumbnail)}" alt="" />
+        </div>`;
+      status.textContent = `Đã tạo ảnh sản phẩm · ${Math.round(thumbnail.length * 0.75 / 1024)}KB`;
+    } catch (error) {
+      status.textContent = error.message;
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  function removeProductImage() {
+    $("#product-edit-form").elements.editImage.value = "";
+    $("#product-image-status").textContent = "Đã xóa ảnh sản phẩm.";
+    renderProductImageUpload("");
+    $("#product-edit-preview").innerHTML = `
+        <div class="admin-product-visual" style="--accent:${escapeHtml(state.products[state.editingProductIndex]?.accent || '#c9e5f2')}">
+        </div>`;
+  }
+
   async function selectThumbnailFile(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -493,6 +560,10 @@
   $("#product-edit-modal")?.addEventListener("click", (event) => {
     if (event.target === event.currentTarget) closeProductEdit();
   });
+  
+  $("#product-image-file")?.addEventListener("change", selectProductImageFile);
+  $("#replace-product-image")?.addEventListener("click", () => $("#product-image-file").click());
+  $("#remove-product-image")?.addEventListener("click", removeProductImage);
 
   /* Post editing events */
   $("#post-form")?.addEventListener("submit", savePost);
