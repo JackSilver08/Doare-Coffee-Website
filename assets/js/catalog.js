@@ -1,7 +1,7 @@
 window.DOARE_CATALOG = [
   {
     id: "doare-ground-coffee",
-    name: "Doare Coffee",
+    name: "Dorae Coffee",
     subtitle: "Cà phê xay Việt Nam",
     category: "ground",
     roast: "Rang vừa đậm",

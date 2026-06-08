@@ -19,10 +19,10 @@
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
       const post = data.post;
-      document.title = `${post.title} | Doare Coffee`;
+      document.title = `${post.title} | Dorae Coffee`;
       article.innerHTML = `
         <header class="article-header">
-          <p class="eyebrow dark">NHẬT KÝ DOARE</p>
+          <p class="eyebrow dark">NHẬT KÝ DORAE</p>
           <h1>${escapeHtml(post.title)}</h1>
           <p>${escapeHtml(post.excerpt || "")}</p>
           <time>${new Date(post.published_at || post.created_at).toLocaleDateString("vi-VN")}</time>

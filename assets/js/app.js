@@ -65,7 +65,7 @@
     $("#journal-grid").innerHTML = state.posts.map((post) => `
       <article class="journal-card">
         <a class="journal-image" href="blog.html?slug=${encodeURIComponent(post.slug)}">
-          ${post.thumbnail_url ? `<img src="${escapeHtml(post.thumbnail_url)}" alt="" />` : "<span>DOARE JOURNAL</span>"}
+          ${post.thumbnail_url ? `<img src="${escapeHtml(post.thumbnail_url)}" alt="" />` : "<span>DORAE JOURNAL</span>"}
         </a>
         <div><time>${new Date(post.published_at || post.created_at).toLocaleDateString("vi-VN")}</time>
         <h3><a href="blog.html?slug=${encodeURIComponent(post.slug)}">${escapeHtml(post.title)}</a></h3>
@@ -319,11 +319,11 @@
         });
         form.reset();
         status.textContent = result.emailSent
-          ? "Lời nhắn đã được chuyển đến hệ thống tiếp nhận. Doare sẽ phản hồi bạn sớm."
+          ? "Lời nhắn đã được chuyển đến hệ thống tiếp nhận. Dorae sẽ phản hồi bạn sớm."
           : "Lời nhắn đã được lưu. Hệ thống email đang chờ kích hoạt.";
         showToast(
           result.emailSent
-            ? "Lời nhắn đã được chuyển đến Doare Coffee."
+            ? "Lời nhắn đã được chuyển đến Dorae Coffee."
             : "Đã lưu lời nhắn, nhưng email chưa được gửi."
         );
       } catch (error) {

@@ -1,4 +1,4 @@
-# Cách cập nhật website Doare Coffee
+# Cách cập nhật website Dorae Coffee
 
 ## Cập nhật Frontend
 

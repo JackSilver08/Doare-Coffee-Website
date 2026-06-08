@@ -431,7 +431,7 @@ async function createContactMessage(request, env) {
           email: contact.email,
           message: contact.message,
           submission_id: id,
-          _subject: `[Doare Coffee] Lời nhắn mới từ ${contact.name}`
+          _subject: `[Dorae Coffee] Lời nhắn mới từ ${contact.name}`
         })
       });
       if (!formspreeResponse.ok) {
@@ -449,9 +449,9 @@ async function createContactMessage(request, env) {
     try {
       await env.EMAIL.send({
         to: destination,
-        from: { email: fromEmail, name: "Doare Coffee Website" },
+        from: { email: fromEmail, name: "Dorae Coffee Website" },
         replyTo: contact.email,
-        subject: `[Doare Coffee] Lời nhắn mới từ ${contact.name}`,
+        subject: `[Dorae Coffee] Lời nhắn mới từ ${contact.name}`,
         text: [
           `Mã lời nhắn: ${id}`,
           `Họ tên: ${contact.name}`,
@@ -461,7 +461,7 @@ async function createContactMessage(request, env) {
           contact.message
         ].join("\n"),
         html: `
-          <h2>Lời nhắn mới từ website Doare Coffee</h2>
+          <h2>Lời nhắn mới từ website Dorae Coffee</h2>
           <p><strong>Mã:</strong> ${id}</p>
           <p><strong>Họ tên:</strong> ${escapeHtml(contact.name)}</p>
           <p><strong>Email:</strong> ${escapeHtml(contact.email)}</p>

@@ -205,7 +205,7 @@
     $("#login-modal").hidden = true;
     document.body.classList.remove("modal-open");
     $("#login-form").reset();
-    $("#login-form").elements.email.value = "admindoare.com";
+    $("#login-form").elements.email.value = "admindorae.com";
     $("#login-form").elements.password.type = "password";
     $("#toggle-password").textContent = "Hiện";
     $("#login-error").textContent = "";

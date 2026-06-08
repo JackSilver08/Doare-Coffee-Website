@@ -1,4 +1,4 @@
-# Doare Coffee Website
+# Dorae Coffee Website
 
 Static-first storefront for a real coffee business. The customer-facing site is plain HTML, CSS and JavaScript; dynamic commerce features are provided by a Cloudflare Worker and D1.
 

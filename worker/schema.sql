@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
   password_hash TEXT NOT NULL,
   password_salt TEXT NOT NULL,
   password_iterations INTEGER NOT NULL DEFAULT 100000,
-  display_name TEXT NOT NULL DEFAULT 'Doare Admin',
+  display_name TEXT NOT NULL DEFAULT 'Dorae Admin',
   active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
   last_login_at TEXT,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

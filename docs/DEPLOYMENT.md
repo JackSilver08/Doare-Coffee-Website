@@ -5,7 +5,7 @@
 ```powershell
 git branch -M main
 git add .
-git commit -m "Build Doare Coffee storefront MVP"
+git commit -m "Build Dorae Coffee storefront MVP"
 git remote add origin https://github.com/YOUR_ACCOUNT/YOUR_REPOSITORY.git
 git push -u origin main
 ```
