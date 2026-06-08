@@ -499,7 +499,7 @@
     const button = event.target.closest("[data-post-id]");
     if (button) selectPost(state.posts.find((post) => post.id === button.dataset.postId));
   });
-  $("#post-form").addEventListener("input", (event) => {
+  $("#post-form")?.addEventListener("input", (event) => {
     if (event.target.name === "title" && !event.currentTarget.elements.id.value) {
       event.currentTarget.elements.slug.value = slugify(event.target.value);
     }
