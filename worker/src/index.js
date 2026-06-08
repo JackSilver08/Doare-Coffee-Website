@@ -416,7 +416,33 @@ async function createContactMessage(request, env) {
   ).bind(id, contact.name, contact.phone, contact.email, contact.message).run();
 
   let emailSent = false;
-  if (env.EMAIL) {
+  const formspreeEndpoint = cleanText(env.FORMSPREE_ENDPOINT, 240);
+  if (formspreeEndpoint) {
+    try {
+      const formspreeResponse = await fetch(formspreeEndpoint, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: contact.name,
+          phone: contact.phone,
+          email: contact.email,
+          message: contact.message,
+          submission_id: id,
+          _subject: `[Doare Coffee] Lời nhắn mới từ ${contact.name}`
+        })
+      });
+      if (!formspreeResponse.ok) {
+        const details = await formspreeResponse.text();
+        throw new Error(`Formspree ${formspreeResponse.status}: ${details}`);
+      }
+      emailSent = true;
+    } catch (error) {
+      console.error("Formspree contact email failed", error);
+    }
+  } else if (env.EMAIL) {
     const destination = cleanText(env.CONTACT_EMAIL, 160) || "huyntttb01626@gmail.com";
     const fromEmail = cleanText(env.CONTACT_FROM_EMAIL, 160) || "contact@doraecoffee.io.vn";
     const safeMessage = escapeHtml(contact.message).replaceAll("\n", "<br />");
@@ -445,12 +471,15 @@ async function createContactMessage(request, env) {
         `
       });
       emailSent = true;
-      await env.DB.prepare(
-        "UPDATE contact_messages SET email_sent = 1 WHERE id = ?"
-      ).bind(id).run();
     } catch (error) {
       console.error("Contact email failed", error);
     }
+  }
+
+  if (emailSent) {
+    await env.DB.prepare(
+      "UPDATE contact_messages SET email_sent = 1 WHERE id = ?"
+    ).bind(id).run();
   }
 
   return json({ success: true, id, emailSent }, 201);

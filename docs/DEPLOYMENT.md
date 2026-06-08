@@ -91,29 +91,26 @@ Commit and push. Confirm a real order appears in D1:
 npx wrangler d1 execute doare-coffee --remote --command "SELECT * FROM orders ORDER BY created_at DESC LIMIT 5"
 ```
 
-## 5. Enable contact email delivery
+## 5. Contact email delivery
 
-Contact messages are always stored in the D1 `contact_messages` table. To also
-send each message to `huyntttb01626@gmail.com`:
-
-1. In Cloudflare, open **Compute > Email Service > Email Sending**.
-2. Onboard `doraecoffee.io.vn` and finish the DNS verification shown there.
-3. Add this binding to `worker/wrangler.toml`:
+Contact messages are stored in the D1 `contact_messages` table and forwarded to
+Formspree for delivery to `huyntttb01626@gmail.com`. Configure the endpoint in
+`worker/wrangler.toml`:
 
 ```toml
-[[send_email]]
-name = "EMAIL"
+FORMSPREE_ENDPOINT = "https://formspree.io/f/xaqzolzw"
 ```
 
-4. Deploy the Worker again:
+Deploy the Worker after changing the endpoint:
 
 ```powershell
 cd worker
 npx wrangler deploy
 ```
 
-The sender is `contact@doraecoffee.io.vn`, while replies are directed to the
-email address entered by the visitor.
+The visitor field named `email` becomes the notification email's Reply-To
+address. Cloudflare Email Sending remains an optional fallback if Formspree is
+removed later.
 
 ## 6. Required production configuration
 

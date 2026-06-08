@@ -16,5 +16,6 @@ BANK_ACCOUNT_NO = "REPLACE_WITH_BANK_ACCOUNT"
 BANK_ACCOUNT_NAME = "DOARE COFFEE"
 CONTACT_EMAIL = "huyntttb01626@gmail.com"
 CONTACT_FROM_EMAIL = "contact@doraecoffee.io.vn"
+FORMSPREE_ENDPOINT = "https://formspree.io/f/xaqzolzw"
 # Set ADMIN_API_KEY with `wrangler secret put ADMIN_API_KEY`; never store it here.
-# After onboarding Email Sending, add an EMAIL send_email binding.
+# Cloudflare Email Sending remains an optional fallback when FORMSPREE_ENDPOINT is empty.
