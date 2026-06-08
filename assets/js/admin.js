@@ -463,39 +463,39 @@
 
   $$("[data-view]").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
   $$("[data-go]").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.go)));
-  $("#connect-api").addEventListener("click", connectBackend);
-  $("#login-form").addEventListener("submit", submitLogin);
-  $("#login-close").addEventListener("click", closeLoginModal);
-  $("#login-modal").addEventListener("click", (event) => {
+  $("#connect-api")?.addEventListener("click", connectBackend);
+  $("#login-form")?.addEventListener("submit", submitLogin);
+  $("#login-close")?.addEventListener("click", closeLoginModal);
+  $("#login-modal")?.addEventListener("click", (event) => {
     if (event.target === event.currentTarget) closeLoginModal();
   });
-  $("#toggle-password").addEventListener("click", (event) => {
+  $("#toggle-password")?.addEventListener("click", (event) => {
     const input = $("#login-form").elements.password;
     const showing = input.type === "text";
     input.type = showing ? "password" : "text";
     event.currentTarget.textContent = showing ? "Hiện" : "Ẩn";
   });
-  $("#export-orders").addEventListener("click", exportOrders);
+  $("#export-orders")?.addEventListener("click", exportOrders);
 
   /* Product editing events */
-  $("#admin-product-grid").addEventListener("click", (event) => {
+  $("#admin-product-grid")?.addEventListener("click", (event) => {
     const editBtn = event.target.closest("[data-edit-product]");
     if (editBtn) openProductEdit(Number(editBtn.dataset.editProduct));
   });
-  $("#product-edit-form").addEventListener("submit", saveProductEdit);
-  $("#close-product-edit").addEventListener("click", closeProductEdit);
-  $("#product-edit-modal").addEventListener("click", (event) => {
+  $("#product-edit-form")?.addEventListener("submit", saveProductEdit);
+  $("#close-product-edit")?.addEventListener("click", closeProductEdit);
+  $("#product-edit-modal")?.addEventListener("click", (event) => {
     if (event.target === event.currentTarget) closeProductEdit();
   });
 
   /* Post editing events */
-  $("#post-form").addEventListener("submit", savePost);
-  $("#delete-post").addEventListener("click", deletePost);
-  $("#new-post").addEventListener("click", () => selectPost(null));
-  $("#thumbnail-file").addEventListener("change", selectThumbnailFile);
-  $("#replace-thumbnail").addEventListener("click", () => $("#thumbnail-file").click());
-  $("#remove-thumbnail").addEventListener("click", removeThumbnail);
-  $("#post-list").addEventListener("click", (event) => {
+  $("#post-form")?.addEventListener("submit", savePost);
+  $("#delete-post")?.addEventListener("click", deletePost);
+  $("#new-post")?.addEventListener("click", () => selectPost(null));
+  $("#thumbnail-file")?.addEventListener("change", selectThumbnailFile);
+  $("#replace-thumbnail")?.addEventListener("click", () => $("#thumbnail-file").click());
+  $("#remove-thumbnail")?.addEventListener("click", removeThumbnail);
+  $("#post-list")?.addEventListener("click", (event) => {
     const button = event.target.closest("[data-post-id]");
     if (button) selectPost(state.posts.find((post) => post.id === button.dataset.postId));
   });
