@@ -176,31 +176,37 @@
   }
 
   function renderPosts() {
-    $("#post-list").innerHTML = state.posts.map((post) => `
-      <button type="button" class="post-list-item" data-post-id="${post.id}">
-        ${post.thumbnail_url ? `<img src="${escapeHtml(post.thumbnail_url)}" alt="" />` : "<span>MD</span>"}
-        <div><strong>${escapeHtml(post.title)}</strong><small>${post.status === "published" ? "Đã đăng" : "Bản nháp"}</small></div>
-      </button>`).join("");
-    $("#posts-empty").hidden = state.posts.length > 0;
+    const postList = $("#post-list");
+    if (postList) {
+      postList.innerHTML = state.posts.map((post) => `
+        <button type="button" class="post-list-item" data-post-id="${post.id}">
+          ${post.thumbnail_url ? `<img src="${escapeHtml(post.thumbnail_url)}" alt="" />` : "<span>MD</span>"}
+          <div><strong>${escapeHtml(post.title)}</strong><small>${post.status === "published" ? "Đã đăng" : "Bản nháp"}</small></div>
+        </button>`).join("");
+    }
+    if ($("#posts-empty")) $("#posts-empty").hidden = state.posts.length > 0;
   }
 
   function render() {
     const waiting = state.dashboard?.waitingPayment || 0;
-    $("#revenue-stat").textContent = formatMoney(state.dashboard?.revenue || 0);
-    $("#orders-stat").textContent = state.dashboard?.orders || state.orders.length;
-    $("#payment-stat").textContent = waiting;
-    $("#products-stat").textContent = state.products.length;
-    $("#pending-count").textContent = waiting;
-    $("#recent-orders").innerHTML = state.orders.slice(0, 5).map((order) => orderRow(order)).join("");
-    $("#all-orders").innerHTML = state.orders.map((order) => orderRow(order, true)).join("");
-    $("#all-customers").innerHTML = state.customers.map((customer) => `
+    if ($("#revenue-stat")) $("#revenue-stat").textContent = formatMoney(state.dashboard?.revenue || 0);
+    if ($("#orders-stat")) $("#orders-stat").textContent = state.dashboard?.orders || state.orders.length;
+    if ($("#payment-stat")) $("#payment-stat").textContent = waiting;
+    if ($("#products-stat")) $("#products-stat").textContent = state.products.length;
+    if ($("#pending-count")) $("#pending-count").textContent = waiting;
+
+    if ($("#recent-orders")) $("#recent-orders").innerHTML = state.orders.slice(0, 5).map((order) => orderRow(order)).join("");
+    if ($("#all-orders")) $("#all-orders").innerHTML = state.orders.map((order) => orderRow(order, true)).join("");
+    if ($("#all-customers")) $("#all-customers").innerHTML = state.customers.map((customer) => `
       <tr><td><strong>${escapeHtml(customer.name)}</strong></td><td>${escapeHtml(customer.phone)}</td>
       <td>${escapeHtml(customer.email || "—")}</td><td>${customer.order_count}</td>
       <td>${formatMoney(customer.total_spent)}</td>
       <td>${new Date(customer.last_order_at).toLocaleDateString("vi-VN")}</td></tr>`).join("");
-    $("#dashboard-empty").hidden = state.orders.length > 0;
-    $("#orders-empty").hidden = state.orders.length > 0;
-    $("#customers-empty").hidden = state.customers.length > 0;
+      
+    if ($("#dashboard-empty")) $("#dashboard-empty").hidden = state.orders.length > 0;
+    if ($("#orders-empty")) $("#orders-empty").hidden = state.orders.length > 0;
+    if ($("#customers-empty")) $("#customers-empty").hidden = state.customers.length > 0;
+    
     renderProductGrid();
     renderPosts();
   }
