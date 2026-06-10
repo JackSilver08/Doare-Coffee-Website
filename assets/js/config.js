@@ -3,11 +3,5 @@ window.DOARE_CONFIG = Object.freeze({
   STORE_NAME: "Dorae Coffee",
   CURRENCY: "VND",
   FREE_SHIPPING_THRESHOLD: 500000,
-  STANDARD_SHIPPING_FEE: 30000,
-  BANK_TRANSFER_ENABLED: false,
-  BANK: {
-    id: "MB",
-    accountNo: "0000000000",
-    accountName: "DORAE COFFEE"
-  }
+  STANDARD_SHIPPING_FEE: 30000
 });

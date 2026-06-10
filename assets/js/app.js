@@ -257,7 +257,7 @@
           district: data.district.trim()
         },
         note: data.note.trim(),
-        paymentMethod: data.payment,
+        paymentMethod: "cod",
         items: state.cart.map(({ id, quantity }) => ({ productId: id, quantity })),
         pricingPreview: { subtotal, shipping, total: subtotal + shipping }
       });
@@ -265,23 +265,9 @@
       state.cart = [];
       saveCart();
       form.reset();
-      const paymentText =
-        order.status === "waiting_payment"
-          ? " Vui lòng chuyển khoản đúng số tiền và nội dung bên dưới."
-          : " Chúng tôi sẽ gọi xác nhận trước khi giao.";
-      const paymentMarkup = order.payment
-        ? `<div class="payment-result">
-            <img src="${order.payment.qrImageUrl}" alt="Mã QR thanh toán đơn ${order.id}" />
-            <div>
-              <span>Số tiền</span><strong>${formatMoney(order.payment.amount)}</strong>
-              <span>Nội dung chuyển khoản</span><strong>${order.payment.content}</strong>
-              <small>${order.payment.accountName} · ${order.payment.accountNo}</small>
-            </div>
-          </div>`
-        : "";
-      message.innerHTML = `<strong>Đặt hàng thành công: ${order.id}</strong>${paymentText}${paymentMarkup}`;
+      message.innerHTML = `<strong>Đặt hàng thành công: ${escapeHtml(order.id)}</strong> Chúng tôi sẽ gọi xác nhận trước khi giao. Bạn thanh toán khi nhận hàng.`;
       button.textContent = "Đã tạo đơn hàng";
-      if (!order.payment) setTimeout(closeCheckout, 4200);
+      setTimeout(closeCheckout, 4200);
     } catch (error) {
       message.textContent = error.message || "Có lỗi xảy ra. Vui lòng thử lại.";
       button.disabled = false;
@@ -290,10 +276,6 @@
   }
 
   function bindEvents() {
-    if (!window.DOARE_CONFIG.BANK_TRANSFER_ENABLED) {
-      $("#bank-transfer-option").hidden = true;
-    }
-
     document.addEventListener("click", (event) => {
       const add = event.target.closest("[data-add]");
       const quantity = event.target.closest("[data-quantity]");

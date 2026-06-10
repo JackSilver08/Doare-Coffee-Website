@@ -7,7 +7,7 @@ Static-first storefront for a real coffee business. The customer-facing site is 
 - Responsive light-blue and white coffee landing page using the supplied brand assets
 - Artistic single-product showcase for one ground-coffee SKU
 - Persistent shopping cart using `localStorage`
-- Checkout form with COD and bank-transfer choices
+- Checkout form with cash on delivery (COD)
 - Mock API mode that creates demo orders without a backend
 - Demo admin dashboard at `/admin.html`
 - Cloudflare Worker API, D1 schema and seed products
@@ -66,7 +66,7 @@ The production Worker is deployed at:
 API_BASE_URL: "https://doare-coffee-api.trannntunnn.workers.dev"
 ```
 
-The frontend now uses the live product and order APIs. Bank transfer remains disabled until real bank details are configured.
+The frontend now uses the live product and order APIs. Orders use cash on delivery (COD).
 
 ## Production status
 
@@ -74,11 +74,10 @@ The storefront and order API foundation are usable, but the following are requir
 
 - Protect admin routes with Cloudflare Access or another identity provider
 - Build authenticated admin CRUD endpoints
-- Connect a bank reconciliation provider and verify signed payment webhooks
 - Add bot protection/rate limits to checkout
 - Configure transactional order notifications
 - Add store policies, legal business details and Ministry of Industry and Trade notification
-- Replace placeholder contact and bank details
+- Replace placeholder contact details
 
 See [deployment instructions](docs/DEPLOYMENT.md) and [architecture notes](docs/ARCHITECTURE.md).
 

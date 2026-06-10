@@ -52,7 +52,7 @@ npx wrangler login
 npx wrangler d1 create doare-coffee
 ```
 
-Copy `wrangler.toml.example` to `wrangler.toml`, insert the returned database ID, real domain and bank details.
+Copy `wrangler.toml.example` to `wrangler.toml`, then insert the returned database ID and real domain.
 
 Create tables and seed products:
 
@@ -114,14 +114,13 @@ removed later.
 
 ## 6. Required production configuration
 
-- Replace all placeholder bank, email, phone and address data.
+- Replace all placeholder email, phone and address data.
 - Restrict `ALLOWED_ORIGINS` to the production and preview domains.
 - Add Turnstile or equivalent bot checks before order creation.
 - Set rate limits for order and subscriber endpoints.
 - Protect admin with Cloudflare Access.
 - Configure database backup/export.
-- Add a signed payment webhook before claiming automatic confirmation.
-- Test COD, transfer, cancellation, refunds and duplicate webhook events.
+- Test COD, cancellation and refunds.
 
 ## GitHub Pages note
 

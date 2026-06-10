@@ -26,7 +26,7 @@
     const order = {
       ...payload,
       id: `DR${Date.now().toString().slice(-8)}`,
-      status: payload.paymentMethod === "cod" ? "confirmed" : "waiting_payment",
+      status: "confirmed",
       createdAt: new Date().toISOString()
     };
     const orders = JSON.parse(localStorage.getItem("doare_demo_orders") || "[]");

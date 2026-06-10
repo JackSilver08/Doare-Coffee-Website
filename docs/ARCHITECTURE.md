@@ -16,13 +16,10 @@ Cloudflare Worker API
   |-- validates requests
   |-- recalculates product prices
   |-- creates order IDs
-  |-- returns transfer instructions
+  |-- creates COD orders
   |
   +--> Cloudflare D1
   |      products, orders, order_items, subscribers
-  |
-  +--> Payment reconciliation provider
-  |      signed webhook confirms incoming transfer
   |
   +--> Email / Zalo provider
          order and status notifications

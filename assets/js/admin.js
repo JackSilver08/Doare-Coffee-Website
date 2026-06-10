@@ -63,7 +63,7 @@
   }
 
   function statusLabel(status) {
-    return status === "confirmed" ? "Đã xác nhận" : "Chờ thanh toán";
+    return status === "confirmed" ? "Đã xác nhận" : "Chờ xử lý";
   }
 
   function orderRow(order, detailed = false) {
@@ -72,7 +72,7 @@
       ${detailed ? `<td>${new Date(order.createdAt).toLocaleDateString("vi-VN")}</td>` : ""}
       <td>${escapeHtml(order.customer?.name || "—")}</td>
       ${detailed ? `<td>${escapeHtml(order.customer?.phone || "—")}</td>` : ""}
-      <td>${order.paymentMethod === "cod" ? "COD" : "Chuyển khoản"}</td>
+      <td>COD</td>
       <td>${formatMoney(order.total)}</td>
       <td><span class="status ${escapeHtml(order.status)}">${statusLabel(order.status)}</span></td>
     </tr>`;
@@ -190,12 +190,11 @@
   }
 
   function render() {
-    const waiting = state.dashboard?.waitingPayment || 0;
+    const orderCount = state.dashboard?.orders || state.orders.length;
     if ($("#revenue-stat")) $("#revenue-stat").textContent = formatMoney(state.dashboard?.revenue || 0);
-    if ($("#orders-stat")) $("#orders-stat").textContent = state.dashboard?.orders || state.orders.length;
-    if ($("#payment-stat")) $("#payment-stat").textContent = waiting;
+    if ($("#orders-stat")) $("#orders-stat").textContent = orderCount;
     if ($("#products-stat")) $("#products-stat").textContent = state.products.length;
-    if ($("#pending-count")) $("#pending-count").textContent = waiting;
+    if ($("#pending-count")) $("#pending-count").textContent = orderCount;
 
     if ($("#recent-orders")) $("#recent-orders").innerHTML = state.orders.slice(0, 5).map((order) => orderRow(order)).join("");
     if ($("#all-orders")) $("#all-orders").innerHTML = state.orders.map((order) => orderRow(order, true)).join("");

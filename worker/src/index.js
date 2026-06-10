@@ -313,14 +313,8 @@ async function createOrder(request, env) {
   const freeShippingThreshold = Number(env.FREE_SHIPPING_THRESHOLD || 500000);
   const shipping = subtotal >= freeShippingThreshold ? 0 : Number(env.SHIPPING_FEE || 30000);
   const total = subtotal + shipping;
-  const paymentMethod = body.paymentMethod === "bank_transfer" ? "bank_transfer" : "cod";
-  if (
-    paymentMethod === "bank_transfer" &&
-    (!env.BANK_ACCOUNT_NO || env.BANK_ACCOUNT_NO.includes("REPLACE_"))
-  ) {
-    return json({ message: "Thanh toán chuyển khoản chưa được cấu hình." }, 503);
-  }
-  const status = paymentMethod === "cod" ? "confirmed" : "waiting_payment";
+  const paymentMethod = "cod";
+  const status = "confirmed";
   const id = makeOrderId();
 
   const existingCustomer = await env.DB.prepare(
@@ -366,19 +360,7 @@ async function createOrder(request, env) {
   ];
   await env.DB.batch(statements);
 
-  const payment =
-    paymentMethod === "bank_transfer"
-      ? {
-          bankId: env.BANK_ID,
-          accountNo: env.BANK_ACCOUNT_NO,
-          accountName: env.BANK_ACCOUNT_NAME,
-          amount: total,
-          content: id,
-          qrImageUrl: `https://img.vietqr.io/image/${encodeURIComponent(env.BANK_ID)}-${encodeURIComponent(env.BANK_ACCOUNT_NO)}-compact2.png?amount=${total}&addInfo=${encodeURIComponent(id)}&accountName=${encodeURIComponent(env.BANK_ACCOUNT_NAME)}`
-        }
-      : null;
-
-  return json({ id, customerId, status, subtotal, shipping, total, payment }, 201);
+  return json({ id, customerId, status, subtotal, shipping, total }, 201);
 }
 
 async function subscribe(request, env) {
@@ -486,17 +468,15 @@ async function createContactMessage(request, env) {
 }
 
 async function getAdminDashboard(env) {
-  const [orders, customers, revenue, waiting] = await env.DB.batch([
+  const [orders, customers, revenue] = await env.DB.batch([
     env.DB.prepare("SELECT COUNT(*) AS value FROM orders"),
     env.DB.prepare("SELECT COUNT(*) AS value FROM customers"),
-    env.DB.prepare("SELECT COALESCE(SUM(total), 0) AS value FROM orders"),
-    env.DB.prepare("SELECT COUNT(*) AS value FROM orders WHERE payment_status = 'unpaid' AND payment_method = 'bank_transfer'")
+    env.DB.prepare("SELECT COALESCE(SUM(total), 0) AS value FROM orders")
   ]);
   return {
     orders: orders.results[0]?.value || 0,
     customers: customers.results[0]?.value || 0,
-    revenue: revenue.results[0]?.value || 0,
-    waitingPayment: waiting.results[0]?.value || 0
+    revenue: revenue.results[0]?.value || 0
   };
 }
 

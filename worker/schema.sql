@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS orders (
   city TEXT NOT NULL DEFAULT '',
   district TEXT NOT NULL DEFAULT '',
   note TEXT NOT NULL DEFAULT '',
-  payment_method TEXT NOT NULL CHECK (payment_method IN ('cod', 'bank_transfer')),
+  payment_method TEXT NOT NULL DEFAULT 'cod' CHECK (payment_method = 'cod'),
   payment_status TEXT NOT NULL DEFAULT 'unpaid',
   order_status TEXT NOT NULL DEFAULT 'pending',
   subtotal INTEGER NOT NULL,

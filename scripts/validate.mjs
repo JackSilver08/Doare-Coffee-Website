@@ -29,8 +29,9 @@ const admin = await readFile("admin.html", "utf8");
 for (const id of ["featured-price", "featured-quantity", "cart-items", "checkout-form", "contact-form"]) {
   if (!index.includes(`id="${id}"`)) throw new Error(`Thiếu phần tử #${id}`);
 }
+if (!index.includes('class="cod-payment-note"')) throw new Error("Thiếu thông báo thanh toán COD");
 if (!admin.includes('id="dashboard-view"')) throw new Error("Thiếu dashboard admin");
-for (const id of ["product-form", "post-form", "markdown-preview"]) {
+for (const id of ["product-edit-form", "post-form", "markdown-preview"]) {
   if (!admin.includes(`id="${id}"`)) throw new Error(`Thiếu phần tử admin #${id}`);
 }
 
