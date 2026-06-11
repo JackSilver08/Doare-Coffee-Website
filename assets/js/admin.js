@@ -318,6 +318,42 @@
       .replace(/đ/g, "d").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   }
 
+  function plainTextFromMarkdown(value) {
+    return String(value || "")
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+      .replace(/[`*_>#~-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function seoDescription(form) {
+    const explicit = form.elements.excerpt.value.trim();
+    const source = explicit || plainTextFromMarkdown(form.elements.markdown.value);
+    if (!source) return "";
+    return source.length > 160 ? `${source.slice(0, 157).trimEnd()}...` : source;
+  }
+
+  function updateSeoPreview() {
+    const form = $("#post-form");
+    if (!form || !$("#seo-preview-title-text")) return;
+    const title = form.elements.title.value.trim();
+    const slug = form.elements.slug.value.trim() || slugify(title);
+    const description = seoDescription(form);
+    const wordCount = plainTextFromMarkdown(form.elements.markdown.value).split(/\s+/).filter(Boolean).length;
+    const hasImage = Boolean(form.elements.thumbnailUrl.value.trim());
+
+    $("#seo-preview-url").textContent = `https://doraecoffee.io.vn/blog?slug=${slug || "duong-dan-bai-viet"}`;
+    $("#seo-preview-title-text").textContent = `${title || "Tiêu đề bài viết"} | Dorae Coffee`;
+    $("#seo-preview-description").textContent = description || "Mô tả SEO sẽ được lấy từ mô tả ngắn hoặc tự động rút từ nội dung bài viết.";
+    $("#seo-checklist").innerHTML = [
+      [title.length >= 20 && title.length <= 65, `Tiêu đề ${title.length}/65 ký tự`],
+      [description.length >= 100 && description.length <= 160, `Mô tả ${description.length}/160 ký tự`],
+      [wordCount >= 300, `${wordCount} từ nội dung`],
+      [hasImage, hasImage ? "Có ảnh chia sẻ" : "Nên thêm ảnh thumbnail"]
+    ].map(([ok, label]) => `<li class="${ok ? "" : "warning"}">${ok ? "Đạt" : "Gợi ý"} · ${escapeHtml(label)}</li>`).join("");
+  }
+
   function selectPost(post) {
     const form = $("#post-form");
     form.elements.id.value = post?.id || "";
@@ -331,6 +367,7 @@
     $("#post-message").textContent = "";
     renderThumbnailUpload(post?.thumbnail_url || "");
     updateMarkdownPreview();
+    updateSeoPreview();
   }
 
   function renderThumbnailUpload(source) {
@@ -457,6 +494,7 @@
       $("#post-form").elements.thumbnailUrl.value = thumbnail;
       renderThumbnailUpload(thumbnail);
       updateMarkdownPreview();
+      updateSeoPreview();
       status.textContent = `Đã tạo thumbnail vuông · ${Math.round(thumbnail.length * 0.75 / 1024)}KB`;
     } catch (error) {
       status.textContent = error.message;
@@ -470,6 +508,7 @@
     $("#thumbnail-status").textContent = "Đã xóa thumbnail khỏi bài viết.";
     renderThumbnailUpload("");
     updateMarkdownPreview();
+    updateSeoPreview();
   }
 
   function updateMarkdownPreview() {
@@ -486,6 +525,7 @@
     if (!requireLogin()) return;
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form));
+    if (!data.excerpt.trim()) data.excerpt = seoDescription(form);
     const id = data.id;
     const message = $("#post-message");
     try {
@@ -580,6 +620,7 @@
       event.currentTarget.elements.slug.value = slugify(event.target.value);
     }
     updateMarkdownPreview();
+    updateSeoPreview();
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {

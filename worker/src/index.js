@@ -150,7 +150,17 @@ async function getProducts(env) {
 }
 
 async function getPublishedPosts(url, env) {
-  const limit = Math.max(1, Math.min(20, Number.parseInt(url.searchParams.get("limit"), 10) || 6));
+  const limit = Math.max(1, Math.min(500, Number.parseInt(url.searchParams.get("limit"), 10) || 6));
+  if (url.searchParams.get("sitemap") === "1") {
+    const result = await env.DB.prepare(
+      `SELECT slug, published_at, created_at, updated_at
+       FROM blog_posts
+       WHERE status = 'published'
+       ORDER BY COALESCE(published_at, created_at) DESC
+       LIMIT ?`
+    ).bind(limit).all();
+    return result.results;
+  }
   const result = await env.DB.prepare(
     `SELECT id, slug, title, excerpt, markdown, thumbnail_url, published_at, created_at, updated_at
      FROM blog_posts
@@ -177,12 +187,28 @@ async function getAdminPosts(env) {
   return result.results;
 }
 
+function plainTextFromMarkdown(value) {
+  return String(value || "")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/[`*_>#~-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function generatedExcerpt(excerpt, markdown) {
+  const source = cleanText(excerpt, 360) || plainTextFromMarkdown(markdown);
+  if (source.length <= 220) return source;
+  return `${source.slice(0, 217).trimEnd()}...`;
+}
+
 function normalizePost(body) {
+  const markdown = cleanText(body.markdown, 30000);
   const post = {
     title: cleanText(body.title, 180),
     slug: cleanText(body.slug, 120).toLowerCase(),
-    excerpt: cleanText(body.excerpt, 360),
-    markdown: cleanText(body.markdown, 30000),
+    excerpt: generatedExcerpt(body.excerpt, markdown),
+    markdown,
     thumbnailUrl: cleanImageUrl(body.thumbnailUrl),
     status: body.status === "published" ? "published" : "draft"
   };

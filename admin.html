@@ -13,11 +13,11 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/css/admin.css?v=20260609" />
+    <link rel="stylesheet" href="assets/css/admin.css?v=20260611seo" />
     <script src="assets/js/config.js?v=20260609" defer></script>
     <script src="assets/js/catalog.js?v=20260609" defer></script>
     <script src="assets/js/markdown.js?v=20260609" defer></script>
-    <script src="assets/js/admin.js?v=20260609" defer></script>
+    <script src="assets/js/admin.js?v=20260611seo" defer></script>
   </head>
   <body>
     <aside class="sidebar">
@@ -157,6 +157,21 @@
                 <span class="thumbnail-status" id="thumbnail-status"></span>
               </div>
               <label>Nội dung Markdown<textarea name="markdown" rows="15" placeholder="# Tiêu đề&#10;&#10;Nội dung bài viết..."></textarea></label>
+              <section class="seo-preview" aria-labelledby="seo-preview-title">
+                <div class="seo-preview-heading">
+                  <div>
+                    <span>SEO TỰ ĐỘNG</span>
+                    <strong id="seo-preview-title">Xem trước trên Google</strong>
+                  </div>
+                  <small>Tiêu đề, mô tả, URL và dữ liệu Article được tạo khi lưu bài.</small>
+                </div>
+                <div class="seo-search-preview">
+                  <span id="seo-preview-url">https://doraecoffee.io.vn/blog</span>
+                  <strong id="seo-preview-title-text">Tiêu đề bài viết | Dorae Coffee</strong>
+                  <p id="seo-preview-description">Mô tả SEO sẽ được lấy từ mô tả ngắn hoặc tự động rút từ nội dung bài viết.</p>
+                </div>
+                <ul class="seo-checklist" id="seo-checklist"></ul>
+              </section>
               <div class="editor-actions">
                 <label>Trạng thái
                   <select name="status"><option value="draft">Bản nháp</option><option value="published">Đăng công khai</option></select>
