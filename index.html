@@ -22,11 +22,11 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/css/styles.css?v=20260609" />
+    <link rel="stylesheet" href="assets/css/styles.css?v=20260611c" />
     <script src="assets/js/config.js?v=20260609" defer></script>
     <script src="assets/js/catalog.js?v=20260609" defer></script>
     <script src="assets/js/api.js?v=20260609" defer></script>
-    <script src="assets/js/app.js?v=20260609" defer></script>
+    <script src="assets/js/app.js?v=20260611" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Đi đến nội dung chính</a>
@@ -57,19 +57,33 @@
           <button class="cart-button" type="button" aria-label="Mở giỏ hàng">
             Giỏ <span class="cart-count">0</span>
           </button>
-          <button class="icon-button menu-button" type="button" aria-label="Mở menu" aria-expanded="false">
+          <button class="icon-button menu-button" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="mobile-nav">
             <span></span><span></span>
           </button>
         </div>
       </div>
-      <nav class="mobile-nav" aria-label="Điều hướng di động">
-        <a href="#story">Câu chuyện</a>
-        <a href="#process">Trải nghiệm</a>
-        <a href="#products">Sản phẩm</a>
-        <a href="#journal">Tin tức</a>
-        <a href="#contact">Liên hệ</a>
-      </nav>
     </header>
+    <div class="mobile-nav-backdrop" hidden></div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Điều hướng di động" aria-hidden="true">
+      <div class="mobile-nav-header">
+        <a class="mobile-nav-brand" href="#" aria-label="Dorae Coffee - Trang chủ">
+          <img src="assets/images/brand-logo.png" alt="" />
+          <span>DORAE<small>COFFEE · ĐỒNG NAI</small></span>
+        </a>
+        <button class="mobile-nav-close" type="button" aria-label="Đóng menu">×</button>
+      </div>
+      <div class="mobile-nav-links">
+        <a href="#story"><span>01</span>Câu chuyện</a>
+        <a href="#process"><span>02</span>Trải nghiệm</a>
+        <a href="#products"><span>03</span>Sản phẩm</a>
+        <a href="#journal"><span>04</span>Tin tức</a>
+        <a href="#contact"><span>05</span>Liên hệ</a>
+      </div>
+      <div class="mobile-nav-footer">
+        <a href="tel:0902061241">0902 061 241</a>
+        <small>Dorae Coffee · Đồng Nai, Việt Nam</small>
+      </div>
+    </nav>
 
     <main id="main">
       <section class="hero reveal-section" data-reveal>
@@ -308,6 +322,18 @@
       </div>
       <div class="container footer-bottom"><span>© 2026 Dorae Coffee.</span><span>doraecoffee.io.vn · Đồng Nai, Việt Nam</span></div>
     </footer>
+
+    <a
+      class="facebook-float"
+      href="https://www.facebook.com/share/1EUY8tWq4g/?mibextid=wwXIfr"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Truy cập fanpage Facebook của Dorae Coffee"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M13.5 22v-9h3l.45-3.5H13.5V7.27c0-1.01.28-1.7 1.73-1.7H17V2.44a23.7 23.7 0 0 0-2.58-.14C11.87 2.3 10 3.86 10 6.73V9.5H7V13h3v9h3.5Z" />
+      </svg>
+    </a>
 
     <div class="drawer-backdrop" hidden></div>
     <aside class="cart-drawer" aria-hidden="true" aria-label="Giỏ hàng">

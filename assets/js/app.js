@@ -341,17 +341,35 @@
     const announcementClose = $(".announcement button");
     if (announcementClose) announcementClose.addEventListener("click", () => $(".announcement").remove());
 
-    $(".menu-button").addEventListener("click", (event) => {
-      const expanded = event.currentTarget.getAttribute("aria-expanded") === "true";
-      event.currentTarget.setAttribute("aria-expanded", String(!expanded));
-      $(".mobile-nav").classList.toggle("open", !expanded);
+    const menuButton = $(".menu-button");
+    const mobileNav = $(".mobile-nav");
+    const mobileNavBackdrop = $(".mobile-nav-backdrop");
+    const closeMobileNav = () => {
+      mobileNav.classList.remove("open");
+      mobileNav.setAttribute("aria-hidden", "true");
+      menuButton.setAttribute("aria-expanded", "false");
+      mobileNavBackdrop.hidden = true;
+      document.body.classList.remove("mobile-menu-open");
+    };
+    const openMobileNav = () => {
+      mobileNavBackdrop.hidden = false;
+      mobileNav.classList.add("open");
+      mobileNav.setAttribute("aria-hidden", "false");
+      menuButton.setAttribute("aria-expanded", "true");
+      document.body.classList.add("mobile-menu-open");
+      $(".mobile-nav-close").focus();
+    };
+
+    menuButton.addEventListener("click", () => {
+      if (menuButton.getAttribute("aria-expanded") === "true") closeMobileNav();
+      else openMobileNav();
     });
-    $$(".mobile-nav a").forEach((link) =>
-      link.addEventListener("click", () => {
-        $(".mobile-nav").classList.remove("open");
-        $(".menu-button").setAttribute("aria-expanded", "false");
-      })
-    );
+    $(".mobile-nav-close").addEventListener("click", closeMobileNav);
+    mobileNavBackdrop.addEventListener("click", closeMobileNav);
+    $$(".mobile-nav a").forEach((link) => link.addEventListener("click", closeMobileNav));
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 760) closeMobileNav();
+    });
 
     $("#contact-form").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -392,6 +410,7 @@
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
+        closeMobileNav();
         closeCart();
         closeCheckout();
       }
