@@ -3634,3 +3634,137 @@ footer {
     bottom: 80px;
   }
 }
+
+/* Keep the refreshed desktop hero language on small screens. */
+@media (max-width: 760px) {
+  .hero {
+    min-height: auto;
+    background:
+      radial-gradient(circle at 78% 68%, rgba(255, 255, 255, 0.92), transparent 24%),
+      linear-gradient(155deg, #f9fcfe 0 48%, #dceff7 48% 100%);
+  }
+
+  .hero-content {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    align-content: start;
+    gap: 30px;
+    padding: 112px 0 54px;
+  }
+
+  .hero-copy-wrap {
+    max-width: 520px;
+  }
+
+  .hero .eyebrow {
+    margin-bottom: 14px;
+    font-size: 9px;
+  }
+
+  .hero h1 {
+    font-size: clamp(39px, 11.5vw, 58px);
+    line-height: 1.03;
+  }
+
+  .hero-copy {
+    max-width: 500px;
+    margin: 20px 0 24px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 14px 22px;
+  }
+
+  .hero-actions .button {
+    min-height: 46px;
+    padding-inline: 20px;
+    font-size: 12px;
+  }
+
+  .hero-actions .text-link {
+    font-size: 12px;
+  }
+
+  .hero-brand-visual {
+    min-height: 330px;
+    overflow: hidden;
+    border: 1px solid rgba(47, 135, 200, 0.12);
+    border-radius: 28px;
+    background:
+      radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.96), transparent 34%),
+      rgba(210, 235, 245, 0.62);
+  }
+
+  .coffee-illustration {
+    width: min(350px, 100%);
+  }
+
+  .orbit-a {
+    width: 285px;
+    height: 285px;
+  }
+
+  .orbit-b {
+    width: 350px;
+    height: 350px;
+  }
+
+  .hero-word {
+    padding: 8px 10px;
+    font-size: 6px;
+  }
+
+  .word-one {
+    top: 14%;
+    left: 4%;
+  }
+
+  .word-two {
+    top: 32%;
+    right: 4%;
+  }
+
+  .word-three {
+    right: 7%;
+    bottom: 12%;
+  }
+
+  .trust-grid article,
+  .trust-grid article:first-child {
+    min-height: 78px;
+    gap: 14px;
+    padding: 15px 0;
+  }
+
+  .trust-grid article > span {
+    font-size: 17px;
+  }
+
+  .trust-grid strong {
+    font-size: 15px;
+  }
+
+  .trust-grid p {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 390px) {
+  .hero-content {
+    padding-top: 102px;
+  }
+
+  .hero-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .hero-brand-visual {
+    min-height: 300px;
+  }
+}
