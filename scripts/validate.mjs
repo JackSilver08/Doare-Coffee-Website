@@ -5,9 +5,11 @@ const required = [
   "index.html",
   "blog.html",
   "admin.html",
+  "google56a1ffd0a01024d4.html",
   "robots.txt",
   "functions/sitemap.xml.js",
   "functions/blog.js",
+  "functions/google56a1ffd0a01024d4.html.js",
   "assets/css/styles.css",
   "assets/css/admin.css",
   "assets/js/app.js",
@@ -23,7 +25,7 @@ const required = [
 
 for (const file of required) await access(file);
 
-for (const file of ["assets/js/config.js", "assets/js/catalog.js", "assets/js/api.js", "assets/js/app.js", "assets/js/admin.js", "assets/js/blog.js", "assets/js/markdown.js", "functions/sitemap.xml.js", "functions/blog.js", "worker/src/index.js"]) {
+for (const file of ["assets/js/config.js", "assets/js/catalog.js", "assets/js/api.js", "assets/js/app.js", "assets/js/admin.js", "assets/js/blog.js", "assets/js/markdown.js", "functions/sitemap.xml.js", "functions/blog.js", "functions/google56a1ffd0a01024d4.html.js", "worker/src/index.js"]) {
   execFileSync(process.execPath, ["--check", file], { stdio: "inherit" });
 }
 
@@ -38,6 +40,8 @@ if (!index.includes('class="cod-payment-note"')) throw new Error("Thiếu thông
 if (!admin.includes('id="dashboard-view"')) throw new Error("Thiếu dashboard admin");
 if (!admin.includes('name="robots" content="noindex')) throw new Error("Trang admin phải có noindex");
 if (!index.includes('rel="canonical" href="https://doraecoffee.io.vn/"')) throw new Error("Thiếu canonical trang chủ");
+if (!index.includes("<title>Dorae Coffee |")) throw new Error("Tiêu đề trang chủ phải bắt đầu bằng thương hiệu");
+if (!index.includes('"alternateName": "DoraeCoffee"')) throw new Error("Thiếu tên thương hiệu thay thế trong structured data");
 if (!index.includes('type="application/ld+json"')) throw new Error("Thiếu structured data trang chủ");
 if (!robots.includes("Sitemap: https://doraecoffee.io.vn/sitemap.xml")) throw new Error("robots.txt thiếu sitemap");
 if (!sitemapFunction.includes("<urlset") || !sitemapFunction.includes("/api/posts?limit=500&sitemap=1")) throw new Error("Sitemap động không hợp lệ");

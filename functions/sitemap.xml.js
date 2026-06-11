@@ -29,7 +29,6 @@ export async function onRequestGet() {
   const urls = [
     `  <url>
     <loc>${SITE_URL}/</loc>
-    <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>`,
