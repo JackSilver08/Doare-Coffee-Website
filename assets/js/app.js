@@ -122,16 +122,27 @@
     renderFeaturedProduct();
   }
 
+  function blogHref(slug) {
+    const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+    const page = location.protocol === "file:" || localHosts.has(location.hostname)
+      ? "blog.html"
+      : "blog";
+    return `${page}?slug=${encodeURIComponent(slug)}`;
+  }
+
   function renderPosts() {
-    $("#journal-grid").innerHTML = state.posts.map((post) => `
-      <article class="journal-card">
-        <a class="journal-image" href="blog?slug=${encodeURIComponent(post.slug)}">
-          ${post.thumbnail_url ? `<img src="${escapeHtml(post.thumbnail_url)}" alt="" />` : "<span>DORAE JOURNAL</span>"}
-        </a>
-        <div><time>${new Date(post.published_at || post.created_at).toLocaleDateString("vi-VN")}</time>
-        <h3><a href="blog?slug=${encodeURIComponent(post.slug)}">${escapeHtml(post.title)}</a></h3>
-        <p>${escapeHtml(post.excerpt || "")}</p><a class="journal-link" href="blog?slug=${encodeURIComponent(post.slug)}">Đọc bài viết →</a></div>
-      </article>`).join("");
+    $("#journal-grid").innerHTML = state.posts.map((post) => {
+      const href = blogHref(post.slug);
+      return `
+        <article class="journal-card">
+          <a class="journal-image" href="${href}">
+            ${post.thumbnail_url ? `<img src="${escapeHtml(post.thumbnail_url)}" alt="" />` : "<span>DORAE JOURNAL</span>"}
+          </a>
+          <div><time>${new Date(post.published_at || post.created_at).toLocaleDateString("vi-VN")}</time>
+          <h3><a href="${href}">${escapeHtml(post.title)}</a></h3>
+          <p>${escapeHtml(post.excerpt || "")}</p><a class="journal-link" href="${href}">Đọc bài viết →</a></div>
+        </article>`;
+    }).join("");
     $("#journal-empty").hidden = state.posts.length > 0;
   }
 

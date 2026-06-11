@@ -12,18 +12,21 @@ function json(data, status = 200, extraHeaders = {}) {
 
 function corsHeaders(request, env) {
   const origin = request.headers.get("Origin") || "";
-  const allowed = (env.ALLOWED_ORIGINS || "").split(",").map((item) => item.trim());
+  const allowed = (env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
   const githubPagesOrigin = /^https:\/\/[a-z0-9-]+\.github\.io$/i.test(origin);
   const cfPagesOrigin = /^https:\/\/[a-z0-9-]+\.doare-coffee\.pages\.dev$/i.test(origin);
-  const allowOrigin = allowed.includes(origin) || githubPagesOrigin || cfPagesOrigin
-    ? origin
-    : allowed[0] || "http://localhost:8080";
-  return {
-    "Access-Control-Allow-Origin": allowOrigin,
+  const headers = {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
     "Vary": "Origin"
   };
+  if (allowed.includes(origin) || githubPagesOrigin || cfPagesOrigin) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
 }
 
 function cleanText(value, maxLength) {
