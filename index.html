@@ -5,15 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Dorae Coffee - cà phê đóng gói gần gũi, tiện lợi cho nhịp sống mỗi ngày."
+      content="Dorae Coffee cung cấp cà phê rang xay tại Đồng Nai, hương vị đậm đà, dễ pha và tiện lợi cho học tập, làm việc mỗi ngày."
     />
-    <meta name="theme-color" content="#1f120c" />
-    <meta property="og:title" content="Dorae Coffee - Cà phê cho nhịp sống thật" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#f8fcfe" />
+    <link rel="canonical" href="https://doraecoffee.io.vn/" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Dorae Coffee" />
+    <meta property="og:url" content="https://doraecoffee.io.vn/" />
+    <meta property="og:title" content="Cà phê rang xay Đồng Nai | Dorae Coffee" />
     <meta
       property="og:description"
-      content="Một lựa chọn cà phê dễ thưởng thức, dễ đặt mua và gần gũi mỗi ngày."
+      content="Cà phê rang xay gần gũi, đậm đà, dễ pha và giao tận tay từ Dorae Coffee tại Đồng Nai."
     />
-    <title>Dorae Coffee | Cà phê cho nhịp sống thật</title>
+    <meta property="og:image" content="https://doraecoffee.io.vn/assets/images/hero/coffee-cup-illustration.webp" />
+    <meta property="og:image:alt" content="Tách cà phê Dorae Coffee" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Cà phê rang xay Đồng Nai | Dorae Coffee" />
+    <meta
+      name="twitter:description"
+      content="Cà phê rang xay gần gũi, đậm đà, dễ pha và giao tận tay từ Dorae Coffee tại Đồng Nai."
+    />
+    <meta name="twitter:image" content="https://doraecoffee.io.vn/assets/images/hero/coffee-cup-illustration.webp" />
+    <title>Cà phê rang xay Đồng Nai | Dorae Coffee</title>
     <link rel="icon" href="assets/images/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -26,7 +41,44 @@
     <script src="assets/js/config.js?v=20260609" defer></script>
     <script src="assets/js/catalog.js?v=20260609" defer></script>
     <script src="assets/js/api.js?v=20260609" defer></script>
-    <script src="assets/js/app.js?v=20260611" defer></script>
+    <script src="assets/js/app.js?v=20260611seo" defer></script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://doraecoffee.io.vn/#organization",
+            "name": "Dorae Coffee",
+            "url": "https://doraecoffee.io.vn/",
+            "logo": "https://doraecoffee.io.vn/assets/images/brand-logo.png",
+            "image": "https://doraecoffee.io.vn/assets/images/hero/coffee-cup-illustration.webp",
+            "email": "mailto:huyntttb01626@gmail.com",
+            "telephone": "+84902061241",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Ga Biên Hòa",
+              "addressLocality": "Biên Hòa",
+              "addressRegion": "Đồng Nai",
+              "addressCountry": "VN"
+            },
+            "sameAs": [
+              "https://www.facebook.com/share/1EUY8tWq4g/"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://doraecoffee.io.vn/#website",
+            "url": "https://doraecoffee.io.vn/",
+            "name": "Dorae Coffee",
+            "inLanguage": "vi-VN",
+            "publisher": {
+              "@id": "https://doraecoffee.io.vn/#organization"
+            }
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Đi đến nội dung chính</a>
@@ -112,6 +164,9 @@
                 class="coffee-art"
                 src="assets/images/hero/coffee-cup-illustration.webp"
                 alt=""
+                width="1448"
+                height="1086"
+                fetchpriority="high"
               />
               <div class="coffee-shadow"></div>
             </div>
