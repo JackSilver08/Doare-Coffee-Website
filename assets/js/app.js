@@ -71,7 +71,7 @@
     /* Heading & description */
     const heading = $("#product-heading");
     if (heading) {
-      heading.innerHTML = `${escapeHtml(product.name)}<br /><em>${escapeHtml(product.subtitle)}</em>`;
+      heading.innerHTML = `<span>${escapeHtml(product.name)}</span><em>${escapeHtml(product.subtitle)}</em>`;
     }
     const lead = $("#product-lead");
     if (lead) {

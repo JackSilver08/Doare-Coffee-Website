@@ -685,6 +685,17 @@ h2 {
   color: var(--navy);
   font-size: clamp(48px, 5vw, 72px);
   line-height: 1.02;
+  /* Reserve space for the tallest title (name + subtitle) and center the
+     title inside it, so titles of different lengths sit in the same spot
+     and the rows below never get pushed when switching products. */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(1.12em * 5);
+}
+
+.single-product-copy h2 span {
+  display: block;
 }
 
 .single-product-copy h2 em {
@@ -698,6 +709,8 @@ h2 {
   color: #637985;
   font-size: 15px;
   line-height: 1.8;
+  /* Reserve space for the longest description to keep the layout stable. */
+  min-height: calc(1.8em * 3);
 }
 
 .flavor-profile {
@@ -2301,10 +2314,13 @@ footer {
 
   .single-product-copy h2 {
     font-size: 43px;
+    /* Full-width title wraps to fewer lines on mobile. */
+    min-height: calc(1.12em * 3);
   }
 
   .single-product-lead {
     font-size: 14px;
+    min-height: calc(1.8em * 3);
   }
 
   .flavor-profile {
@@ -3240,7 +3256,7 @@ footer {
 }
 
 .footer-identity p {
-  max-width: 310px;
+  max-width: 360px;
   margin: 0;
   color: #567684;
   font-size: 12px;
