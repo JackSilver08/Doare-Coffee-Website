@@ -683,15 +683,17 @@ h2 {
 
 .single-product-copy h2 {
   color: var(--navy);
-  font-size: clamp(48px, 5vw, 72px);
-  line-height: 1.02;
+  font-size: clamp(40px, 4.2vw, 60px);
+  line-height: 1.08;
   /* Reserve space for the tallest title (name + subtitle) and center the
      title inside it, so titles of different lengths sit in the same spot
      and the rows below never get pushed when switching products. */
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: calc(1.12em * 5);
+  gap: 8px;
+  min-height: calc(1.12em * 4);
+  text-wrap: balance;
 }
 
 .single-product-copy h2 span {
@@ -699,8 +701,11 @@ h2 {
 }
 
 .single-product-copy h2 em {
+  display: block;
   color: var(--brown);
+  font-size: 0.72em;
   font-weight: 600;
+  line-height: 1.12;
 }
 
 .single-product-lead {
@@ -1166,7 +1171,10 @@ h2 {
 .product-info h3 {
   margin: 0;
   font-family: var(--serif);
-  font-size: 23px;
+  font-size: clamp(18px, 1.7vw, 21px);
+  line-height: 1.16;
+  min-height: calc(1.16em * 2);
+  text-wrap: balance;
 }
 
 .taste-notes {
@@ -1963,7 +1971,7 @@ footer {
   }
 
   .single-product-copy h2 {
-    font-size: 52px;
+    font-size: 48px;
   }
 
   .flavor-profile small {
@@ -2313,9 +2321,9 @@ footer {
   }
 
   .single-product-copy h2 {
-    font-size: 43px;
+    font-size: 38px;
     /* Full-width title wraps to fewer lines on mobile. */
-    min-height: calc(1.12em * 3);
+    min-height: calc(1.15em * 4);
   }
 
   .single-product-lead {
