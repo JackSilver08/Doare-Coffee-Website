@@ -99,6 +99,9 @@ th { color: #8f7d72; font-size: 8px; letter-spacing: .09em; text-transform: uppe
   font-size: 10px; font-weight: 700;
 }
 .admin-danger { background: #a84d4d; }
+/* Giữ nền cam + chữ trắng khi nút primary nằm trong .panel-heading (ghi đè .panel-heading button). */
+.panel-heading .admin-primary { background: var(--orange); color: white; border: 0; }
+.panel-heading .admin-primary:hover:not(:disabled) { background: var(--brown); color: white; }
 .save-message { color: #467052; font-size: 10px; }
 .admin-preview .admin-product { max-width: 330px; }
 .admin-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }

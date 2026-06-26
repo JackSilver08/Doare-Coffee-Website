@@ -81,6 +81,17 @@
   const findProduct = (id) => state.products.find((product) => product.id === id);
   const isProductActive = (product) => product.active !== 0 && product.active !== false;
 
+  /*
+   * R2 chưa bật nên ảnh từ API là base64 chất lượng thấp. Khi hiển thị, ưu tiên
+   * ảnh webp gốc trong repo theo id (giống storefront) mà không sửa dữ liệu đã lưu.
+   */
+  function displayImage(product) {
+    if (!product) return "";
+    if (/^https?:\/\//i.test(product.image || "")) return product.image;
+    const fromCatalog = (window.DOARE_CATALOG || []).find((entry) => entry.id === product.id);
+    return fromCatalog ? fromCatalog.image : product.image;
+  }
+
   function upsertProduct(product) {
     if (!product) return;
     const index = state.products.findIndex((entry) => entry.id === product.id);
@@ -99,7 +110,7 @@
       return `
       <article class="admin-product-card${active ? "" : " is-hidden"}" data-product-id="${escapeHtml(product.id)}">
         <div class="admin-product-visual" style="--accent:${escapeHtml(product.accent)}">
-          <img class="admin-packshot" src="${escapeHtml(product.image)}" alt="" />
+          <img class="admin-packshot" src="${escapeHtml(displayImage(product))}" alt="" />
           ${active ? "" : `<span class="admin-status-flag">Đang ẩn</span>`}
         </div>
         <div class="admin-product-info">
@@ -184,9 +195,9 @@
     $("#product-image-status").textContent = "";
     $("#product-edit-preview").innerHTML = `
       <div class="admin-product-visual" style="--accent:${escapeHtml(product.accent)}">
-        <img class="admin-packshot" src="${escapeHtml(product.image)}" alt="" />
+        <img class="admin-packshot" src="${escapeHtml(displayImage(product))}" alt="" />
       </div>`;
-    renderProductImageUpload(product.image);
+    renderProductImageUpload(displayImage(product));
     openProductModal();
   }
 
