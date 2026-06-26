@@ -1,6 +1,22 @@
 (function () {
   const config = window.DOARE_CONFIG;
 
+  /*
+   * R2 chưa bật nên API trả ảnh dạng base64 (data:) chất lượng thấp.
+   * Ưu tiên dùng ảnh webp gốc trong assets/images/products/ theo id sản phẩm.
+   * Khi đã có ảnh thật (URL http) thì giữ nguyên ảnh từ máy chủ.
+   */
+  function preferLocalImage(product) {
+    if (!product || typeof product.id !== "string") return product;
+    if (/^https?:\/\//i.test(product.image || "")) return product;
+
+    /* Chỉ thay cho các sản phẩm gốc đã có ảnh webp trong repo;
+       sản phẩm mới thêm qua admin giữ nguyên ảnh đã tải lên. */
+    const fromCatalog = (window.DOARE_CATALOG || []).find((entry) => entry.id === product.id);
+    if (!fromCatalog) return product;
+    return { ...product, image: fromCatalog.image };
+  }
+
   async function request(path, options = {}) {
     if (!config.API_BASE_URL) {
       throw new Error("MOCK_MODE");
@@ -39,7 +55,7 @@
     async getProducts() {
       try {
         const data = await request("/api/products");
-        return data.products || [];
+        return (data.products || []).map(preferLocalImage);
       } catch (error) {
         /* Chỉ fallback catalog ở môi trường dev (chưa cấu hình API). */
         if (error.message === "MOCK_MODE") return window.DOARE_CATALOG || [];
