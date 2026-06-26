@@ -11,7 +11,7 @@
     products: window.DOARE_CATALOG || [],
     posts: [],
     dashboard: null,
-    editingProductIndex: -1
+    editingProductId: ""
   };
   const titles = {
     dashboard: "Tổng quan",
@@ -78,13 +78,29 @@
     </tr>`;
   }
 
+  const findProduct = (id) => state.products.find((product) => product.id === id);
+  const isProductActive = (product) => product.active !== 0 && product.active !== false;
+
+  function upsertProduct(product) {
+    if (!product) return;
+    const index = state.products.findIndex((entry) => entry.id === product.id);
+    if (index >= 0) state.products[index] = product;
+    else state.products.push(product);
+    state.products.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  }
+
   function renderProductGrid() {
     const grid = $("#admin-product-grid");
     if (!grid) return;
-    grid.innerHTML = state.products.map((product, index) => `
-      <article class="admin-product-card" data-edit-product="${index}">
+    if ($("#products-heading")) $("#products-heading").textContent = `Danh mục cà phê (${state.products.length})`;
+    if ($("#products-empty")) $("#products-empty").hidden = state.products.length > 0;
+    grid.innerHTML = state.products.map((product) => {
+      const active = isProductActive(product);
+      return `
+      <article class="admin-product-card${active ? "" : " is-hidden"}" data-product-id="${escapeHtml(product.id)}">
         <div class="admin-product-visual" style="--accent:${escapeHtml(product.accent)}">
           <img class="admin-packshot" src="${escapeHtml(product.image)}" alt="" />
+          ${active ? "" : `<span class="admin-status-flag">Đang ẩn</span>`}
         </div>
         <div class="admin-product-info">
           <h3>${escapeHtml(product.name)}</h3>
@@ -94,17 +110,58 @@
             <span>${escapeHtml(product.weight)} · ${escapeHtml(product.roast)}</span>
           </div>
           ${product.badge ? `<span class="admin-badge">${escapeHtml(product.badge)}</span>` : ""}
-          <button class="admin-edit-btn" type="button" data-edit-product="${index}">Chỉnh sửa</button>
+          <div class="admin-product-actions">
+            <button class="admin-edit-btn" type="button" data-edit-product="${escapeHtml(product.id)}">Chỉnh sửa</button>
+            <button type="button" data-toggle-product="${escapeHtml(product.id)}">${active ? "Ẩn" : "Hiện"}</button>
+            <button class="admin-danger" type="button" data-delete-product="${escapeHtml(product.id)}">Xóa</button>
+          </div>
         </div>
-      </article>`).join("");
+      </article>`;
+    }).join("");
   }
 
-  function openProductEdit(index) {
-    const product = state.products[index];
-    if (!product) return;
-    state.editingProductIndex = index;
+  function openProductModal() {
+    $("#product-edit-modal").hidden = false;
+    document.body.classList.add("modal-open");
+  }
+
+  function resetImageFields(form) {
+    form.elements.editImage.value = "";
+    form.elements.editStorageKey.value = "";
+    form.elements.editMimeType.value = "";
+    form.elements.editSizeBytes.value = "";
+  }
+
+  function openProductCreate() {
+    if (!requireLogin()) return;
+    state.editingProductId = "";
     const form = $("#product-edit-form");
-    form.elements.editIndex.value = index;
+    form.reset();
+    form.elements.editMode.value = "create";
+    form.elements.editId.value = "";
+    form.elements.editActive.value = "1";
+    form.elements.editSortOrder.value = state.products.length + 1;
+    form.elements.editSlug.disabled = false;
+    resetImageFields(form);
+    $("#product-edit-eyebrow").textContent = "THÊM SẢN PHẨM";
+    $("#edit-product-title").textContent = "Sản phẩm mới";
+    $("#delete-product").hidden = true;
+    $("#product-edit-message").textContent = "";
+    $("#product-image-status").textContent = "";
+    $("#product-edit-preview").innerHTML = "";
+    renderProductImageUpload("");
+    openProductModal();
+  }
+
+  function openProductEdit(id) {
+    const product = findProduct(id);
+    if (!product) return;
+    state.editingProductId = id;
+    const form = $("#product-edit-form");
+    form.elements.editMode.value = "edit";
+    form.elements.editId.value = product.id;
+    form.elements.editSlug.value = product.id;
+    form.elements.editSlug.disabled = true;
     form.elements.editName.value = product.name;
     form.elements.editPrice.value = product.price;
     form.elements.editSubtitle.value = product.subtitle;
@@ -112,68 +169,119 @@
     form.elements.editRoast.value = product.roast;
     form.elements.editNotes.value = (product.notes || []).join(", ");
     form.elements.editBadge.value = product.badge || "";
+    form.elements.editSortOrder.value = product.sort_order ?? 0;
+    form.elements.editActive.value = isProductActive(product) ? "1" : "0";
     form.elements.editImage.value = product.image;
+    const primary = (product.gallery || []).find((item) => item.image_url === product.image)
+      || (product.gallery || [])[0] || {};
+    form.elements.editStorageKey.value = primary.storage_key || "";
+    form.elements.editMimeType.value = primary.mime_type || "";
+    form.elements.editSizeBytes.value = primary.size_bytes || "";
+    $("#product-edit-eyebrow").textContent = "CHỈNH SỬA SẢN PHẨM";
     $("#edit-product-title").textContent = product.name;
+    $("#delete-product").hidden = false;
+    $("#product-edit-message").textContent = "";
+    $("#product-image-status").textContent = "";
     $("#product-edit-preview").innerHTML = `
       <div class="admin-product-visual" style="--accent:${escapeHtml(product.accent)}">
         <img class="admin-packshot" src="${escapeHtml(product.image)}" alt="" />
       </div>`;
-    $("#product-edit-message").textContent = "";
-    $("#product-image-status").textContent = "";
     renderProductImageUpload(product.image);
-    $("#product-edit-modal").hidden = false;
-    document.body.classList.add("modal-open");
+    openProductModal();
   }
 
   function closeProductEdit() {
     $("#product-edit-modal").hidden = true;
     document.body.classList.remove("modal-open");
-    state.editingProductIndex = -1;
+    state.editingProductId = "";
   }
 
   async function saveProductEdit(event) {
     event.preventDefault();
+    if (!requireLogin()) return;
     const form = event.currentTarget;
-    const index = Number(form.elements.editIndex.value);
-    const product = state.products[index];
-    if (!product) return;
     const message = $("#product-edit-message");
-
-    const updatedProduct = {
-      ...product,
-      name: form.elements.editName.value.trim(),
+    const mode = form.elements.editMode.value;
+    const slug = form.elements.editSlug.value.trim().toLowerCase();
+    const image = form.elements.editImage.value.trim();
+    if (mode === "create" && !slug) {
+      message.textContent = "Vui lòng nhập ID/slug cho sản phẩm mới.";
+      return;
+    }
+    if (!image) {
+      message.textContent = "Vui lòng tải ảnh sản phẩm lên trước khi lưu.";
+      return;
+    }
+    const name = form.elements.editName.value.trim();
+    const payload = {
+      name,
       price: Number(form.elements.editPrice.value),
       subtitle: form.elements.editSubtitle.value.trim(),
       weight: form.elements.editWeight.value.trim(),
       roast: form.elements.editRoast.value.trim(),
-      notes: form.elements.editNotes.value.split(",").map(s => s.trim()).filter(Boolean),
+      notes: form.elements.editNotes.value.split(",").map((item) => item.trim()).filter(Boolean),
       badge: form.elements.editBadge.value.trim(),
-      image: form.elements.editImage.value.trim()
+      sortOrder: Number(form.elements.editSortOrder.value) || 0,
+      active: form.elements.editActive.value === "1",
+      image,
+      images: [{
+        imageUrl: image,
+        altText: name,
+        storageKey: form.elements.editStorageKey.value.trim(),
+        mimeType: form.elements.editMimeType.value.trim(),
+        sizeBytes: Number(form.elements.editSizeBytes.value) || 0
+      }]
     };
-
-    if (state.token && window.DOARE_CONFIG.API_BASE_URL) {
-      try {
-        message.textContent = "Đang lưu...";
-        const result = await adminRequest(`/api/admin/products/${product.id}`, {
+    try {
+      message.textContent = "Đang lưu...";
+      let result;
+      if (mode === "create") {
+        payload.id = slug;
+        result = await adminRequest("/api/admin/products", { method: "POST", body: JSON.stringify(payload) });
+      } else {
+        result = await adminRequest(`/api/admin/products/${form.elements.editId.value}`, {
           method: "PUT",
-          body: JSON.stringify({
-            ...updatedProduct,
-            images: [updatedProduct.image]
-          })
+          body: JSON.stringify(payload)
         });
-        state.products[index] = result.product || updatedProduct;
-        renderProductGrid();
-        message.textContent = "Đã lưu và cập nhật storefront.";
-        setTimeout(closeProductEdit, 1200);
-      } catch (error) {
-        message.textContent = error.message;
       }
-    } else {
-      /* Demo mode: save to local catalog */
-      state.products[index] = updatedProduct;
+      upsertProduct(result.product);
       renderProductGrid();
-      message.textContent = "Đã cập nhật (chế độ demo).";
-      setTimeout(closeProductEdit, 1200);
+      if ($("#products-stat")) $("#products-stat").textContent = state.products.length;
+      message.textContent = "Đã lưu và cập nhật storefront.";
+      setTimeout(closeProductEdit, 1100);
+    } catch (error) {
+      message.textContent = error.message;
+    }
+  }
+
+  async function toggleProductStatus(id) {
+    if (!requireLogin()) return;
+    const product = findProduct(id);
+    if (!product) return;
+    try {
+      const result = await adminRequest(`/api/admin/products/${id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ active: !isProductActive(product) })
+      });
+      upsertProduct(result.product);
+      renderProductGrid();
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  async function deleteProduct(id) {
+    if (!requireLogin()) return;
+    const product = findProduct(id) || { name: id };
+    if (!confirm(`Ẩn sản phẩm “${product.name}” khỏi cửa hàng? Đơn hàng cũ vẫn được giữ nguyên.`)) return;
+    try {
+      await adminRequest(`/api/admin/products/${id}`, { method: "DELETE" });
+      state.products = state.products.filter((entry) => entry.id !== id);
+      renderProductGrid();
+      if ($("#products-stat")) $("#products-stat").textContent = state.products.length;
+      if (state.editingProductId === id) closeProductEdit();
+    } catch (error) {
+      alert(error.message);
     }
   }
 
@@ -221,7 +329,7 @@
         adminRequest("/api/admin/dashboard"),
         adminRequest("/api/admin/orders?limit=100"),
         adminRequest("/api/admin/customers?limit=100"),
-        fetch(`${window.DOARE_CONFIG.API_BASE_URL}/api/products`).then((response) => response.json()),
+        adminRequest("/api/admin/products"),
         adminRequest("/api/admin/posts")
       ]);
       state.dashboard = dashboard;
@@ -430,7 +538,7 @@
     if ($("#remove-product-image")) $("#remove-product-image").hidden = !hasImage;
   }
 
-  async function makeTransparentThumbnail(file) {
+  async function makeProductImageBlob(file) {
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
       throw new Error("Chỉ hỗ trợ ảnh JPEG, PNG hoặc WebP.");
     }
@@ -445,28 +553,87 @@
     const context = canvas.getContext("2d");
     context.clearRect(0, 0, 720, 720);
     context.drawImage(image, sourceX, sourceY, side, side, 0, 0, 720, 720);
-    const output = canvas.toDataURL("image/webp", 0.9);
-    if (output.length > 500000) {
-      return canvas.toDataURL("image/webp", 0.75);
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error("Không thể nén ảnh."))),
+        "image/webp",
+        0.9
+      );
+    });
+  }
+
+  async function uploadProductImageRequest(formData) {
+    const response = await fetch(`${window.DOARE_CONFIG.API_BASE_URL}/api/admin/product-images`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${state.token}` },
+      body: formData
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(body.message || "Không tải được ảnh lên cloud.");
+      error.status = response.status;
+      throw error;
     }
-    return output;
+    return body;
+  }
+
+  function blobToDataUrl(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Không thể đọc ảnh."));
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function applyProductImage(form, source) {
+    renderProductImageUpload(source);
+    const accent = findProduct(state.editingProductId)?.accent || "#c9e5f2";
+    $("#product-edit-preview").innerHTML = `
+      <div class="admin-product-visual" style="--accent:${escapeHtml(accent)}">
+        <img class="admin-packshot" src="${escapeHtml(source)}" alt="" />
+      </div>`;
   }
 
   async function selectProductImageFile(event) {
     const file = event.target.files[0];
     if (!file) return;
     const status = $("#product-image-status");
+    const form = $("#product-edit-form");
+    if (!requireLogin()) {
+      event.target.value = "";
+      return;
+    }
     try {
       status.textContent = "Đang xử lý ảnh...";
-      const thumbnail = await makeTransparentThumbnail(file);
-      if (thumbnail.length > 550000) throw new Error("Ảnh sau khi nén vẫn quá lớn. Hãy chọn ảnh khác.");
-      $("#product-edit-form").elements.editImage.value = thumbnail;
-      renderProductImageUpload(thumbnail);
-      $("#product-edit-preview").innerHTML = `
-        <div class="admin-product-visual" style="--accent:${escapeHtml(state.products[state.editingProductIndex]?.accent || '#c9e5f2')}">
-          <img class="admin-packshot" src="${escapeHtml(thumbnail)}" alt="" />
-        </div>`;
-      status.textContent = `Đã tạo ảnh sản phẩm · ${Math.round(thumbnail.length * 0.75 / 1024)}KB`;
+      const blob = await makeProductImageBlob(file);
+      const productId = form.elements.editSlug.value.trim().toLowerCase()
+        || form.elements.editId.value || "misc";
+      try {
+        status.textContent = "Đang tải ảnh lên cloud...";
+        const data = new FormData();
+        data.append("file", blob, `${productId}.webp`);
+        data.append("productId", productId);
+        const result = await uploadProductImageRequest(data);
+        form.elements.editImage.value = result.imageUrl;
+        form.elements.editStorageKey.value = result.storageKey || "";
+        form.elements.editMimeType.value = result.mimeType || "";
+        form.elements.editSizeBytes.value = result.sizeBytes || 0;
+        applyProductImage(form, result.imageUrl);
+        status.textContent = `Đã tải ảnh lên cloud · ${Math.round((result.sizeBytes || 0) / 1024)}KB`;
+      } catch (uploadError) {
+        /* R2 chưa bật (503) hoặc lỗi mạng: lưu ảnh kèm sản phẩm để vẫn dùng được. */
+        const dataUrl = await blobToDataUrl(blob);
+        if (dataUrl.length > 400000) {
+          throw new Error("Ảnh quá lớn để lưu kèm. Hãy chọn ảnh nhỏ hơn hoặc bật R2.");
+        }
+        form.elements.editImage.value = dataUrl;
+        form.elements.editStorageKey.value = "";
+        form.elements.editMimeType.value = "image/webp";
+        form.elements.editSizeBytes.value = Math.round(dataUrl.length * 0.75);
+        applyProductImage(form, dataUrl);
+        status.textContent = "Đã đính kèm ảnh (chưa dùng cloud — bật R2 để tối ưu).";
+      }
     } catch (error) {
       status.textContent = error.message;
     } finally {
@@ -475,12 +642,10 @@
   }
 
   function removeProductImage() {
-    $("#product-edit-form").elements.editImage.value = "";
-    $("#product-image-status").textContent = "Đã xóa ảnh sản phẩm.";
+    resetImageFields($("#product-edit-form"));
+    $("#product-image-status").textContent = "Đã xóa ảnh. Hãy tải ảnh khác trước khi lưu.";
     renderProductImageUpload("");
-    $("#product-edit-preview").innerHTML = `
-        <div class="admin-product-visual" style="--accent:${escapeHtml(state.products[state.editingProductIndex]?.accent || '#c9e5f2')}">
-        </div>`;
+    $("#product-edit-preview").innerHTML = "";
   }
 
   async function selectThumbnailFile(event) {
@@ -591,9 +756,17 @@
 
   /* Product editing events */
   $("#admin-product-grid")?.addEventListener("click", (event) => {
+    const toggleBtn = event.target.closest("[data-toggle-product]");
+    const deleteBtn = event.target.closest("[data-delete-product]");
     const editBtn = event.target.closest("[data-edit-product]");
-    if (editBtn) openProductEdit(Number(editBtn.dataset.editProduct));
+    if (toggleBtn) return toggleProductStatus(toggleBtn.dataset.toggleProduct);
+    if (deleteBtn) return deleteProduct(deleteBtn.dataset.deleteProduct);
+    if (editBtn) return openProductEdit(editBtn.dataset.editProduct);
   });
+  $("#new-product")?.addEventListener("click", openProductCreate);
+  $("#delete-product")?.addEventListener("click", () =>
+    deleteProduct($("#product-edit-form").elements.editId.value)
+  );
   $("#product-edit-form")?.addEventListener("submit", saveProductEdit);
   $("#close-product-edit")?.addEventListener("click", closeProductEdit);
   $("#product-edit-modal")?.addEventListener("click", (event) => {

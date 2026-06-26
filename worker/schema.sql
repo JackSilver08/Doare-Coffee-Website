@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS products (
   badge TEXT NOT NULL DEFAULT '',
   active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
   sort_order INTEGER NOT NULL DEFAULT 0,
+  deleted_at TEXT,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -104,6 +105,9 @@ CREATE TABLE IF NOT EXISTS product_images (
   alt_text TEXT NOT NULL DEFAULT '',
   sort_order INTEGER NOT NULL DEFAULT 0,
   active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
+  storage_key TEXT NOT NULL DEFAULT '',
+  mime_type TEXT NOT NULL DEFAULT '',
+  size_bytes INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -128,5 +132,6 @@ CREATE INDEX IF NOT EXISTS idx_customers_last_order_at ON customers(last_order_a
 CREATE INDEX IF NOT EXISTS idx_admin_sessions_token_hash ON admin_sessions(token_hash);
 CREATE INDEX IF NOT EXISTS idx_admin_sessions_expires_at ON admin_sessions(expires_at);
 CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(product_id, sort_order);
+CREATE INDEX IF NOT EXISTS idx_products_active_sort ON products(active, sort_order);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_status_published ON blog_posts(status, published_at DESC);
 CREATE INDEX IF NOT EXISTS idx_contact_messages_created_at ON contact_messages(created_at DESC);

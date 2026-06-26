@@ -125,6 +125,23 @@ th { color: #8f7d72; font-size: 8px; letter-spacing: .09em; text-transform: uppe
   cursor: pointer; font-size: 10px; font-weight: 600; color: var(--ink); transition: all 180ms ease;
 }
 .admin-edit-btn:hover { border-color: var(--orange); background: var(--orange); color: white; }
+.admin-product-actions { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; margin-top: 4px; }
+.admin-product-actions button {
+  border: 1px solid var(--line); padding: 8px; background: white; cursor: pointer;
+  font-size: 10px; font-weight: 600; color: var(--ink); transition: all 180ms ease;
+}
+.admin-product-actions .admin-edit-btn { width: auto; }
+.admin-product-actions button:hover { border-color: var(--orange); }
+.admin-product-actions .admin-danger { border: 0; background: #a84d4d; color: white; }
+.admin-product-actions .admin-danger:hover { background: #8f3d3d; }
+.admin-product-card.is-hidden { opacity: 0.7; }
+.admin-product-card.is-hidden .admin-packshot { filter: grayscale(0.6) drop-shadow(0 10px 10px rgba(35,86,116,.14)); }
+.admin-product-visual { position: relative; }
+.admin-status-flag {
+  position: absolute; top: 8px; left: 8px; padding: 4px 8px; border-radius: 3px;
+  background: rgba(168, 77, 77, 0.92); color: white; font-size: 8px; font-weight: 700; letter-spacing: .06em;
+}
+.slug-field input:disabled { background: #f4f1ee; color: #8d7a6f; cursor: not-allowed; }
 .product-edit-dialog {
   position: relative; width: min(520px, 100%); max-height: 92vh; overflow-y: auto;
   border: 1px solid rgba(255,255,255,.55); padding: 32px; background: #fff; box-shadow: 0 35px 90px rgba(9,38,57,.3);

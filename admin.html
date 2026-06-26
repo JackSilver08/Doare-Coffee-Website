@@ -13,11 +13,11 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/css/admin.css?v=20260611seo" />
+    <link rel="stylesheet" href="assets/css/admin.css?v=20260626cloud" />
     <script src="assets/js/config.js?v=20260609" defer></script>
     <script src="assets/js/catalog.js?v=20260609" defer></script>
     <script src="assets/js/markdown.js?v=20260609" defer></script>
-    <script src="assets/js/admin.js?v=20260611seo" defer></script>
+    <script src="assets/js/admin.js?v=20260626cloud" defer></script>
   </head>
   <body>
     <aside class="sidebar">
@@ -74,39 +74,57 @@
 
       <section class="view" id="products-view">
         <div class="panel">
-          <div class="panel-heading"><div><p>QUẢN LÝ SẢN PHẨM</p><h2>8 Loại cà phê Dorae</h2></div></div>
+          <div class="panel-heading">
+            <div><p>QUẢN LÝ SẢN PHẨM</p><h2 id="products-heading">Danh mục cà phê</h2></div>
+            <button type="button" id="new-product" class="admin-primary">+ Thêm sản phẩm</button>
+          </div>
           <div class="admin-product-grid" id="admin-product-grid"></div>
+          <div class="empty-state" id="products-empty" hidden><strong>Chưa có sản phẩm</strong><p>Đăng nhập quản trị và bấm “Thêm sản phẩm” để tạo sản phẩm đầu tiên.</p></div>
         </div>
 
         <div class="admin-modal-backdrop" id="product-edit-modal" hidden>
           <section class="product-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-product-title">
             <button class="login-close" id="close-product-edit" type="button" aria-label="Đóng">×</button>
             <div class="login-heading" style="margin-top:0">
-              <p>CHỈNH SỬA SẢN PHẨM</p>
+              <p id="product-edit-eyebrow">CHỈNH SỬA SẢN PHẨM</p>
               <h2 id="edit-product-title">Chỉnh sửa</h2>
             </div>
             <form class="editor-form" id="product-edit-form">
-              <input name="editIndex" type="hidden" />
+              <input name="editMode" type="hidden" value="edit" />
+              <input name="editId" type="hidden" />
               <div class="product-edit-preview" id="product-edit-preview"></div>
               <div class="field-grid">
                 <label>Tên sản phẩm<input name="editName" required /></label>
                 <label>Giá bán (VND)<input name="editPrice" type="number" min="1000" required /></label>
               </div>
+              <label class="slug-field">ID / slug (không dấu, chữ thường)<input name="editSlug" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="vd: dorae-hat-chin" /></label>
               <label>Mô tả ngắn<input name="editSubtitle" required /></label>
               <div class="field-grid">
                 <label>Khối lượng<input name="editWeight" required /></label>
                 <label>Mức rang<input name="editRoast" required /></label>
               </div>
               <label>Hương vị (cách nhau bằng dấu phẩy)<input name="editNotes" /></label>
-              <label>Nhãn nổi bật<input name="editBadge" /></label>
+              <div class="field-grid">
+                <label>Nhãn nổi bật<input name="editBadge" /></label>
+                <label>Thứ tự hiển thị<input name="editSortOrder" type="number" min="0" value="0" /></label>
+              </div>
+              <label class="status-field">Trạng thái
+                <select name="editActive">
+                  <option value="1">Đang bán</option>
+                  <option value="0">Tạm ẩn</option>
+                </select>
+              </label>
               <div class="thumbnail-field">
                 <span class="field-label">Ảnh sản phẩm (nền trong suốt)</span>
                 <input name="editImage" type="hidden" />
+                <input name="editStorageKey" type="hidden" />
+                <input name="editMimeType" type="hidden" />
+                <input name="editSizeBytes" type="hidden" />
                 <label class="thumbnail-uploader" for="product-image-file">
                   <input id="product-image-file" type="file" accept="image/jpeg,image/png,image/webp" />
                   <span class="thumbnail-upload-preview" id="product-image-preview">
                     <strong>Chọn ảnh</strong>
-                    <small>JPEG, PNG hoặc WebP</small>
+                    <small>JPEG, PNG hoặc WebP · tối đa 5MB</small>
                   </span>
                 </label>
                 <div class="thumbnail-actions">
@@ -117,6 +135,7 @@
               </div>
               <div class="editor-actions">
                 <button class="admin-primary" type="submit">Lưu thay đổi</button>
+                <button class="admin-danger" id="delete-product" type="button" hidden>Xóa sản phẩm</button>
                 <span class="save-message" id="product-edit-message" role="status"></span>
               </div>
             </form>

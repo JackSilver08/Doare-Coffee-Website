@@ -20,7 +20,7 @@ function corsHeaders(request, env) {
   const cfPagesOrigin = /^https:\/\/[a-z0-9-]+\.doare-coffee\.pages\.dev$/i.test(origin);
   const headers = {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
     "Vary": "Origin"
   };
   if (allowed.includes(origin) || githubPagesOrigin || cfPagesOrigin) {
@@ -46,6 +46,23 @@ function cleanImageUrl(value) {
   const url = cleanText(value, 400000);
   if (!validImageUrl(url)) throw new Error("IMAGE_URL_INVALID");
   return url;
+}
+
+const PRODUCT_IMAGE_TYPES = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp"
+};
+const MAX_PRODUCT_IMAGE_BYTES = 5 * 1024 * 1024;
+
+function slugValid(value) {
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+}
+
+function productImageUrl(env, request, key) {
+  const base = cleanText(env.R2_PUBLIC_BASE_URL, 240).replace(/\/+$/, "");
+  if (base) return `${base}/${key}`;
+  return `${new URL(request.url).origin}/api/images/${key}`;
 }
 
 function makePostId() {
@@ -127,29 +144,49 @@ function unauthorized(headers = {}) {
   return json({ message: "Không có quyền truy cập." }, 401, headers);
 }
 
+function mapProductsWithGallery(productRows, imageRows) {
+  const galleries = new Map();
+  for (const image of imageRows) {
+    if (!galleries.has(image.product_id)) galleries.set(image.product_id, []);
+    galleries.get(image.product_id).push(image);
+  }
+  return productRows.map((product) => ({
+    ...product,
+    notes: JSON.parse(product.notes || "[]"),
+    gallery: galleries.get(product.id) || []
+  }));
+}
+
 async function getProducts(env) {
   const [result, imageResult] = await env.DB.batch([
     env.DB.prepare(
       `SELECT id, name, subtitle, category, roast, notes, price, weight, accent, image, badge
-       FROM products WHERE active = 1 ORDER BY sort_order ASC, created_at DESC`
+       FROM products WHERE active = 1 AND deleted_at IS NULL ORDER BY sort_order ASC, created_at DESC`
     ),
     env.DB.prepare(
       `SELECT id, product_id, image_url, alt_text, sort_order
        FROM product_images WHERE active = 1 ORDER BY product_id, sort_order ASC, id ASC`
     )
   ]);
+  return mapProductsWithGallery(result.results, imageResult.results);
+}
 
-  const galleries = new Map();
-  for (const image of imageResult.results) {
-    if (!galleries.has(image.product_id)) galleries.set(image.product_id, []);
-    galleries.get(image.product_id).push(image);
-  }
+async function getAdminProducts(env) {
+  const [result, imageResult] = await env.DB.batch([
+    env.DB.prepare(
+      `SELECT id, name, subtitle, category, roast, notes, price, weight, accent, image, badge, active, sort_order
+       FROM products WHERE deleted_at IS NULL ORDER BY sort_order ASC, created_at DESC`
+    ),
+    env.DB.prepare(
+      `SELECT id, product_id, image_url, alt_text, sort_order, storage_key, mime_type, size_bytes
+       FROM product_images WHERE active = 1 ORDER BY product_id, sort_order ASC, id ASC`
+    )
+  ]);
+  return mapProductsWithGallery(result.results, imageResult.results);
+}
 
-  return result.results.map((product) => ({
-    ...product,
-    notes: JSON.parse(product.notes || "[]"),
-    gallery: galleries.get(product.id) || []
-  }));
+async function findAdminProduct(env, id) {
+  return (await getAdminProducts(env)).find((product) => product.id === id) || null;
 }
 
 async function getPublishedPosts(url, env) {
@@ -252,8 +289,7 @@ async function updateAdminPost(request, id, env) {
   return env.DB.prepare("SELECT * FROM blog_posts WHERE id = ?").bind(id).first();
 }
 
-async function updateAdminProduct(request, id, env) {
-  const body = await request.json().catch(() => ({}));
+function normalizeProductBody(body) {
   const name = cleanText(body.name, 140);
   const subtitle = cleanText(body.subtitle, 220);
   const category = cleanText(body.category, 80) || "ground";
@@ -262,36 +298,139 @@ async function updateAdminProduct(request, id, env) {
   const accent = cleanText(body.accent, 20) || "#c9e5f2";
   const badge = cleanText(body.badge, 80);
   const price = Math.max(0, Number.parseInt(body.price, 10) || 0);
-  const active = body.active === false ? 0 : 1;
+  const active = body.active === false || body.active === 0 ? 0 : 1;
+  const sortOrder = Math.max(0, Number.parseInt(body.sortOrder ?? body.sort_order, 10) || 0);
   const notes = Array.isArray(body.notes)
     ? body.notes.map((item) => cleanText(item, 80)).filter(Boolean).slice(0, 12)
-    : [];
+    : cleanText(body.notes, 400).split(",").map((item) => item.trim()).filter(Boolean).slice(0, 12);
   const images = Array.isArray(body.images)
     ? body.images.map((item, index) => ({
         imageUrl: cleanImageUrl(typeof item === "string" ? item : item.imageUrl),
-        altText: cleanText(typeof item === "string" ? name : item.altText, 180),
+        altText: cleanText(typeof item === "string" ? name : item.altText, 180) || name,
+        storageKey: cleanText(typeof item === "object" && item ? item.storageKey : "", 240),
+        mimeType: cleanText(typeof item === "object" && item ? item.mimeType : "", 60),
+        sizeBytes: Math.max(0, Number.parseInt(typeof item === "object" && item ? item.sizeBytes : 0, 10) || 0),
         sortOrder: index
       })).filter((item) => item.imageUrl).slice(0, 12)
     : [];
   if (!name || !subtitle || !roast || !weight || !price) throw new Error("PRODUCT_INVALID");
-  const primaryImage = images[0]?.imageUrl || cleanImageUrl(body.image);
+  const primaryImage = cleanImageUrl(body.image) || images[0]?.imageUrl || "";
   if (!primaryImage) throw new Error("PRODUCT_IMAGE_REQUIRED");
+  return { name, subtitle, category, roast, weight, accent, badge, price, active, sortOrder, notes, images, primaryImage };
+}
 
+function productImageInserts(env, id, images) {
+  return images.map((image) => env.DB.prepare(
+    `INSERT INTO product_images (product_id, image_url, alt_text, sort_order, storage_key, mime_type, size_bytes)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  ).bind(id, image.imageUrl, image.altText, image.sortOrder, image.storageKey, image.mimeType, image.sizeBytes));
+}
+
+async function deleteR2Object(env, key) {
+  if (!key || !env.PRODUCT_IMAGES) return;
+  try {
+    await env.PRODUCT_IMAGES.delete(key);
+  } catch (error) {
+    console.error("R2 delete failed", key, error);
+  }
+}
+
+async function createAdminProduct(request, env) {
+  const body = await request.json().catch(() => ({}));
+  const id = cleanText(body.id, 80).toLowerCase();
+  if (!slugValid(id)) throw new Error("PRODUCT_SLUG_INVALID");
+  const data = normalizeProductBody(body);
+  const existing = await env.DB.prepare("SELECT id FROM products WHERE id = ?").bind(id).first();
+  if (existing) throw new Error("PRODUCT_DUPLICATE");
+  await env.DB.batch([
+    env.DB.prepare(
+      `INSERT INTO products (id, name, subtitle, category, roast, notes, price, weight, accent, image, badge, active, sort_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).bind(id, data.name, data.subtitle, data.category, data.roast, JSON.stringify(data.notes), data.price, data.weight, data.accent, data.primaryImage, data.badge, data.active, data.sortOrder),
+    ...productImageInserts(env, id, data.images)
+  ]);
+  return findAdminProduct(env, id);
+}
+
+async function updateAdminProduct(request, id, env) {
+  const data = normalizeProductBody(await request.json().catch(() => ({})));
   const existing = await env.DB.prepare("SELECT id FROM products WHERE id = ?").bind(id).first();
   if (!existing) return null;
+  const oldImages = await env.DB.prepare(
+    "SELECT storage_key FROM product_images WHERE product_id = ?"
+  ).bind(id).all();
   await env.DB.batch([
     env.DB.prepare(
       `UPDATE products SET name = ?, subtitle = ?, category = ?, roast = ?, notes = ?,
-       price = ?, weight = ?, accent = ?, image = ?, badge = ?, active = ?, updated_at = CURRENT_TIMESTAMP
+       price = ?, weight = ?, accent = ?, image = ?, badge = ?, active = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`
-    ).bind(name, subtitle, category, roast, JSON.stringify(notes), price, weight, accent, primaryImage, badge, active, id),
+    ).bind(data.name, data.subtitle, data.category, data.roast, JSON.stringify(data.notes), data.price, data.weight, data.accent, data.primaryImage, data.badge, data.active, data.sortOrder, id),
     env.DB.prepare("DELETE FROM product_images WHERE product_id = ?").bind(id),
-    ...images.map((image) => env.DB.prepare(
-      `INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
-       VALUES (?, ?, ?, ?)`
-    ).bind(id, image.imageUrl, image.altText, image.sortOrder))
+    ...productImageInserts(env, id, data.images)
   ]);
-  return (await getProducts(env)).find((product) => product.id === id) || null;
+  const keepKeys = new Set(data.images.map((image) => image.storageKey).filter(Boolean));
+  for (const old of oldImages.results) {
+    if (old.storage_key && !keepKeys.has(old.storage_key)) await deleteR2Object(env, old.storage_key);
+  }
+  return findAdminProduct(env, id);
+}
+
+async function setAdminProductStatus(request, id, env) {
+  const body = await request.json().catch(() => ({}));
+  const active = body.active === false || body.active === 0 ? 0 : 1;
+  const result = await env.DB.prepare(
+    "UPDATE products SET active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND deleted_at IS NULL"
+  ).bind(active, id).run();
+  if (!result.meta.changes) return null;
+  return findAdminProduct(env, id);
+}
+
+async function softDeleteAdminProduct(id, env) {
+  const result = await env.DB.prepare(
+    "UPDATE products SET active = 0, deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND deleted_at IS NULL"
+  ).bind(id).run();
+  return result.meta.changes > 0;
+}
+
+async function uploadProductImage(request, env) {
+  if (!env.PRODUCT_IMAGES) throw new Error("R2_NOT_CONFIGURED");
+  const form = await request.formData().catch(() => null);
+  const file = form && form.get("file");
+  if (!file || typeof file === "string") throw new Error("IMAGE_FILE_REQUIRED");
+  const ext = PRODUCT_IMAGE_TYPES[file.type];
+  if (!ext) throw new Error("IMAGE_TYPE_INVALID");
+  if (file.size > MAX_PRODUCT_IMAGE_BYTES) throw new Error("IMAGE_TOO_LARGE");
+  const requested = cleanText(form.get("productId"), 80).toLowerCase();
+  const folder = slugValid(requested) ? requested : "misc";
+  const key = `products/${folder}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+  await env.PRODUCT_IMAGES.put(key, file.stream(), {
+    httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" }
+  });
+  return {
+    imageUrl: productImageUrl(env, request, key),
+    storageKey: key,
+    mimeType: file.type,
+    sizeBytes: file.size
+  };
+}
+
+async function deleteProductImage(id, env) {
+  const row = await env.DB.prepare("SELECT id, storage_key FROM product_images WHERE id = ?").bind(id).first();
+  if (!row) return false;
+  await env.DB.prepare("DELETE FROM product_images WHERE id = ?").bind(id).run();
+  await deleteR2Object(env, row.storage_key);
+  return true;
+}
+
+async function serveProductImage(key, env) {
+  if (!env.PRODUCT_IMAGES) return new Response("Not found", { status: 404 });
+  const object = await env.PRODUCT_IMAGES.get(key);
+  if (!object) return new Response("Not found", { status: 404 });
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set("etag", object.httpEtag);
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  return new Response(object.body, { headers });
 }
 
 async function createOrder(request, env) {
@@ -661,12 +800,51 @@ export default {
           ? json({ success: true }, 200, cors)
           : json({ message: "Không tìm thấy bài viết." }, 404, cors);
       }
+      const imageServeMatch = url.pathname.match(/^\/api\/images\/(.+)$/);
+      if (request.method === "GET" && imageServeMatch) {
+        return serveProductImage(decodeURIComponent(imageServeMatch[1]), env);
+      }
+      if (request.method === "GET" && url.pathname === "/api/admin/products") {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        return json({ products: await getAdminProducts(env) }, 200, cors);
+      }
+      if (request.method === "POST" && url.pathname === "/api/admin/products") {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        return json({ product: await createAdminProduct(request, env) }, 201, cors);
+      }
+      if (request.method === "POST" && url.pathname === "/api/admin/product-images") {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        return json(await uploadProductImage(request, env), 201, cors);
+      }
+      const adminImageMatch = url.pathname.match(/^\/api\/admin\/product-images\/(\d+)$/);
+      if (request.method === "DELETE" && adminImageMatch) {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        const removed = await deleteProductImage(Number(adminImageMatch[1]), env);
+        return removed
+          ? json({ success: true }, 200, cors)
+          : json({ message: "Không tìm thấy ảnh." }, 404, cors);
+      }
+      const adminProductStatusMatch = url.pathname.match(/^\/api\/admin\/products\/([a-z0-9-]+)\/status$/);
+      if (request.method === "PATCH" && adminProductStatusMatch) {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        const product = await setAdminProductStatus(request, adminProductStatusMatch[1], env);
+        return product
+          ? json({ product }, 200, cors)
+          : json({ message: "Không tìm thấy sản phẩm." }, 404, cors);
+      }
       const adminProductMatch = url.pathname.match(/^\/api\/admin\/products\/([a-z0-9-]+)$/);
       if (request.method === "PUT" && adminProductMatch) {
         if (!(await isAdmin(request, env))) return unauthorized(cors);
         const product = await updateAdminProduct(request, adminProductMatch[1], env);
         return product
           ? json({ product }, 200, cors)
+          : json({ message: "Không tìm thấy sản phẩm." }, 404, cors);
+      }
+      if (request.method === "DELETE" && adminProductMatch) {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        const removed = await softDeleteAdminProduct(adminProductMatch[1], env);
+        return removed
+          ? json({ success: true }, 200, cors)
           : json({ message: "Không tìm thấy sản phẩm." }, 404, cors);
       }
       return json({ message: "Không tìm thấy API." }, 404, cors);
@@ -676,6 +854,12 @@ export default {
       if (error.message === "POST_INVALID") return json({ message: "Tiêu đề hoặc slug bài viết không hợp lệ." }, 400, cors);
       if (error.message === "PRODUCT_INVALID") return json({ message: "Thông tin sản phẩm chưa đầy đủ." }, 400, cors);
       if (error.message === "PRODUCT_IMAGE_REQUIRED") return json({ message: "Sản phẩm cần ít nhất một ảnh." }, 400, cors);
+      if (error.message === "PRODUCT_SLUG_INVALID") return json({ message: "ID/slug sản phẩm không hợp lệ (chỉ chữ thường, số và dấu gạch ngang)." }, 400, cors);
+      if (error.message === "PRODUCT_DUPLICATE") return json({ message: "ID sản phẩm đã tồn tại." }, 409, cors);
+      if (error.message === "R2_NOT_CONFIGURED") return json({ message: "Chưa cấu hình R2 bucket cho ảnh." }, 503, cors);
+      if (error.message === "IMAGE_FILE_REQUIRED") return json({ message: "Vui lòng chọn file ảnh." }, 400, cors);
+      if (error.message === "IMAGE_TYPE_INVALID") return json({ message: "Chỉ hỗ trợ ảnh JPEG, PNG hoặc WebP." }, 400, cors);
+      if (error.message === "IMAGE_TOO_LARGE") return json({ message: "Ảnh vượt quá 5MB." }, 400, cors);
       if (String(error.message).includes("UNIQUE constraint failed: blog_posts.slug")) {
         return json({ message: "Slug bài viết đã tồn tại." }, 409, cors);
       }

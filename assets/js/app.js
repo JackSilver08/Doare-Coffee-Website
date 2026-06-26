@@ -461,20 +461,61 @@
     $$("[data-reveal]").forEach((section) => revealObserver.observe(section));
   }
 
-  async function init() {
-    initExperience();
-    [state.products, state.posts] = await Promise.all([
-      window.DoareAPI.getProducts(),
-      window.DoareAPI.getPosts()
-    ]);
+  function setProductsStatus(status) {
+    const banner = $("#products-status");
+    const stage = $(".single-product");
+    const messages = {
+      loading: "Đang tải danh sách cà phê…",
+      error: "Không tải được sản phẩm. Vui lòng tải lại trang sau giây lát.",
+      empty: "Hiện chưa có sản phẩm nào. Vui lòng quay lại sau."
+    };
+    if (stage) stage.hidden = status !== "ready";
+    if (banner) {
+      banner.hidden = status === "ready";
+      banner.textContent = messages[status] || "";
+      banner.classList.toggle("is-error", status === "error");
+    }
+  }
+
+  function updateProductCaption() {
+    const caption = $(".stage-caption");
+    if (caption) caption.textContent = `${state.products.length} LOẠI CÀ PHÊ · DORAE COFFEE`;
+  }
+
+  async function loadProducts() {
+    setProductsStatus("loading");
+    try {
+      state.products = await window.DoareAPI.getProducts();
+    } catch (error) {
+      console.warn("Products API:", error.message);
+      setProductsStatus("error");
+      return;
+    }
     const validIds = new Set(state.products.map((product) => product.id));
     state.cart = state.cart.filter((item) => validIds.has(item.id));
     localStorage.setItem("doare_cart", JSON.stringify(state.cart));
+    renderCart();
+    if (!state.products.length) {
+      setProductsStatus("empty");
+      return;
+    }
+    setProductsStatus("ready");
+    updateProductCaption();
     state.currentProductIndex = 0;
     renderFeaturedProduct();
+  }
+
+  async function loadPosts() {
+    state.posts = await window.DoareAPI.getPosts();
     renderPosts();
-    renderCart();
+  }
+
+  async function init() {
+    initExperience();
     bindEvents();
+    renderCart();
+    loadPosts();
+    await loadProducts();
   }
 
   init();

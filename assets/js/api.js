@@ -39,10 +39,11 @@
     async getProducts() {
       try {
         const data = await request("/api/products");
-        return data.products;
+        return data.products || [];
       } catch (error) {
-        if (error.message !== "MOCK_MODE") console.warn("API fallback:", error.message);
-        return window.DOARE_CATALOG;
+        /* Chỉ fallback catalog ở môi trường dev (chưa cấu hình API). */
+        if (error.message === "MOCK_MODE") return window.DOARE_CATALOG || [];
+        throw error;
       }
     },
 
