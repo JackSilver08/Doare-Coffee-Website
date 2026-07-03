@@ -446,31 +446,107 @@
       .trim();
   }
 
+  function normalizeSearchText(value) {
+    return String(value || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/[^a-z0-9\s-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function keywordCount(text, keyword) {
+    const normalizedText = normalizeSearchText(text);
+    const normalizedKeyword = normalizeSearchText(keyword);
+    if (!normalizedText || !normalizedKeyword) return 0;
+    const pattern = new RegExp(`(^|\\s)${normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=\\s|$)`, "g");
+    return (normalizedText.match(pattern) || []).length;
+  }
+
+  function markdownImages(markdown) {
+    return [...String(markdown || "").matchAll(/!\[([^\]]*)\]\(([^)]+)\)/g)]
+      .map((match) => ({ alt: match[1] || "", url: match[2] || "" }));
+  }
+
+  function markdownLinks(markdown) {
+    return [...String(markdown || "").matchAll(/(?<!!)\[([^\]]+)\]\(([^)]+)\)/g)]
+      .map((match) => match[2] || "");
+  }
+
+  function seoTitle(form) {
+    const title = form.elements.title.value.trim();
+    const template = form.elements.seoTitle?.value.trim();
+    return template ? template.replaceAll("%title%", title) : `${title} | Dorae Coffee`;
+  }
+
   function seoDescription(form) {
-    const explicit = form.elements.excerpt.value.trim();
+    const explicit = form.elements.seoDescription?.value.trim() || form.elements.excerpt.value.trim();
     const source = explicit || plainTextFromMarkdown(form.elements.markdown.value);
     if (!source) return "";
     return source.length > 160 ? `${source.slice(0, 157).trimEnd()}...` : source;
+  }
+
+  function analyzeSeo(form) {
+    const title = form.elements.title.value.trim();
+    const titleForSeo = seoTitle(form);
+    const slug = form.elements.slug.value.trim() || slugify(title);
+    const description = seoDescription(form);
+    const markdown = form.elements.markdown.value;
+    const plain = plainTextFromMarkdown(markdown);
+    const words = plain.split(/\s+/).filter(Boolean);
+    const wordCount = words.length;
+    const keyword = form.elements.focusKeyword?.value.trim() || "";
+    const images = markdownImages(markdown);
+    const links = markdownLinks(markdown);
+    const internalLinks = links.filter((url) => /doraecoffee\.io\.vn|^\/|^#|^assets\//i.test(url)).length;
+    const externalLinks = links.filter((url) => /^https?:\/\//i.test(url) && !/doraecoffee\.io\.vn/i.test(url)).length;
+    const headingCount = (markdown.match(/^#{2,3}\s+.+$/gm) || []).length;
+    const keywordHits = keywordCount(plain, keyword);
+    const density = wordCount && keyword ? keywordHits / wordCount * 100 : 0;
+    const firstPart = words.slice(0, Math.max(30, Math.ceil(wordCount * 0.1))).join(" ");
+    const hasKeyword = Boolean(keyword);
+    const rules = [
+      { ok: hasKeyword, weight: 10, label: hasKeyword ? `Từ khóa chính: "${keyword}"` : "Nhập từ khóa chính cho bài viết" },
+      { ok: hasKeyword && keywordCount(titleForSeo, keyword) > 0, weight: 10, label: "Từ khóa xuất hiện trong SEO title" },
+      { ok: hasKeyword && keywordCount(description, keyword) > 0, weight: 10, label: "Từ khóa xuất hiện trong meta description" },
+      { ok: hasKeyword && normalizeSearchText(slug).includes(normalizeSearchText(keyword).replace(/\s+/g, "-")), weight: 8, label: "Slug URL có chứa từ khóa" },
+      { ok: hasKeyword && keywordCount(firstPart, keyword) > 0, weight: 8, label: "Từ khóa nằm ở đoạn mở đầu" },
+      { ok: titleForSeo.length >= 35 && titleForSeo.length <= 60, weight: 8, label: `SEO title ${titleForSeo.length}/60 ký tự` },
+      { ok: description.length >= 120 && description.length <= 160, weight: 8, label: `Meta description ${description.length}/160 ký tự` },
+      { ok: wordCount >= 600, weight: 10, label: `${wordCount} từ nội dung, nên từ 600 từ trở lên` },
+      { ok: headingCount >= 2, weight: 7, label: `${headingCount} heading H2/H3 trong thân bài` },
+      { ok: images.length > 0 || Boolean(form.elements.thumbnailUrl.value.trim()), weight: 7, label: `${images.length} ảnh trong bài và thumbnail` },
+      { ok: !hasKeyword || images.some((image) => keywordCount(image.alt, keyword) > 0), weight: 6, label: "Alt ảnh có chứa từ khóa chính" },
+      { ok: density >= 0.5 && density <= 2.5, weight: 8, label: `Mật độ từ khóa ${density.toFixed(1)}%` },
+      { ok: internalLinks > 0, weight: 4, label: "Có liên kết nội bộ" },
+      { ok: externalLinks > 0, weight: 4, label: "Có liên kết ngoài đáng tin cậy" }
+    ];
+    const score = Math.min(100, rules.reduce((sum, rule) => sum + (rule.ok ? rule.weight : 0), 0));
+    return { score, rules, titleForSeo, slug, description };
   }
 
   function updateSeoPreview() {
     const form = $("#post-form");
     if (!form || !$("#seo-preview-title-text")) return;
     const title = form.elements.title.value.trim();
-    const slug = form.elements.slug.value.trim() || slugify(title);
-    const description = seoDescription(form);
-    const wordCount = plainTextFromMarkdown(form.elements.markdown.value).split(/\s+/).filter(Boolean).length;
-    const hasImage = Boolean(form.elements.thumbnailUrl.value.trim());
+    const analysis = analyzeSeo(form);
+    const score = $("#seo-score");
 
-    $("#seo-preview-url").textContent = `https://doraecoffee.io.vn/blog?slug=${slug || "duong-dan-bai-viet"}`;
-    $("#seo-preview-title-text").textContent = `${title || "Tiêu đề bài viết"} | Dorae Coffee`;
-    $("#seo-preview-description").textContent = description || "Mô tả SEO sẽ được lấy từ mô tả ngắn hoặc tự động rút từ nội dung bài viết.";
-    $("#seo-checklist").innerHTML = [
-      [title.length >= 20 && title.length <= 65, `Tiêu đề ${title.length}/65 ký tự`],
-      [description.length >= 100 && description.length <= 160, `Mô tả ${description.length}/160 ký tự`],
-      [wordCount >= 300, `${wordCount} từ nội dung`],
-      [hasImage, hasImage ? "Có ảnh chia sẻ" : "Nên thêm ảnh thumbnail"]
-    ].map(([ok, label]) => `<li class="${ok ? "" : "warning"}">${ok ? "Đạt" : "Gợi ý"} · ${escapeHtml(label)}</li>`).join("");
+    $("#seo-preview-url").textContent = `https://doraecoffee.io.vn/blog?slug=${analysis.slug || "duong-dan-bai-viet"}`;
+    $("#seo-preview-title-text").textContent = analysis.titleForSeo || `${title || "Tiêu đề bài viết"} | Dorae Coffee`;
+    $("#seo-preview-description").textContent = analysis.description || "Meta description sẽ hiển thị tại đây khi nhập mô tả SEO, mô tả ngắn hoặc nội dung bài viết.";
+    if (score) {
+      score.querySelector("strong").textContent = analysis.score;
+      score.classList.toggle("good", analysis.score >= 80);
+      score.classList.toggle("warn", analysis.score >= 50 && analysis.score < 80);
+      score.classList.toggle("poor", analysis.score < 50);
+    }
+    $("#seo-checklist").innerHTML = analysis.rules.map((rule) => {
+      const state = rule.ok ? "pass" : rule.weight >= 8 ? "fail" : "warning";
+      return `<li class="${state === "pass" ? "" : state}"><span>${rule.ok ? "Đạt" : "Sửa"}</span>${escapeHtml(rule.label)}</li>`;
+    }).join("");
   }
 
   function selectPost(post) {
@@ -481,6 +557,9 @@
     form.elements.excerpt.value = post?.excerpt || "";
     form.elements.thumbnailUrl.value = post?.thumbnail_url || "";
     form.elements.markdown.value = post?.markdown || "";
+    if (form.elements.focusKeyword) form.elements.focusKeyword.value = post?.focus_keyword || post?.focusKeyword || "";
+    if (form.elements.seoTitle) form.elements.seoTitle.value = post?.seo_title || post?.seoTitle || "";
+    if (form.elements.seoDescription) form.elements.seoDescription.value = post?.seo_description || post?.seoDescription || "";
     form.elements.status.value = post?.status || "draft";
     $("#delete-post").hidden = !post;
     $("#post-message").textContent = "";
@@ -535,6 +614,120 @@
       return canvas.toDataURL("image/webp", 0.68);
     }
     return output;
+  }
+
+  async function makeContentImageBlob(file) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      throw new Error("Chỉ hỗ trợ ảnh JPEG, PNG hoặc WebP.");
+    }
+    if (file.size > 12 * 1024 * 1024) throw new Error("Ảnh gốc không được lớn hơn 12MB.");
+    const image = await readImage(file);
+    const maxWidth = 1280;
+    const scale = Math.min(1, maxWidth / image.naturalWidth);
+    const width = Math.max(1, Math.round(image.naturalWidth * scale));
+    const height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", { alpha: false });
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(new Error("Không thể nén ảnh."))),
+        "image/webp",
+        0.84
+      );
+    });
+  }
+
+  async function uploadBlogImageRequest(formData) {
+    const response = await fetch(`${window.DOARE_CONFIG.API_BASE_URL}/api/admin/blog-images`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${state.token}` },
+      body: formData
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(body.message || "Không tải được ảnh nội dung lên cloud.");
+      error.status = response.status;
+      throw error;
+    }
+    return body;
+  }
+
+  function insertIntoMarkdown(markdown) {
+    const textarea = $("#post-form").elements.markdown;
+    const start = textarea.selectionStart ?? textarea.value.length;
+    const end = textarea.selectionEnd ?? textarea.value.length;
+    const before = textarea.value.slice(0, start);
+    const after = textarea.value.slice(end);
+    const needsBefore = before && !before.endsWith("\n") ? "\n\n" : "";
+    const needsAfter = after && !after.startsWith("\n") ? "\n\n" : "";
+    textarea.value = `${before}${needsBefore}${markdown}${needsAfter}${after}`;
+    const cursor = (before + needsBefore + markdown).length;
+    textarea.focus();
+    textarea.setSelectionRange(cursor, cursor);
+    updateMarkdownPreview();
+    updateSeoPreview();
+  }
+
+  function applyMarkdownAction(action) {
+    const textarea = $("#post-form").elements.markdown;
+    const start = textarea.selectionStart ?? 0;
+    const end = textarea.selectionEnd ?? 0;
+    const selected = textarea.value.slice(start, end) || "nội dung";
+    const replacements = {
+      h2: `\n\n## ${selected.replace(/^#+\s*/, "")}\n\n`,
+      bold: `**${selected}**`,
+      italic: `*${selected}*`,
+      list: selected.split("\n").map((line) => `- ${line.replace(/^[-*]\s*/, "")}`).join("\n"),
+      quote: selected.split("\n").map((line) => `> ${line.replace(/^>\s*/, "")}`).join("\n"),
+      link: `[${selected}](https://doraecoffee.io.vn/)`,
+      "image-url": `![Mô tả ảnh](https://example.com/anh-bai-viet.webp)`
+    };
+    textarea.setRangeText(replacements[action] || selected, start, end, "end");
+    textarea.focus();
+    updateMarkdownPreview();
+    updateSeoPreview();
+  }
+
+  async function selectContentImageFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const status = $("#content-image-status");
+    if (!requireLogin()) {
+      event.target.value = "";
+      return;
+    }
+    try {
+      status.textContent = "Đang xử lý ảnh nội dung...";
+      const blob = await makeContentImageBlob(file);
+      const form = $("#post-form");
+      const slug = form.elements.slug.value.trim().toLowerCase() || slugify(form.elements.title.value) || "bai-viet";
+      const alt = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim() || form.elements.title.value.trim() || "Ảnh bài viết";
+      try {
+        status.textContent = "Đang tải ảnh nội dung lên cloud...";
+        const data = new FormData();
+        data.append("file", blob, `${slug}.webp`);
+        data.append("postSlug", slug);
+        const result = await uploadBlogImageRequest(data);
+        insertIntoMarkdown(`![${alt}](${result.imageUrl})`);
+        status.textContent = `Đã chèn ảnh vào bài · ${Math.round((result.sizeBytes || blob.size) / 1024)}KB`;
+      } catch (uploadError) {
+        const dataUrl = await blobToDataUrl(blob);
+        if (dataUrl.length > 28000) {
+          throw new Error("Ảnh nội dung cần cloud/R2 để lưu ổn định. Hãy bật R2 hoặc dùng URL ảnh công khai.");
+        }
+        insertIntoMarkdown(`![${alt}](${dataUrl})`);
+        status.textContent = "Đã chèn ảnh dạng đính kèm nhỏ. Nên bật R2 để tối ưu tốc độ tải.";
+      }
+    } catch (error) {
+      status.textContent = error.message;
+    } finally {
+      event.target.value = "";
+    }
   }
 
   function renderProductImageUpload(source) {
@@ -702,6 +895,7 @@
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form));
     if (!data.excerpt.trim()) data.excerpt = seoDescription(form);
+    if (!data.seoDescription?.trim()) data.seoDescription = seoDescription(form);
     const id = data.id;
     const message = $("#post-message");
     try {
@@ -793,6 +987,12 @@
   $("#delete-post")?.addEventListener("click", deletePost);
   $("#new-post")?.addEventListener("click", () => selectPost(null));
   $("#thumbnail-file")?.addEventListener("change", selectThumbnailFile);
+  $("#content-image-file")?.addEventListener("change", selectContentImageFile);
+  $("#insert-content-image")?.addEventListener("click", () => $("#content-image-file").click());
+  $(".markdown-toolbar")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-md-action]");
+    if (button) applyMarkdownAction(button.dataset.mdAction);
+  });
   $("#replace-thumbnail")?.addEventListener("click", () => $("#thumbnail-file").click());
   $("#remove-thumbnail")?.addEventListener("click", removeThumbnail);
   $("#post-list")?.addEventListener("click", (event) => {

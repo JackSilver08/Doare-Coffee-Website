@@ -13,18 +13,33 @@ function escapeHtml(value) {
 
 function inlineMarkdown(text) {
   return escapeHtml(text)
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+      const src = safeMarkdownUrl(url);
+      return src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" />` : "";
+    })
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
+      const href = safeMarkdownUrl(url);
+      return href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noopener">${label}</a>` : label;
+    })
     .replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>");
 }
 
+function safeMarkdownUrl(value) {
+  const url = String(value || "").trim();
+  if (/^https?:\/\/[^\s)]+$/i.test(url)) return url;
+  if (/^assets\/[^\s)]+$/i.test(url)) return url;
+  if (/^data:image\/(?:webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/i.test(url)) return url;
+  return "";
+}
+
 function renderMarkdown(markdown) {
   const output = [];
-  let listOpen = false;
+  let listOpen = "";
   const closeList = () => {
-    if (listOpen) output.push("</ul>");
-    listOpen = false;
+    if (listOpen) output.push(`</${listOpen}>`);
+    listOpen = "";
   };
 
   for (const rawLine of String(markdown || "").replace(/\r/g, "").split("\n")) {
@@ -33,17 +48,36 @@ function renderMarkdown(markdown) {
       closeList();
       continue;
     }
-    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
     if (heading) {
       closeList();
       output.push(`<h${heading[1].length}>${inlineMarkdown(heading[2])}</h${heading[1].length}>`);
       continue;
     }
+    const quote = line.match(/^>\s+(.+)$/);
+    if (quote) {
+      closeList();
+      output.push(`<blockquote>${inlineMarkdown(quote[1])}</blockquote>`);
+      continue;
+    }
     const item = line.match(/^[-*]\s+(.+)$/);
     if (item) {
-      if (!listOpen) output.push("<ul>");
-      listOpen = true;
+      if (listOpen !== "ul") {
+        closeList();
+        output.push("<ul>");
+        listOpen = "ul";
+      }
       output.push(`<li>${inlineMarkdown(item[1])}</li>`);
+      continue;
+    }
+    const orderedItem = line.match(/^\d+\.\s+(.+)$/);
+    if (orderedItem) {
+      if (listOpen !== "ol") {
+        closeList();
+        output.push("<ol>");
+        listOpen = "ol";
+      }
+      output.push(`<li>${inlineMarkdown(orderedItem[1])}</li>`);
       continue;
     }
     closeList();
@@ -54,7 +88,7 @@ function renderMarkdown(markdown) {
 }
 
 function seoDescription(post) {
-  const value = String(post.excerpt || "").replace(/\s+/g, " ").trim();
+  const value = String(post.seo_description || post.excerpt || "").replace(/\s+/g, " ").trim();
   if (value.length <= 160) return value;
   return `${value.slice(0, 157).trimEnd()}...`;
 }
@@ -95,7 +129,7 @@ export async function onRequestGet(context) {
   }
 
   const articleUrl = `${SITE_URL}/blog?slug=${encodeURIComponent(post.slug)}`;
-  const title = `${post.title} | Dorae Coffee`;
+  const title = post.seo_title || `${post.title} | Dorae Coffee`;
   const description = seoDescription(post);
   const image = publicImage(post.thumbnail_url);
   const structuredData = JSON.stringify({

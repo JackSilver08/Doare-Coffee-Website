@@ -48,18 +48,19 @@
       const post = data.post;
       const articleUrl = `${SITE_URL}/blog?slug=${encodeURIComponent(post.slug)}`;
       const image = isPublicImage(post.thumbnail_url) ? post.thumbnail_url : DEFAULT_IMAGE;
-      const description = post.excerpt || "Kiến thức và câu chuyện cà phê từ Dorae Coffee.";
+      const seoTitle = post.seo_title || `${post.title} | Dorae Coffee`;
+      const description = post.seo_description || post.excerpt || "Kiến thức và câu chuyện cà phê từ Dorae Coffee.";
       const publishedAt = new Date(`${post.published_at || post.created_at}Z`).toISOString();
       const modifiedAt = new Date(`${post.updated_at || post.published_at || post.created_at}Z`).toISOString();
 
-      document.title = `${post.title} | Dorae Coffee`;
+      document.title = seoTitle;
       setCanonical(articleUrl);
       setMeta('meta[name="description"]', description);
-      setMeta('meta[property="og:title"]', `${post.title} | Dorae Coffee`);
+      setMeta('meta[property="og:title"]', seoTitle);
       setMeta('meta[property="og:description"]', description);
       setMeta('meta[property="og:url"]', articleUrl);
       setMeta('meta[property="og:image"]', image);
-      setMeta('meta[name="twitter:title"]', `${post.title} | Dorae Coffee`);
+      setMeta('meta[name="twitter:title"]', seoTitle);
       setMeta('meta[name="twitter:description"]', description);
       setMeta('meta[name="twitter:image"]', image);
 

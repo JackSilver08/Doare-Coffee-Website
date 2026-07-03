@@ -1518,6 +1518,9 @@ h2 {
 .article-body h1 { font-size: 38px; }.article-body h2 { font-size: 30px; }.article-body h3 { font-size: 23px; }
 .article-body a { color: var(--orange-dark); text-decoration: underline; }
 .article-body code { padding: 2px 6px; background: var(--cream); }
+.article-body img { display: block; max-width: 100%; height: auto; margin: 28px auto; border-radius: 8px; }
+.article-body blockquote { margin: 26px 0; border-left: 4px solid var(--orange); padding-left: 18px; color: #667986; }
+.article-body ol, .article-body ul { padding-left: 24px; }
 .article-loading { padding: 100px 0; color: #718895; text-align: center; }
 
 .newsletter-inner {

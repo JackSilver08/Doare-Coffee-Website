@@ -13,11 +13,11 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/css/admin.css?v=20260626cloud" />
+    <link rel="stylesheet" href="assets/css/admin.css?v=20260703seo" />
     <script src="assets/js/config.js?v=20260609" defer></script>
     <script src="assets/js/catalog.js?v=20260609" defer></script>
-    <script src="assets/js/markdown.js?v=20260609" defer></script>
-    <script src="assets/js/admin.js?v=20260626cloud" defer></script>
+    <script src="assets/js/markdown.js?v=20260703seo" defer></script>
+    <script src="assets/js/admin.js?v=20260703seo" defer></script>
   </head>
   <body>
     <aside class="sidebar">
@@ -175,15 +175,40 @@
                 </div>
                 <span class="thumbnail-status" id="thumbnail-status"></span>
               </div>
-              <label>Nội dung Markdown<textarea name="markdown" rows="15" placeholder="# Tiêu đề&#10;&#10;Nội dung bài viết..."></textarea></label>
+              <div class="markdown-editor-field">
+                <div class="editor-label-row">
+                  <span>Nội dung Markdown</span>
+                  <small>Dùng tiêu đề, danh sách, link và ảnh ngay trong thân bài.</small>
+                </div>
+                <div class="markdown-toolbar" aria-label="Công cụ Markdown">
+                  <button type="button" data-md-action="h2">H2</button>
+                  <button type="button" data-md-action="bold"><strong>B</strong></button>
+                  <button type="button" data-md-action="italic"><em>I</em></button>
+                  <button type="button" data-md-action="list">• List</button>
+                  <button type="button" data-md-action="quote">"</button>
+                  <button type="button" data-md-action="link">Link</button>
+                  <button type="button" data-md-action="image-url">Ảnh URL</button>
+                  <button type="button" id="insert-content-image">Tải ảnh vào bài</button>
+                </div>
+                <input id="content-image-file" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+                <textarea name="markdown" rows="18" placeholder="# Tiêu đề&#10;&#10;Viết bài bằng Markdown. Có thể chèn ảnh: ![Mô tả ảnh](https://...)"></textarea>
+                <span class="thumbnail-status" id="content-image-status"></span>
+              </div>
               <section class="seo-preview" aria-labelledby="seo-preview-title">
                 <div class="seo-preview-heading">
                   <div>
-                    <span>SEO TỰ ĐỘNG</span>
-                    <strong id="seo-preview-title">Xem trước trên Google</strong>
+                    <span>SEO THEO RANK MATH</span>
+                    <strong id="seo-preview-title">Điểm SEO & xem trước Google</strong>
                   </div>
-                  <small>Tiêu đề, mô tả, URL và dữ liệu Article được tạo khi lưu bài.</small>
+                  <div class="seo-score" id="seo-score" aria-live="polite">
+                    <strong>0</strong><span>/100</span>
+                  </div>
                 </div>
+                <div class="seo-field-grid">
+                  <label>Từ khóa chính<input name="focusKeyword" placeholder="vd: cà phê nguyên chất" /></label>
+                  <label>SEO title<input name="seoTitle" maxlength="80" placeholder="%title% | Dorae Coffee" /></label>
+                </div>
+                <label class="seo-description-field">Meta description<textarea name="seoDescription" rows="3" maxlength="180" placeholder="Mô tả hiển thị trên Google, nên có từ khóa chính."></textarea></label>
                 <div class="seo-search-preview">
                   <span id="seo-preview-url">https://doraecoffee.io.vn/blog</span>
                   <strong id="seo-preview-title-text">Tiêu đề bài viết | Dorae Coffee</strong>

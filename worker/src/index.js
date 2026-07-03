@@ -202,7 +202,8 @@ async function getPublishedPosts(url, env) {
     return result.results;
   }
   const result = await env.DB.prepare(
-    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, published_at, created_at, updated_at
+    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, focus_keyword, seo_title, seo_description,
+            published_at, created_at, updated_at
      FROM blog_posts
      WHERE status = 'published'
      ORDER BY COALESCE(published_at, created_at) DESC
@@ -213,7 +214,8 @@ async function getPublishedPosts(url, env) {
 
 async function getPublishedPost(slug, env) {
   return env.DB.prepare(
-    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, published_at, created_at, updated_at
+    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, focus_keyword, seo_title, seo_description,
+            published_at, created_at, updated_at
      FROM blog_posts WHERE slug = ? AND status = 'published'`
   ).bind(slug).first();
 }
@@ -221,7 +223,7 @@ async function getPublishedPost(slug, env) {
 async function getAdminPosts(env) {
   const result = await env.DB.prepare(
     `SELECT id, slug, title, excerpt, markdown, thumbnail_url, status,
-            published_at, created_at, updated_at
+            focus_keyword, seo_title, seo_description, published_at, created_at, updated_at
      FROM blog_posts ORDER BY updated_at DESC`
   ).all();
   return result.results;
@@ -243,13 +245,16 @@ function generatedExcerpt(excerpt, markdown) {
 }
 
 function normalizePost(body) {
-  const markdown = cleanText(body.markdown, 30000);
+  const markdown = cleanText(body.markdown, 80000);
   const post = {
     title: cleanText(body.title, 180),
     slug: cleanText(body.slug, 120).toLowerCase(),
     excerpt: generatedExcerpt(body.excerpt, markdown),
     markdown,
     thumbnailUrl: cleanImageUrl(body.thumbnailUrl),
+    focusKeyword: cleanText(body.focusKeyword, 120),
+    seoTitle: cleanText(body.seoTitle, 180).replaceAll("%title%", cleanText(body.title, 180)),
+    seoDescription: generatedExcerpt(body.seoDescription, markdown),
     status: body.status === "published" ? "published" : "draft"
   };
   if (!post.title || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.slug)) {
@@ -263,9 +268,12 @@ async function createAdminPost(request, env) {
   const id = makePostId();
   await env.DB.prepare(
     `INSERT INTO blog_posts
-     (id, slug, title, excerpt, markdown, thumbnail_url, status, published_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'published' THEN CURRENT_TIMESTAMP ELSE NULL END)`
-  ).bind(id, post.slug, post.title, post.excerpt, post.markdown, post.thumbnailUrl, post.status, post.status).run();
+     (id, slug, title, excerpt, markdown, thumbnail_url, focus_keyword, seo_title, seo_description, status, published_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'published' THEN CURRENT_TIMESTAMP ELSE NULL END)`
+  ).bind(
+    id, post.slug, post.title, post.excerpt, post.markdown, post.thumbnailUrl,
+    post.focusKeyword, post.seoTitle, post.seoDescription, post.status, post.status
+  ).run();
   return env.DB.prepare("SELECT * FROM blog_posts WHERE id = ?").bind(id).first();
 }
 
@@ -273,7 +281,8 @@ async function updateAdminPost(request, id, env) {
   const post = normalizePost(await request.json().catch(() => ({})));
   const result = await env.DB.prepare(
     `UPDATE blog_posts SET
-       slug = ?, title = ?, excerpt = ?, markdown = ?, thumbnail_url = ?, status = ?,
+       slug = ?, title = ?, excerpt = ?, markdown = ?, thumbnail_url = ?,
+       focus_keyword = ?, seo_title = ?, seo_description = ?, status = ?,
        published_at = CASE
          WHEN ? = 'published' AND published_at IS NULL THEN CURRENT_TIMESTAMP
          WHEN ? = 'draft' THEN NULL
@@ -282,7 +291,8 @@ async function updateAdminPost(request, id, env) {
        updated_at = CURRENT_TIMESTAMP
      WHERE id = ?`
   ).bind(
-    post.slug, post.title, post.excerpt, post.markdown, post.thumbnailUrl, post.status,
+    post.slug, post.title, post.excerpt, post.markdown, post.thumbnailUrl,
+    post.focusKeyword, post.seoTitle, post.seoDescription, post.status,
     post.status, post.status, id
   ).run();
   if (!result.meta.changes) return null;
@@ -403,6 +413,28 @@ async function uploadProductImage(request, env) {
   const requested = cleanText(form.get("productId"), 80).toLowerCase();
   const folder = slugValid(requested) ? requested : "misc";
   const key = `products/${folder}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+  await env.PRODUCT_IMAGES.put(key, file.stream(), {
+    httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" }
+  });
+  return {
+    imageUrl: productImageUrl(env, request, key),
+    storageKey: key,
+    mimeType: file.type,
+    sizeBytes: file.size
+  };
+}
+
+async function uploadBlogImage(request, env) {
+  if (!env.PRODUCT_IMAGES) throw new Error("R2_NOT_CONFIGURED");
+  const form = await request.formData().catch(() => null);
+  const file = form && form.get("file");
+  if (!file || typeof file === "string") throw new Error("IMAGE_FILE_REQUIRED");
+  const ext = PRODUCT_IMAGE_TYPES[file.type];
+  if (!ext) throw new Error("IMAGE_TYPE_INVALID");
+  if (file.size > MAX_PRODUCT_IMAGE_BYTES) throw new Error("IMAGE_TOO_LARGE");
+  const requested = cleanText(form.get("postSlug"), 120).toLowerCase();
+  const folder = slugValid(requested) ? requested : "misc";
+  const key = `blog/${folder}/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
   await env.PRODUCT_IMAGES.put(key, file.stream(), {
     httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" }
   });
@@ -815,6 +847,10 @@ export default {
       if (request.method === "POST" && url.pathname === "/api/admin/product-images") {
         if (!(await isAdmin(request, env))) return unauthorized(cors);
         return json(await uploadProductImage(request, env), 201, cors);
+      }
+      if (request.method === "POST" && url.pathname === "/api/admin/blog-images") {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        return json(await uploadBlogImage(request, env), 201, cors);
       }
       const adminImageMatch = url.pathname.match(/^\/api\/admin\/product-images\/(\d+)$/);
       if (request.method === "DELETE" && adminImageMatch) {
