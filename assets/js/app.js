@@ -4,7 +4,8 @@
     posts: [],
     cart: JSON.parse(localStorage.getItem("doare_cart") || "[]"),
     featuredQuantity: 1,
-    currentProductIndex: 0
+    currentProductIndex: 0,
+    postsExpanded: false
   };
 
   const money = new Intl.NumberFormat("vi-VN", {
@@ -131,7 +132,9 @@
   }
 
   function renderPosts() {
-    $("#journal-grid").innerHTML = state.posts.map((post) => {
+    const hasMorePosts = state.posts.length >= 4;
+    const visiblePosts = hasMorePosts && !state.postsExpanded ? state.posts.slice(0, 3) : state.posts;
+    $("#journal-grid").innerHTML = visiblePosts.map((post) => {
       const href = blogHref(post.slug);
       return `
         <article class="journal-card">
@@ -144,6 +147,13 @@
         </article>`;
     }).join("");
     $("#journal-empty").hidden = state.posts.length > 0;
+    const more = $("#journal-more");
+    const toggle = $("#journal-more-toggle");
+    if (more && toggle) {
+      more.hidden = !hasMorePosts;
+      toggle.textContent = state.postsExpanded ? "\u0110\u00f3ng l\u1ea1i" : "Xem th\u00eam";
+      toggle.setAttribute("aria-expanded", String(state.postsExpanded));
+    }
   }
 
   function renderCart() {
@@ -292,6 +302,7 @@
       const quantity = event.target.closest("[data-quantity]");
       const remove = event.target.closest("[data-remove]");
       const carouselThumb = event.target.closest("[data-product-index]");
+      const journalMoreToggle = event.target.closest("#journal-more-toggle");
       if (add) addToCart(add.dataset.add);
       if (quantity) updateQuantity(quantity.dataset.quantity, Number(quantity.dataset.delta));
       if (remove) {
@@ -300,6 +311,10 @@
       }
       if (carouselThumb) {
         switchProduct(Number(carouselThumb.dataset.productIndex));
+      }
+      if (journalMoreToggle) {
+        state.postsExpanded = !state.postsExpanded;
+        renderPosts();
       }
     });
 
@@ -507,6 +522,7 @@
 
   async function loadPosts() {
     state.posts = await window.DoareAPI.getPosts();
+    state.postsExpanded = false;
     renderPosts();
   }
 
