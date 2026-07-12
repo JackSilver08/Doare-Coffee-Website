@@ -1,0 +1,29 @@
+{
+  "routes": [
+    {
+      "routePath": "/blog",
+      "mountPath": "/",
+      "method": "GET",
+      "module": [
+        "blog.js:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/google56a1ffd0a01024d4.html",
+      "mountPath": "/",
+      "method": "GET",
+      "module": [
+        "google56a1ffd0a01024d4.html.js:onRequestGet"
+      ]
+    },
+    {
+      "routePath": "/sitemap.xml",
+      "mountPath": "/",
+      "method": "GET",
+      "module": [
+        "sitemap.xml.js:onRequestGet"
+      ]
+    }
+  ],
+  "baseURL": "/"
+}
