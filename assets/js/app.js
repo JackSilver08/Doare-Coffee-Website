@@ -5,7 +5,9 @@
     cart: JSON.parse(localStorage.getItem("doare_cart") || "[]"),
     featuredQuantity: 1,
     currentProductIndex: 0,
-    postsExpanded: false
+    postsExpanded: false,
+    postsFullyLoaded: false,
+    postsLoading: false
   };
 
   const money = new Intl.NumberFormat("vi-VN", {
@@ -132,7 +134,7 @@
   }
 
   function renderPosts() {
-    const hasMorePosts = state.posts.length >= 4;
+    const hasMorePosts = state.postsFullyLoaded ? state.posts.length >= 4 : state.posts.length >= 3;
     const visiblePosts = hasMorePosts && !state.postsExpanded ? state.posts.slice(0, 3) : state.posts;
     $("#journal-grid").innerHTML = visiblePosts.map((post) => {
       const href = blogHref(post.slug);
@@ -151,7 +153,10 @@
     const toggle = $("#journal-more-toggle");
     if (more && toggle) {
       more.hidden = !hasMorePosts;
-      toggle.textContent = state.postsExpanded ? "\u0110\u00f3ng l\u1ea1i" : "Xem th\u00eam";
+      toggle.textContent = state.postsLoading
+        ? "\u0110ang t\u1ea3i..."
+        : state.postsExpanded ? "\u0110\u00f3ng l\u1ea1i" : "Xem th\u00eam";
+      toggle.disabled = state.postsLoading;
       toggle.setAttribute("aria-expanded", String(state.postsExpanded));
     }
   }
@@ -313,8 +318,12 @@
         switchProduct(Number(carouselThumb.dataset.productIndex));
       }
       if (journalMoreToggle) {
-        state.postsExpanded = !state.postsExpanded;
-        renderPosts();
+        if (!state.postsExpanded && !state.postsFullyLoaded) {
+          loadAllPosts();
+        } else {
+          state.postsExpanded = !state.postsExpanded;
+          renderPosts();
+        }
       }
     });
 
@@ -521,8 +530,23 @@
   }
 
   async function loadPosts() {
-    state.posts = await window.DoareAPI.getPosts();
+    state.posts = await window.DoareAPI.getPosts(3);
     state.postsExpanded = false;
+    state.postsFullyLoaded = state.posts.length < 3;
+    renderPosts();
+  }
+
+  async function loadAllPosts() {
+    if (state.postsLoading) return;
+    state.postsLoading = true;
+    renderPosts();
+    const posts = await window.DoareAPI.getPosts(500);
+    if (posts.length) {
+      state.posts = posts;
+      state.postsExpanded = true;
+      state.postsFullyLoaded = true;
+    }
+    state.postsLoading = false;
     renderPosts();
   }
 
