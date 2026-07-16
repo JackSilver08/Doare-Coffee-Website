@@ -237,6 +237,10 @@
   }
 
   function openCheckout() {
+    if (window.DoareAuth?.isLoggedIn && !window.DoareAuth.isLoggedIn()) {
+      window.DoareAuth.open?.("login", openCheckout);
+      return;
+    }
     closeCart();
     renderCheckout();
     $(".modal-backdrop").hidden = false;
@@ -308,7 +312,11 @@
       const remove = event.target.closest("[data-remove]");
       const carouselThumb = event.target.closest("[data-product-index]");
       const journalMoreToggle = event.target.closest("#journal-more-toggle");
-      if (add) addToCart(add.dataset.add);
+      if (add) {
+        event.preventDefault();
+        if (window.DoareAuth?.isLoggedIn?.()) addToCart(add.dataset.add);
+        else window.DoareAuth?.open?.("login", () => addToCart(add.dataset.add));
+      }
       if (quantity) updateQuantity(quantity.dataset.quantity, Number(quantity.dataset.delta));
       if (remove) {
         state.cart = state.cart.filter((item) => item.id !== remove.dataset.remove);
@@ -348,19 +356,33 @@
     $(".featured-buy").addEventListener("click", () => {
       const product = getCurrentProduct();
       if (product) {
-        addToCart(product.id, state.featuredQuantity);
-        state.featuredQuantity = 1;
-        renderFeaturedProduct();
+        const startPurchase = () => {
+          addToCart(product.id, state.featuredQuantity);
+          state.featuredQuantity = 1;
+          renderFeaturedProduct();
+        };
+        if (window.DoareAuth?.isLoggedIn && !window.DoareAuth.isLoggedIn()) {
+          window.DoareAuth.open?.("login", startPurchase);
+        } else {
+          startPurchase();
+        }
       }
     });
 
     $(".featured-buy-now").addEventListener("click", () => {
       const product = getCurrentProduct();
       if (product) {
-        addToCart(product.id, state.featuredQuantity);
-        state.featuredQuantity = 1;
-        renderFeaturedProduct();
-        openCart();
+        const startPurchase = () => {
+          addToCart(product.id, state.featuredQuantity);
+          state.featuredQuantity = 1;
+          renderFeaturedProduct();
+          openCart();
+        };
+        if (window.DoareAuth?.isLoggedIn && !window.DoareAuth.isLoggedIn()) {
+          window.DoareAuth.open?.("login", startPurchase);
+        } else {
+          startPurchase();
+        }
       }
     });
 
@@ -551,11 +573,13 @@
   }
 
   async function init() {
+    const shouldOpenCart = new URLSearchParams(window.location.search).get("cart") === "1";
     initExperience();
     bindEvents();
     renderCart();
     loadPosts();
     await loadProducts();
+    if (shouldOpenCart) openCart();
   }
 
   init();
