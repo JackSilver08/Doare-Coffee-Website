@@ -2,16 +2,12 @@
   const config = window.DOARE_CONFIG;
 
   /*
-   * R2 chưa bật nên API trả ảnh dạng base64 (data:) chất lượng thấp.
-   * Ưu tiên dùng ảnh webp gốc trong assets/images/products/ theo id sản phẩm.
-   * Khi đã có ảnh thật (URL http) thì giữ nguyên ảnh từ máy chủ.
+   * Giữ nguyên ảnh do API trả về để storefront phản ánh đúng ảnh đã lưu từ admin.
+   * Chỉ fallback về catalog khi bản ghi không có ảnh nào.
    */
   function preferLocalImage(product) {
     if (!product || typeof product.id !== "string") return product;
-    if (/^https?:\/\//i.test(product.image || "")) return product;
-
-    /* Chỉ thay cho các sản phẩm gốc đã có ảnh webp trong repo;
-       sản phẩm mới thêm qua admin giữ nguyên ảnh đã tải lên. */
+    if (product.image) return product;
     const fromCatalog = (window.DOARE_CATALOG || []).find((entry) => entry.id === product.id);
     if (!fromCatalog) return product;
     return { ...product, image: fromCatalog.image };
@@ -24,6 +20,7 @@
 
     const response = await fetch(`${config.API_BASE_URL}${path}`, {
       ...options,
+      cache: options.cache || "no-store",
       headers: {
         "Content-Type": "application/json",
         ...(options.headers || {})

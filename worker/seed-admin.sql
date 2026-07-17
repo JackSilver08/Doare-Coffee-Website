@@ -3,7 +3,7 @@ INSERT INTO admin_users
 VALUES
   (
     'ADMIN_DOARE_OWNER',
-    'admindorae.com',
+    'admin@dorae.com',
     '5bd3d79bd35841e540caf1bbfd8aaac69c2ac2aa6b6546a8867311ec6629a55f',
     '4402b9389552a20d02126198644624be',
     100000,

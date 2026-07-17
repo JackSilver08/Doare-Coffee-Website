@@ -10,7 +10,9 @@ VALUES
   ('dorae-moi-ngay', 'Dorae Mỗi Ngày', 'Dành cho thói quen cà phê hằng ngày', 'ground', 'Rang nhẹ', '["Nhẹ nhàng","Dễ uống","Tiện lợi"]', 349000, '250g', '#d9e8d0', 'assets/images/products/dorae-moi-ngay.webp', '', 1, 5),
   ('dorae-tinh-hoa', 'Dorae Tinh Hoa', 'Phiên bản chọn lọc đặc biệt', 'ground', 'Rang vừa', '["Tinh tế","Sâu lắng","Lưu hương"]', 399000, '250g', '#e2d5c7', 'assets/images/products/dorae-tinh-hoa.webp', 'Đặc biệt', 1, 6),
   ('dorae-rang-moc', 'Dorae Rang Mộc', 'Rang mộc truyền thống, hương tự nhiên', 'ground', 'Rang mộc', '["Tự nhiên","Mộc mạc","Hương đất"]', 449000, '250g', '#d0c4b5', 'assets/images/products/dorae-rang-moc.webp', '', 1, 7),
-  ('dorae-mua-hoa', 'Dorae Mùa Hoa', 'Phiên bản giới hạn theo mùa', 'ground', 'Rang nhẹ vừa', '["Hoa cỏ","Thanh tao","Ngọt nhẹ"]', 489000, '250g', '#cde4d5', 'assets/images/products/dorae-mua-hoa.webp', 'Giới hạn', 1, 8);
+  ('dorae-mua-hoa', 'Dorae Mùa Hoa', 'Phiên bản giới hạn theo mùa', 'ground', 'Rang nhẹ vừa', '["Hoa cỏ","Thanh tao","Ngọt nhẹ"]', 489000, '250g', '#cde4d5', 'assets/images/products/dorae-mua-hoa.webp', 'Giới hạn', 1, 8),
+  ('dorae-sua-dua', 'Dorae 3in1 Cà Phê Sữa Dừa', 'Cà phê hòa tan vị dừa, béo thơm và tiện lợi', 'instant', '3in1', '["Béo vị dừa","Tiện lợi","Pha nhanh"]', 249000, '20 gói', '#d8efe0', 'assets/images/products/doare-pack-02.webp', 'Mới', 1, 9),
+  ('dorae-hoa-tan', 'Dorae 3in1 Cà Phê Hòa Tan', 'Cà phê hòa tan đậm đà, pha nhanh mỗi ngày', 'instant', '3in1', '["Đậm đà","Thơm cà phê","Pha nhanh"]', 269000, '20 gói', '#d9e6f7', 'assets/images/products/doare-pack-02.webp', '', 1, 10);
 
 DELETE FROM product_images;
 INSERT INTO product_images (product_id, image_url, alt_text, sort_order)
@@ -22,4 +24,6 @@ VALUES
   ('dorae-moi-ngay', 'assets/images/products/dorae-moi-ngay.webp', 'Cà phê xay Dorae Mỗi Ngày', 0),
   ('dorae-tinh-hoa', 'assets/images/products/dorae-tinh-hoa.webp', 'Cà phê xay Dorae Tinh Hoa', 0),
   ('dorae-rang-moc', 'assets/images/products/dorae-rang-moc.webp', 'Cà phê xay Dorae Rang Mộc', 0),
-  ('dorae-mua-hoa', 'assets/images/products/dorae-mua-hoa.webp', 'Cà phê xay Dorae Mùa Hoa', 0);
+  ('dorae-mua-hoa', 'assets/images/products/dorae-mua-hoa.webp', 'Cà phê xay Dorae Mùa Hoa', 0),
+  ('dorae-sua-dua', 'assets/images/products/doare-pack-02.webp', 'Cà phê hòa tan Dorae 3in1 Sữa Dừa', 0),
+  ('dorae-hoa-tan', 'assets/images/products/doare-pack-02.webp', 'Cà phê hòa tan Dorae 3in1', 0);

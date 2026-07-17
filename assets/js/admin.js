@@ -87,7 +87,7 @@
    */
   function displayImage(product) {
     if (!product) return "";
-    if (/^https?:\/\//i.test(product.image || "")) return product.image;
+    if (/^(https?:\/\/|data:image\/|blob:)/i.test(product.image || "")) return product.image;
     const fromCatalog = (window.DOARE_CATALOG || []).find((entry) => entry.id === product.id);
     return fromCatalog ? fromCatalog.image : product.image;
   }
@@ -398,7 +398,7 @@
     $("#login-modal").hidden = true;
     document.body.classList.remove("modal-open");
     $("#login-form").reset();
-    $("#login-form").elements.email.value = "admindorae.com";
+    $("#login-form").elements.email.value = "admin@dorae.com";
     $("#login-form").elements.password.type = "password";
     $("#toggle-password").textContent = "Hiện";
     $("#login-error").textContent = "";

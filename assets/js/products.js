@@ -128,13 +128,6 @@
   }
 
   function renderCategoryMenus() {
-    const counts = CATEGORY_ORDER.reduce((acc, category) => {
-      acc[category.id] = category.id === "other"
-        ? state.products.length
-        : state.products.filter((product) => productDisplayCategory(product) === category.id).length;
-      return acc;
-    }, {});
-
     $$(".js-category-menu").forEach((menu) => {
       menu.innerHTML = CATEGORY_ORDER.map((category) => `
         <button
@@ -142,12 +135,10 @@
           class="${category.id === state.activeCategory ? "active" : ""}"
           data-category="${category.id}"
           style="--category-color:${category.color}"
+          aria-label="${escapeHtml(category.label)}"
         >
           <span class="category-dot" aria-hidden="true"></span>
-          <div>
-            <strong>${escapeHtml(category.label)}</strong>
-            <small>${counts[category.id] || 0} sản phẩm</small>
-          </div>
+          <strong>${escapeHtml(category.label)}</strong>
         </button>
       `).join("");
     });

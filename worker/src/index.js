@@ -350,15 +350,41 @@ async function createAdminProduct(request, env) {
   const id = cleanText(body.id, 80).toLowerCase();
   if (!slugValid(id)) throw new Error("PRODUCT_SLUG_INVALID");
   const data = normalizeProductBody(body);
-  const existing = await env.DB.prepare("SELECT id FROM products WHERE id = ?").bind(id).first();
-  if (existing) throw new Error("PRODUCT_DUPLICATE");
+  const existing = await env.DB.prepare(
+    "SELECT id, deleted_at FROM products WHERE id = ?"
+  ).bind(id).first();
+  if (existing && !existing.deleted_at) throw new Error("PRODUCT_DUPLICATE");
+  const oldImages = existing
+    ? await env.DB.prepare("SELECT storage_key FROM product_images WHERE product_id = ?").bind(id).all()
+    : { results: [] };
   await env.DB.batch([
-    env.DB.prepare(
-      `INSERT INTO products (id, name, subtitle, category, roast, notes, price, weight, accent, image, badge, active, sort_order)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).bind(id, data.name, data.subtitle, data.category, data.roast, JSON.stringify(data.notes), data.price, data.weight, data.accent, data.primaryImage, data.badge, data.active, data.sortOrder),
+    existing
+      ? env.DB.prepare(
+          `UPDATE products SET
+             name = ?, subtitle = ?, category = ?, roast = ?, notes = ?,
+             price = ?, weight = ?, accent = ?, image = ?, badge = ?, active = ?, sort_order = ?,
+             deleted_at = NULL, updated_at = CURRENT_TIMESTAMP
+           WHERE id = ?`
+        ).bind(
+          data.name, data.subtitle, data.category, data.roast, JSON.stringify(data.notes),
+          data.price, data.weight, data.accent, data.primaryImage, data.badge, data.active, data.sortOrder, id
+        )
+      : env.DB.prepare(
+          `INSERT INTO products (id, name, subtitle, category, roast, notes, price, weight, accent, image, badge, active, sort_order)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        ).bind(
+          id, data.name, data.subtitle, data.category, data.roast, JSON.stringify(data.notes),
+          data.price, data.weight, data.accent, data.primaryImage, data.badge, data.active, data.sortOrder
+        ),
+    existing
+      ? env.DB.prepare("DELETE FROM product_images WHERE product_id = ?").bind(id)
+      : null,
     ...productImageInserts(env, id, data.images)
-  ]);
+  ].filter(Boolean));
+  const keepKeys = new Set(data.images.map((image) => image.storageKey).filter(Boolean));
+  for (const old of oldImages.results) {
+    if (old.storage_key && !keepKeys.has(old.storage_key)) await deleteR2Object(env, old.storage_key);
+  }
   return findAdminProduct(env, id);
 }
 
@@ -704,11 +730,12 @@ async function loginAdmin(request, env) {
   const email = cleanText(body.email, 160).toLowerCase();
   const password = cleanText(body.password, 200);
   if (!email || !password) return json({ message: "Vui lòng nhập tài khoản và mật khẩu." }, 400);
+  const legacyEmail = email === "admindorae.com" ? "admin@dorae.com" : "admindorae.com";
 
   const user = await env.DB.prepare(
     `SELECT id, email, password_hash, password_salt, password_iterations, display_name
-     FROM admin_users WHERE email = ? AND active = 1`
-  ).bind(email).first();
+     FROM admin_users WHERE (email = ? OR email = ?) AND active = 1`
+  ).bind(email, legacyEmail).first();
   if (!user) return json({ message: "Tài khoản hoặc mật khẩu không đúng." }, 401);
 
   const candidate = await passwordHash(password, user.password_salt, user.password_iterations);
