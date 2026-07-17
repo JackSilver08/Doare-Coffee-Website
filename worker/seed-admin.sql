@@ -10,7 +10,8 @@ VALUES
     'Dorae Owner',
     1
   )
-ON CONFLICT(email) DO UPDATE SET
+ON CONFLICT(id) DO UPDATE SET
+  email = excluded.email,
   password_hash = excluded.password_hash,
   password_salt = excluded.password_salt,
   password_iterations = excluded.password_iterations,

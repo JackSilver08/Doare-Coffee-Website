@@ -84,3 +84,4 @@ See [deployment instructions](docs/DEPLOYMENT.md) and [architecture notes](docs/
 ## Brand assets
 
 The logo, decorative emblem and product packshots were extracted from the supplied product PDF and optimized for web delivery. The visual system uses light blue and white as the primary palette, with coffee brown and warm gold retained for contrast and product warmth.
+-tôi sẽ nhờ claude AI đánh giá bạn làm nên bạn hãy làm cho thật chuẩn nhé
