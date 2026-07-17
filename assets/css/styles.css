@@ -5129,61 +5129,196 @@ footer {
   }
 }
 
+.social-float,
 .facebook-float {
   position: fixed;
+  right: 20px;
+  bottom: 20px;
   z-index: 50;
-  right: 24px;
-  bottom: 24px;
-  display: inline-flex;
-  width: 52px;
-  min-height: 52px;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  gap: 12px;
+  width: auto;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: social-float-bob 7s ease-in-out infinite;
+}
+
+.social-float__link {
+  display: grid;
+  grid-template-columns: 1fr;
+  position: relative;
+  align-items: center;
+  gap: 14px;
+  justify-items: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  background: #1877f2;
-  box-shadow: 0 10px 28px rgba(24, 119, 242, 0.32);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  background: transparent;
+  color: #15314a;
   text-decoration: none;
-  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  overflow: hidden;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+  box-shadow: none;
 }
 
-.facebook-float svg {
-  width: 25px;
-  height: 25px;
+.social-float__link svg {
+  width: 20px;
+  height: 20px;
   flex: 0 0 auto;
-  fill: currentColor;
+  fill: #fff;
+  z-index: 1;
 }
 
-.facebook-float:hover {
-  background: #0866ff;
-  box-shadow: 0 14px 34px rgba(24, 119, 242, 0.42);
-  color: #fff;
-  transform: translateY(-3px);
+.social-float__icon {
+  display: grid;
+  position: relative;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 15px;
+  background: currentColor;
+  box-shadow:
+    0 12px 24px rgba(24, 71, 112, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
-.facebook-float:focus-visible {
-  outline: 3px solid rgba(24, 119, 242, 0.35);
-  outline-offset: 4px;
+.social-float__icon svg {
+  position: relative;
+  z-index: 1;
+}
+
+.social-float__icon--tiktok {
+  background:
+    linear-gradient(145deg, #111111, #2d2d2d);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 8px 18px rgba(17, 17, 17, 0.22);
+}
+
+.social-float__icon--zalo {
+  background: transparent;
+  box-shadow: none;
+}
+
+.social-float__icon--zalo img,
+.social-float__icon--zalo svg {
+  width: 100%;
+  height: 100%;
+}
+
+.social-float__icon--zalo img {
+  display: block;
+  object-fit: contain;
+}
+
+.social-float__icon--tiktok::before,
+.social-float__icon--tiktok::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  filter: blur(8px);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.social-float__icon--tiktok::before {
+  background: rgba(36, 154, 255, 0.34);
+  transform: translate(-20px, -18px);
+}
+
+.social-float__icon--tiktok::after {
+  background: rgba(255, 63, 95, 0.32);
+  transform: translate(-4px, -2px);
+}
+
+.social-float__text {
+  display: none;
+}
+
+.social-float__link--facebook {
+  color: #1877f2;
+}
+
+.social-float__link--zalo {
+  color: #0068ff;
+}
+
+.social-float__link--tiktok {
+  color: #111111;
+}
+
+.social-float__link:hover,
+.social-float__link:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.social-float__link:focus-visible {
+  outline: 3px solid rgba(47, 135, 200, 0.3);
+  outline-offset: 3px;
 }
 
 .toast {
-  bottom: 92px;
+  bottom: 98px;
+}
+
+@keyframes social-float-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-float {
+    animation: none;
+  }
+
+  .social-float__link {
+    transition: none;
+  }
 }
 
 @media (max-width: 600px) {
+  .social-float,
   .facebook-float {
-    right: 16px;
-    bottom: 16px;
+    right: 14px;
+    bottom: 14px;
+    gap: 10px;
+  }
+
+  .social-float__link {
+    width: 52px;
+    height: 52px;
+  }
+
+  .social-float__icon {
+    width: 52px;
+    height: 52px;
   }
 
   .toast {
     right: 16px;
-    bottom: 80px;
+    bottom: 84px;
   }
 }
 

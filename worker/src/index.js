@@ -202,7 +202,7 @@ async function getPublishedPosts(url, env) {
     return result.results;
   }
   const result = await env.DB.prepare(
-    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, focus_keyword, seo_title, seo_description,
+    `SELECT id, slug, title, excerpt, thumbnail_url,
             published_at, created_at, updated_at
      FROM blog_posts
      WHERE status = 'published'
@@ -220,13 +220,34 @@ async function getPublishedPost(slug, env) {
   ).bind(slug).first();
 }
 
+function mapPostsForList(rows) {
+  return rows.map((post) => ({
+    id: post.id,
+    slug: post.slug,
+    title: post.title,
+    excerpt: post.excerpt,
+    thumbnail_url: post.thumbnail_url || "",
+    status: post.status,
+    published_at: post.published_at || null,
+    created_at: post.created_at,
+    updated_at: post.updated_at
+  }));
+}
+
 async function getAdminPosts(env) {
   const result = await env.DB.prepare(
-    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, status,
-            focus_keyword, seo_title, seo_description, published_at, created_at, updated_at
+    `SELECT id, slug, title, excerpt, thumbnail_url, status, published_at, created_at, updated_at
      FROM blog_posts ORDER BY updated_at DESC`
   ).all();
-  return result.results;
+  return mapPostsForList(result.results);
+}
+
+async function getAdminPost(id, env) {
+  return env.DB.prepare(
+    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, status,
+            focus_keyword, seo_title, seo_description, published_at, created_at, updated_at
+     FROM blog_posts WHERE id = ?`
+  ).bind(id).first();
 }
 
 function plainTextFromMarkdown(value) {
@@ -842,11 +863,17 @@ export default {
         if (!(await isAdmin(request, env))) return unauthorized(cors);
         return json({ posts: await getAdminPosts(env) }, 200, cors);
       }
+      const adminPostIdMatch = url.pathname.match(/^\/api\/admin\/posts\/([A-Z0-9]+)$/);
+      if (request.method === "GET" && adminPostIdMatch) {
+        if (!(await isAdmin(request, env))) return unauthorized(cors);
+        const post = await getAdminPost(adminPostIdMatch[1], env);
+        return post ? json({ post }, 200, cors) : json({ message: "Không tìm thấy bài viết." }, 404, cors);
+      }
       if (request.method === "POST" && url.pathname === "/api/admin/posts") {
         if (!(await isAdmin(request, env))) return unauthorized(cors);
         return json({ post: await createAdminPost(request, env) }, 201, cors);
       }
-      const adminPostMatch = url.pathname.match(/^\/api\/admin\/posts\/([A-Z0-9]+)$/);
+      const adminPostMatch = adminPostIdMatch;
       if (request.method === "PUT" && adminPostMatch) {
         if (!(await isAdmin(request, env))) return unauthorized(cors);
         const post = await updateAdminPost(request, adminPostMatch[1], env);
