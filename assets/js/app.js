@@ -494,6 +494,7 @@
     const updateHeader = () => header?.classList.toggle("scrolled", window.scrollY > 40);
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
+    setupSubscribeSaveParallax();
 
     const revealObserver = new IntersectionObserver(
       (entries) => entries.forEach((entry) => {
@@ -526,6 +527,66 @@
   function updateProductCaption() {
     const caption = $(".stage-caption");
     if (caption) caption.textContent = `${state.products.length} LOẠI CÀ PHÊ · DORAE COFFEE`;
+  }
+
+  function setupSubscribeSaveParallax() {
+    const section = $("#subscribe-save");
+    if (!section) return;
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let rafId = 0;
+    const clamp01 = (value) => Math.min(1, Math.max(0, value));
+
+    const setRevealState = (title, copy, cta) => {
+      section.style.setProperty("--subscribe-title-clip", `${Math.round((1 - title) * 46)}%`);
+      section.style.setProperty("--subscribe-copy-clip", `${Math.round((1 - copy) * 28)}%`);
+      section.style.setProperty("--subscribe-cta-clip", `${Math.round((1 - cta) * 18)}%`);
+      section.style.setProperty("--subscribe-title-opacity", `${(0.06 + title * 0.94).toFixed(3)}`);
+      section.style.setProperty("--subscribe-copy-opacity", `${(0.06 + copy * 0.94).toFixed(3)}`);
+      section.style.setProperty("--subscribe-cta-opacity", `${(0.08 + cta * 0.92).toFixed(3)}`);
+    };
+
+    const update = () => {
+      rafId = 0;
+      if (reducedMotion.matches) {
+        section.style.setProperty("--subscribe-parallax", "0px");
+        section.style.setProperty("--subscribe-content-parallax", "0px");
+        section.style.setProperty("--subscribe-rail-parallax", "0px");
+        section.style.setProperty("--subscribe-title-clip", "0%");
+        section.style.setProperty("--subscribe-copy-clip", "0%");
+        section.style.setProperty("--subscribe-cta-clip", "0%");
+        section.style.setProperty("--subscribe-title-opacity", "1");
+        section.style.setProperty("--subscribe-copy-opacity", "1");
+        section.style.setProperty("--subscribe-cta-opacity", "1");
+        return;
+      }
+
+      const rect = section.getBoundingClientRect();
+      const viewport = window.innerHeight || document.documentElement.clientHeight || 0;
+      if (!viewport) return;
+
+      const progress = clamp01((viewport * 0.76 - rect.top) / (viewport + rect.height * 0.4));
+      const bgOffset = Math.round((progress - 0.5) * 56);
+      const contentOffset = Math.round((0.5 - progress) * 18);
+      const railOffset = Math.round((0.5 - progress) * 10);
+      const titleReveal = clamp01((progress - 0.08) / 0.42);
+      const copyReveal = clamp01((progress - 0.24) / 0.42);
+      const ctaReveal = clamp01((progress - 0.48) / 0.34);
+      section.style.setProperty("--subscribe-parallax", `${bgOffset}px`);
+      section.style.setProperty("--subscribe-content-parallax", `${contentOffset}px`);
+      section.style.setProperty("--subscribe-rail-parallax", `${railOffset}px`);
+      setRevealState(titleReveal, copyReveal, ctaReveal);
+    };
+
+    const scheduleUpdate = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate, { passive: true });
+    reducedMotion.addEventListener?.("change", scheduleUpdate);
+    scheduleUpdate();
   }
 
   async function loadProducts() {
