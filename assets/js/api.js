@@ -54,9 +54,11 @@
         const data = await request("/api/products");
         return (data.products || []).map(preferLocalImage);
       } catch (error) {
-        /* Chỉ fallback catalog ở môi trường dev (chưa cấu hình API). */
-        if (error.message === "MOCK_MODE") return window.DOARE_CATALOG || [];
-        throw error;
+        const catalog = window.DOARE_CATALOG || [];
+        if (error.message !== "MOCK_MODE") {
+          console.warn("Products API:", error.message);
+        }
+        return catalog.map(preferLocalImage);
       }
     },
 

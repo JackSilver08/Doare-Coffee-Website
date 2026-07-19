@@ -1,18 +1,50 @@
 <svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zalo">
   <defs>
-    <linearGradient id="bg" x1="44" y1="32" x2="212" y2="226" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#1D7BFF"/>
-      <stop offset="1" stop-color="#0059D6"/>
+    <linearGradient id="bg" x1="28" y1="18" x2="224" y2="236" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E88FF"/>
+      <stop offset="1" stop-color="#0A67E8"/>
     </linearGradient>
-    <radialGradient id="shine" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(72 58) rotate(38) scale(72 56)">
-      <stop stop-color="white" stop-opacity=".28"/>
-      <stop offset="1" stop-color="white" stop-opacity="0"/>
-    </radialGradient>
+    <linearGradient id="bubbleShadow" x1="92" y1="144" x2="144" y2="196" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DCEEFF"/>
+      <stop offset="1" stop-color="#B8D8FF"/>
+    </linearGradient>
+    <filter id="shadow" x="30" y="36" width="196" height="196" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0A3E8A" flood-opacity=".18"/>
+    </filter>
   </defs>
-  <circle cx="128" cy="128" r="128" fill="url(#bg)"/>
-  <circle cx="104" cy="92" r="70" fill="url(#shine)"/>
-  <path d="M70 71c0-12.15 9.85-22 22-22h72c12.15 0 22 9.85 22 22v52c0 12.15-9.85 22-22 22H128.5L92 176.5V145H92c-12.15 0-22-9.85-22-22V71Z" fill="#FFFFFF"/>
-  <path d="M88 87c0-6.63 5.37-12 12-12h56c6.63 0 12 5.37 12 12v34c0 6.63-5.37 12-12 12h-26.5L113 154v-21H100c-6.63 0-12-5.37-12-12V87Z" fill="#EAF3FF"/>
-  <path d="M104.5 102.2h46.8a4.4 4.4 0 0 1 4.4 4.4v25.8a4.4 4.4 0 0 1-4.4 4.4h-18L121 150v-13.2h-16.5a4.4 4.4 0 0 1-4.4-4.4v-25.8a4.4 4.4 0 0 1 4.4-4.4Z" fill="#FFFFFF"/>
-  <text x="128" y="124" text-anchor="middle" fill="#0A66FF" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="800">Zalo</text>
+
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="url(#bg)"/>
+  <circle cx="86" cy="74" r="46" fill="#FFFFFF" fill-opacity=".12"/>
+
+  <g filter="url(#shadow)">
+    <path
+      d="M73 72.5C73 59.55 83.55 49 96.5 49h63c12.95 0 23.5 10.55 23.5 23.5v51c0 12.95-10.55 23.5-23.5 23.5H126l-24.5 20.5V147H96.5C83.55 147 73 136.45 73 123.5v-51Z"
+      fill="#FFFFFF"
+    />
+    <path
+      d="M81 79.5C81 69.84 88.84 62 98.5 62h59c9.66 0 17.5 7.84 17.5 17.5v39c0 9.66-7.84 17.5-17.5 17.5h-28.2L119 152.5V136h-20.5C88.84 136 81 128.16 81 118.5v-39Z"
+      fill="url(#bubbleShadow)"
+    />
+    <path
+      d="M96 93.5c0-2.5 2.02-4.5 4.5-4.5h54c2.49 0 4.5 2.03 4.5 4.53v28.95c0 2.49-2.01 4.52-4.5 4.52H132.6L120 140.5v-13.5h-19.5a4.5 4.5 0 0 1-4.5-4.5v-29Z"
+      fill="#FFFFFF"
+    />
+    <path
+      d="M102.5 108.5h51"
+      stroke="#0A67E8"
+      stroke-width="1.25"
+      stroke-linecap="round"
+      opacity=".14"
+    />
+    <text
+      x="128"
+      y="119"
+      text-anchor="middle"
+      fill="#0A67E8"
+      font-family="Arial, Helvetica, sans-serif"
+      font-size="22"
+      font-weight="800"
+      letter-spacing="-0.5"
+    >Zalo</text>
+  </g>
 </svg>

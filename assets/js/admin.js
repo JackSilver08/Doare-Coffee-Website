@@ -346,7 +346,9 @@
       state.dashboard = dashboard;
       state.orders = orderData.orders.map(normalizeOrder);
       state.customers = customerData.customers;
-      state.products = productData.products;
+      state.products = Array.isArray(productData.products) && productData.products.length
+        ? productData.products
+        : (window.DOARE_CATALOG || []);
       state.posts = postData.posts;
       localStorage.setItem("doare_admin_session", state.token);
       button.textContent = "Đăng xuất";
@@ -867,7 +869,8 @@
     const status = $("#thumbnail-status");
     try {
       status.textContent = "Đang crop và nén ảnh...";
-      const thumbnail = await makeSquareThumbnail(file);
+      const thumbnailBlob = await makeSquareThumbnail(file);
+      const thumbnail = await blobToDataUrl(thumbnailBlob);
       if (thumbnail.length > 400000) throw new Error("Ảnh sau khi nén vẫn quá lớn. Hãy chọn ảnh khác.");
       $("#post-form").elements.thumbnailUrl.value = thumbnail;
       renderThumbnailUpload(thumbnail);

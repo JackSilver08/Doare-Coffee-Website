@@ -59,6 +59,26 @@ function slugValid(value) {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
 }
 
+const tableColumnCache = new Map();
+
+async function tableColumns(env, table) {
+  if (tableColumnCache.has(table)) return tableColumnCache.get(table);
+  const result = await env.DB.prepare(`PRAGMA table_info(${table})`).all();
+  const columns = new Set(result.results.map((row) => row.name));
+  tableColumnCache.set(table, columns);
+  return columns;
+}
+
+function slugifyText(value) {
+  return cleanText(value, 120)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 function productImageUrl(env, request, key) {
   const base = cleanText(env.R2_PUBLIC_BASE_URL, 240).replace(/\/+$/, "");
   if (base) return `${base}/${key}`;
@@ -213,8 +233,14 @@ async function getPublishedPosts(url, env) {
 }
 
 async function getPublishedPost(slug, env) {
+  const columns = await tableColumns(env, "blog_posts");
+  const optionalColumns = [
+    columns.has("focus_keyword") ? "focus_keyword" : "'' AS focus_keyword",
+    columns.has("seo_title") ? "seo_title" : "'' AS seo_title",
+    columns.has("seo_description") ? "seo_description" : "'' AS seo_description"
+  ].join(", ");
   return env.DB.prepare(
-    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, focus_keyword, seo_title, seo_description,
+    `SELECT id, slug, title, excerpt, markdown, thumbnail_url, ${optionalColumns},
             published_at, created_at, updated_at
      FROM blog_posts WHERE slug = ? AND status = 'published'`
   ).bind(slug).first();
@@ -243,11 +269,39 @@ async function getAdminPosts(env) {
 }
 
 async function getAdminPost(id, env) {
+  const columns = await tableColumns(env, "blog_posts");
+  const optionalColumns = [
+    columns.has("focus_keyword") ? "focus_keyword" : "'' AS focus_keyword",
+    columns.has("seo_title") ? "seo_title" : "'' AS seo_title",
+    columns.has("seo_description") ? "seo_description" : "'' AS seo_description"
+  ].join(", ");
   return env.DB.prepare(
     `SELECT id, slug, title, excerpt, markdown, thumbnail_url, status,
-            focus_keyword, seo_title, seo_description, published_at, created_at, updated_at
+            ${optionalColumns}, published_at, created_at, updated_at
      FROM blog_posts WHERE id = ?`
   ).bind(id).first();
+}
+
+async function findPostBySlug(env, slug, excludeId = "") {
+  const statement = excludeId
+    ? env.DB.prepare("SELECT id FROM blog_posts WHERE slug = ? AND id != ? LIMIT 1").bind(slug, excludeId)
+    : env.DB.prepare("SELECT id FROM blog_posts WHERE slug = ? LIMIT 1").bind(slug);
+  return statement.first();
+}
+
+async function makeUniquePostSlug(env, slug, excludeId = "") {
+  const base = slugifyText(slug);
+  if (!base) return "";
+
+  let candidate = base.slice(0, 120);
+  let suffix = 2;
+  while (await findPostBySlug(env, candidate, excludeId)) {
+    const suffixText = `-${suffix}`;
+    const maxBaseLength = Math.max(1, 120 - suffixText.length);
+    candidate = `${base.slice(0, maxBaseLength)}${suffixText}`;
+    suffix += 1;
+  }
+  return candidate;
 }
 
 function plainTextFromMarkdown(value) {
@@ -267,14 +321,16 @@ function generatedExcerpt(excerpt, markdown) {
 
 function normalizePost(body) {
   const markdown = cleanText(body.markdown, 80000);
+  const title = cleanText(body.title, 180);
+  const rawSlug = cleanText(body.slug, 120);
   const post = {
-    title: cleanText(body.title, 180),
-    slug: cleanText(body.slug, 120).toLowerCase(),
+    title,
+    slug: slugifyText(rawSlug || title),
     excerpt: generatedExcerpt(body.excerpt, markdown),
     markdown,
     thumbnailUrl: cleanImageUrl(body.thumbnailUrl),
     focusKeyword: cleanText(body.focusKeyword, 120),
-    seoTitle: cleanText(body.seoTitle, 180).replaceAll("%title%", cleanText(body.title, 180)),
+    seoTitle: cleanText(body.seoTitle, 180).replaceAll("%title%", title),
     seoDescription: generatedExcerpt(body.seoDescription, markdown),
     status: body.status === "published" ? "published" : "draft"
   };
@@ -286,38 +342,78 @@ function normalizePost(body) {
 
 async function createAdminPost(request, env) {
   const post = normalizePost(await request.json().catch(() => ({})));
+  post.slug = await makeUniquePostSlug(env, post.slug);
   const id = makePostId();
+  const columns = await tableColumns(env, "blog_posts");
+  const hasSeoColumns = columns.has("focus_keyword") && columns.has("seo_title") && columns.has("seo_description");
+  const publishedAt = post.status === "published" ? new Date().toISOString() : null;
+  const insertColumns = [
+    "id",
+    "slug",
+    "title",
+    "excerpt",
+    "markdown",
+    "thumbnail_url",
+    ...(hasSeoColumns ? ["focus_keyword", "seo_title", "seo_description"] : []),
+    "status",
+    "published_at"
+  ];
+  const values = [
+    id,
+    post.slug,
+    post.title,
+    post.excerpt,
+    post.markdown,
+    post.thumbnailUrl,
+    ...(hasSeoColumns ? [post.focusKeyword, post.seoTitle, post.seoDescription] : []),
+    post.status,
+    publishedAt
+  ];
   await env.DB.prepare(
-    `INSERT INTO blog_posts
-     (id, slug, title, excerpt, markdown, thumbnail_url, focus_keyword, seo_title, seo_description, status, published_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'published' THEN CURRENT_TIMESTAMP ELSE NULL END)`
-  ).bind(
-    id, post.slug, post.title, post.excerpt, post.markdown, post.thumbnailUrl,
-    post.focusKeyword, post.seoTitle, post.seoDescription, post.status, post.status
-  ).run();
-  return env.DB.prepare("SELECT * FROM blog_posts WHERE id = ?").bind(id).first();
+    `INSERT INTO blog_posts (${insertColumns.join(", ")})
+     VALUES (${insertColumns.map(() => "?").join(", ")})`
+  ).bind(...values).run();
+  return getAdminPost(id, env);
 }
 
 async function updateAdminPost(request, id, env) {
   const post = normalizePost(await request.json().catch(() => ({})));
+  post.slug = await makeUniquePostSlug(env, post.slug, id);
+  const columns = await tableColumns(env, "blog_posts");
+  const hasSeoColumns = columns.has("focus_keyword") && columns.has("seo_title") && columns.has("seo_description");
+  const current = await env.DB.prepare("SELECT published_at FROM blog_posts WHERE id = ?").bind(id).first();
+  if (!current) return null;
+  const publishedAt =
+    post.status === "published"
+      ? current.published_at || new Date().toISOString()
+      : null;
+  const setParts = [
+    "slug = ?",
+    "title = ?",
+    "excerpt = ?",
+    "markdown = ?",
+    "thumbnail_url = ?",
+    ...(hasSeoColumns ? ["focus_keyword = ?", "seo_title = ?", "seo_description = ?"] : []),
+    "status = ?",
+    "published_at = ?",
+    "updated_at = CURRENT_TIMESTAMP"
+  ];
+  const values = [
+    post.slug,
+    post.title,
+    post.excerpt,
+    post.markdown,
+    post.thumbnailUrl,
+    ...(hasSeoColumns ? [post.focusKeyword, post.seoTitle, post.seoDescription] : []),
+    post.status,
+    publishedAt,
+    id
+  ];
   const result = await env.DB.prepare(
-    `UPDATE blog_posts SET
-       slug = ?, title = ?, excerpt = ?, markdown = ?, thumbnail_url = ?,
-       focus_keyword = ?, seo_title = ?, seo_description = ?, status = ?,
-       published_at = CASE
-         WHEN ? = 'published' AND published_at IS NULL THEN CURRENT_TIMESTAMP
-         WHEN ? = 'draft' THEN NULL
-         ELSE published_at
-       END,
-       updated_at = CURRENT_TIMESTAMP
-     WHERE id = ?`
-  ).bind(
-    post.slug, post.title, post.excerpt, post.markdown, post.thumbnailUrl,
-    post.focusKeyword, post.seoTitle, post.seoDescription, post.status,
-    post.status, post.status, id
-  ).run();
+    `UPDATE blog_posts SET ${setParts.join(", ")} WHERE id = ?`
+  ).bind(...values).run();
   if (!result.meta.changes) return null;
-  return env.DB.prepare("SELECT * FROM blog_posts WHERE id = ?").bind(id).first();
+  return getAdminPost(id, env);
 }
 
 function normalizeProductBody(body) {
@@ -802,6 +898,13 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
 
     try {
+      if (request.method === "GET" && url.pathname === "/") {
+        return json({
+          ok: true,
+          service: "doare-api",
+          message: "API is running. Use /api/health or /api/* endpoints."
+        }, 200, cors);
+      }
       if (request.method === "GET" && url.pathname === "/api/health") {
         return json({ ok: true, service: "doare-api" }, 200, cors);
       }

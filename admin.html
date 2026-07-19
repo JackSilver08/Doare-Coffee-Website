@@ -17,11 +17,16 @@
     <script src="assets/js/config.js?v=20260609" defer></script>
     <script src="assets/js/catalog.js?v=20260609" defer></script>
     <script src="assets/js/markdown.js?v=20260703seo" defer></script>
-    <script src="assets/js/admin.js?v=20260703seo" defer></script>
+    <script src="assets/js/admin.js?v=20260719postfix" defer></script>
   </head>
   <body>
     <aside class="sidebar">
-      <a class="admin-brand" href="index.html"><img src="assets/images/brand-logo.png" alt="" /><strong>DORAE<small>ADMIN CONSOLE</small></strong></a>
+      <a class="admin-brand" href="index.html">
+        <span class="admin-brand__mark" aria-hidden="true">
+          <img src="assets/images/brand-emblem.png" alt="" />
+        </span>
+        <strong>DORAE<small>ADMIN APP</small></strong>
+      </a>
       <nav>
         <button class="active" type="button" data-view="dashboard">Tổng quan</button>
         <button type="button" data-view="orders">Đơn hàng <span id="pending-count">0</span></button>
@@ -238,8 +243,10 @@
       <section class="login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title">
         <button class="login-close" id="login-close" type="button" aria-label="Đóng">×</button>
         <div class="login-brand">
-          <img src="assets/images/brand-logo.png" alt="" />
-          <div><strong>DORAE</strong><span>ADMIN CONSOLE</span></div>
+          <span class="login-brand__mark" aria-hidden="true">
+            <img src="assets/images/brand-emblem.png" alt="" />
+          </span>
+          <div><strong>DORAE</strong><span>ADMIN APP</span></div>
         </div>
         <div class="login-heading">
           <p>QUẢN TRỊ CỬA HÀNG</p>
