@@ -17,7 +17,7 @@
     <script src="assets/js/config.js?v=20260609" defer></script>
     <script src="assets/js/catalog.js?v=20260609" defer></script>
     <script src="assets/js/markdown.js?v=20260703seo" defer></script>
-    <script src="assets/js/admin.js?v=20260703seo" defer></script>
+    <script src="assets/js/admin.js?v=20260726imagefix" defer></script>
   </head>
   <body>
     <aside class="sidebar">
@@ -155,7 +155,7 @@
               <input name="id" type="hidden" />
               <div class="field-grid">
                 <label>Tiêu đề<input name="title" required /></label>
-                <label>Slug URL<input name="slug" pattern="[a-z0-9-]+" required /></label>
+                <label>Slug URL<input name="slug" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required /></label>
               </div>
               <label>Mô tả ngắn<textarea name="excerpt" rows="3" maxlength="360"></textarea></label>
               <div class="thumbnail-field">

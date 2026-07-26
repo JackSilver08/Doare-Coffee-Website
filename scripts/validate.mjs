@@ -46,6 +46,8 @@ if (!index.includes('type="application/ld+json"')) throw new Error("Thiếu stru
 if (!robots.includes("Sitemap: https://doraecoffee.io.vn/sitemap.xml")) throw new Error("robots.txt thiếu sitemap");
 if (!sitemapFunction.includes("<urlset") || !sitemapFunction.includes("/api/posts?limit=500&sitemap=1")) throw new Error("Sitemap động không hợp lệ");
 if (!admin.includes('class="seo-preview"')) throw new Error("Thiếu SEO preview trong trình soạn bài");
+if (admin.includes('pattern="[a-z0-9-]+"')) throw new Error("Pattern slug không hợp lệ với RegExp v flag");
+if (!admin.includes('assets/js/admin.js?v=20260726imagefix')) throw new Error("Cần cache-bust admin.js sau khi sửa upload ảnh");
 for (const id of ["product-edit-form", "post-form", "markdown-preview"]) {
   if (!admin.includes(`id="${id}"`)) throw new Error(`Thiếu phần tử admin #${id}`);
 }

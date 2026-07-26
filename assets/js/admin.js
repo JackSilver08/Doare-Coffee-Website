@@ -581,15 +581,21 @@
 
   function readImage(file) {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => reject(new Error("Không thể đọc file ảnh."));
-      reader.onload = () => {
-        const image = new Image();
-        image.onerror = () => reject(new Error("File ảnh không hợp lệ."));
-        image.onload = () => resolve(image);
-        image.src = reader.result;
+      if (!(file instanceof Blob)) {
+        reject(new Error("Trình duyệt không trả về file ảnh hợp lệ. Hãy chọn lại ảnh."));
+        return;
+      }
+      const objectUrl = URL.createObjectURL(file);
+      const image = new Image();
+      image.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error("File ảnh không hợp lệ."));
       };
-      reader.readAsDataURL(file);
+      image.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(image);
+      };
+      image.src = objectUrl;
     });
   }
 
