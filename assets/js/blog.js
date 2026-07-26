@@ -33,6 +33,24 @@
     return /^https?:\/\//i.test(url || "");
   }
 
+  function parsePostDate(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return null;
+    const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(raw);
+    const normalized = raw.includes("T") ? raw : raw.replace(" ", "T");
+    const date = new Date(hasTimezone ? normalized : `${normalized}Z`);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  function postIsoDate(value) {
+    return (parsePostDate(value) || new Date()).toISOString();
+  }
+
+  function postDisplayDate(value) {
+    const date = parsePostDate(value);
+    return date ? date.toLocaleDateString("vi-VN") : "";
+  }
+
   async function init() {
     const slug = new URLSearchParams(location.search).get("slug");
     const article = document.querySelector("#article");
@@ -50,8 +68,8 @@
       const image = isPublicImage(post.thumbnail_url) ? post.thumbnail_url : DEFAULT_IMAGE;
       const seoTitle = post.seo_title || `${post.title} | Dorae Coffee`;
       const description = post.seo_description || post.excerpt || "Kiến thức và câu chuyện cà phê từ Dorae Coffee.";
-      const publishedAt = new Date(`${post.published_at || post.created_at}Z`).toISOString();
-      const modifiedAt = new Date(`${post.updated_at || post.published_at || post.created_at}Z`).toISOString();
+      const publishedAt = postIsoDate(post.published_at || post.created_at);
+      const modifiedAt = postIsoDate(post.updated_at || post.published_at || post.created_at);
 
       document.title = seoTitle;
       setCanonical(articleUrl);
@@ -97,7 +115,7 @@
           <p class="eyebrow dark">NHẬT KÝ DORAE</p>
           <h1>${escapeHtml(post.title)}</h1>
           <p>${escapeHtml(post.excerpt || "")}</p>
-          <time>${new Date(post.published_at || post.created_at).toLocaleDateString("vi-VN")}</time>
+          <time datetime="${escapeHtml(publishedAt)}">${postDisplayDate(post.published_at || post.created_at)}</time>
         </header>
         ${post.thumbnail_url ? `<img class="article-cover" src="${escapeHtml(post.thumbnail_url)}" alt="${escapeHtml(post.title)}" />` : ""}
         <div class="article-body">${window.DoareMarkdown.render(post.markdown)}</div>`;

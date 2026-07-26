@@ -93,9 +93,22 @@ function seoDescription(post) {
   return `${value.slice(0, 157).trimEnd()}...`;
 }
 
+function parsePostDate(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+  const hasTimezone = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(raw);
+  const normalized = raw.includes("T") ? raw : raw.replace(" ", "T");
+  const date = new Date(hasTimezone ? normalized : `${normalized}Z`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function isoDate(value) {
-  const date = new Date(`${value || ""}Z`);
-  return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+  return (parsePostDate(value) || new Date()).toISOString();
+}
+
+function displayDate(value) {
+  const date = parsePostDate(value);
+  return date ? date.toLocaleDateString("vi-VN") : "";
 }
 
 function publicImage(value) {
@@ -154,7 +167,7 @@ export async function onRequestGet(context) {
       <p class="eyebrow dark">NHẬT KÝ DORAE</p>
       <h1>${escapeHtml(post.title)}</h1>
       <p>${escapeHtml(post.excerpt || "")}</p>
-      <time datetime="${escapeHtml(isoDate(post.published_at || post.created_at))}">${new Date(`${post.published_at || post.created_at}Z`).toLocaleDateString("vi-VN")}</time>
+      <time datetime="${escapeHtml(isoDate(post.published_at || post.created_at))}">${displayDate(post.published_at || post.created_at)}</time>
     </header>
     ${/^https?:\/\//i.test(post.thumbnail_url || "") ? `<img class="article-cover" src="${escapeHtml(post.thumbnail_url)}" alt="${escapeHtml(post.title)}" />` : ""}
     <div class="article-body">${renderMarkdown(post.markdown)}</div>`;
