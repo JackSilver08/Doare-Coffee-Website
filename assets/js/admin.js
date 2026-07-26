@@ -87,7 +87,7 @@
    */
   function displayImage(product) {
     if (!product) return "";
-    if (/^https?:\/\//i.test(product.image || "")) return product.image;
+    if (/^(https?:\/\/|data:image\/|blob:)/i.test(product.image || "")) return product.image;
     const fromCatalog = (window.DOARE_CATALOG || []).find((entry) => entry.id === product.id);
     return fromCatalog ? fromCatalog.image : product.image;
   }
@@ -346,7 +346,9 @@
       state.dashboard = dashboard;
       state.orders = orderData.orders.map(normalizeOrder);
       state.customers = customerData.customers;
-      state.products = productData.products;
+      state.products = Array.isArray(productData.products) && productData.products.length
+        ? productData.products
+        : (window.DOARE_CATALOG || []);
       state.posts = postData.posts;
       localStorage.setItem("doare_admin_session", state.token);
       button.textContent = "Đăng xuất";
@@ -398,7 +400,7 @@
     $("#login-modal").hidden = true;
     document.body.classList.remove("modal-open");
     $("#login-form").reset();
-    $("#login-form").elements.email.value = "admindorae.com";
+    $("#login-form").elements.email.value = "admin@dorae.com";
     $("#login-form").elements.password.type = "password";
     $("#toggle-password").textContent = "Hiện";
     $("#login-error").textContent = "";
@@ -549,21 +551,30 @@
     }).join("");
   }
 
-  function selectPost(post) {
+  async function selectPost(post) {
     const form = $("#post-form");
-    form.elements.id.value = post?.id || "";
-    form.elements.title.value = post?.title || "";
-    form.elements.slug.value = post?.slug || "";
-    form.elements.excerpt.value = post?.excerpt || "";
-    form.elements.thumbnailUrl.value = post?.thumbnail_url || "";
-    form.elements.markdown.value = post?.markdown || "";
-    if (form.elements.focusKeyword) form.elements.focusKeyword.value = post?.focus_keyword || post?.focusKeyword || "";
-    if (form.elements.seoTitle) form.elements.seoTitle.value = post?.seo_title || post?.seoTitle || "";
-    if (form.elements.seoDescription) form.elements.seoDescription.value = post?.seo_description || post?.seoDescription || "";
-    form.elements.status.value = post?.status || "draft";
-    $("#delete-post").hidden = !post;
+    let resolvedPost = post;
+    if (resolvedPost?.id && !Object.prototype.hasOwnProperty.call(resolvedPost, "markdown")) {
+      try {
+        const response = await adminRequest(`/api/admin/posts/${resolvedPost.id}`);
+        resolvedPost = response.post || resolvedPost;
+      } catch (error) {
+        $("#post-message").textContent = error.message;
+      }
+    }
+    form.elements.id.value = resolvedPost?.id || "";
+    form.elements.title.value = resolvedPost?.title || "";
+    form.elements.slug.value = resolvedPost?.slug || "";
+    form.elements.excerpt.value = resolvedPost?.excerpt || "";
+    form.elements.thumbnailUrl.value = resolvedPost?.thumbnail_url || "";
+    form.elements.markdown.value = resolvedPost?.markdown || "";
+    if (form.elements.focusKeyword) form.elements.focusKeyword.value = resolvedPost?.focus_keyword || resolvedPost?.focusKeyword || "";
+    if (form.elements.seoTitle) form.elements.seoTitle.value = resolvedPost?.seo_title || resolvedPost?.seoTitle || "";
+    if (form.elements.seoDescription) form.elements.seoDescription.value = resolvedPost?.seo_description || resolvedPost?.seoDescription || "";
+    form.elements.status.value = resolvedPost?.status || "draft";
+    $("#delete-post").hidden = !resolvedPost;
     $("#post-message").textContent = "";
-    renderThumbnailUpload(post?.thumbnail_url || "");
+    renderThumbnailUpload(resolvedPost?.thumbnail_url || "");
     updateMarkdownPreview();
     updateSeoPreview();
   }
@@ -914,7 +925,7 @@
       if (index >= 0) state.posts[index] = result.post;
       else state.posts.unshift(result.post);
       renderPosts();
-      selectPost(result.post);
+      await selectPost(result.post);
       message.textContent = "Đã lưu bài viết.";
     } catch (error) {
       message.textContent = error.message;

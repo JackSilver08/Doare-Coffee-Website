@@ -103,5 +103,31 @@ window.DOARE_CATALOG = [
     accent: "#cde4d5",
     image: "assets/images/products/dorae-mua-hoa.webp",
     badge: "Giới hạn"
+  },
+  {
+    id: "dorae-sua-dua",
+    name: "Dorae 3in1 Cà Phê Sữa Dừa",
+    subtitle: "Cà phê hòa tan vị dừa, béo thơm và tiện lợi",
+    category: "instant",
+    roast: "3in1",
+    notes: ["Béo vị dừa", "Tiện lợi", "Pha nhanh"],
+    price: 249000,
+    weight: "20 gói",
+    accent: "#d8efe0",
+    image: "assets/images/products/doare-pack-02.webp",
+    badge: "Mới"
+  },
+  {
+    id: "dorae-hoa-tan",
+    name: "Dorae 3in1 Cà Phê Hòa Tan",
+    subtitle: "Cà phê hòa tan đậm đà, pha nhanh mỗi ngày",
+    category: "instant",
+    roast: "3in1",
+    notes: ["Đậm đà", "Thơm cà phê", "Pha nhanh"],
+    price: 269000,
+    weight: "20 gói",
+    accent: "#d9e6f7",
+    image: "assets/images/products/doare-pack-02.webp",
+    badge: ""
   }
 ];

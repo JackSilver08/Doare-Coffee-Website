@@ -31,6 +31,7 @@ for (const file of ["assets/js/config.js", "assets/js/catalog.js", "assets/js/ap
 
 const index = await readFile("index.html", "utf8");
 const admin = await readFile("admin.html", "utf8");
+const adminScript = await readFile("assets/js/admin.js", "utf8");
 const robots = await readFile("robots.txt", "utf8");
 const sitemapFunction = await readFile("functions/sitemap.xml.js", "utf8");
 for (const id of ["featured-price", "featured-quantity", "cart-items", "checkout-form", "contact-form"]) {
@@ -47,7 +48,8 @@ if (!robots.includes("Sitemap: https://doraecoffee.io.vn/sitemap.xml")) throw ne
 if (!sitemapFunction.includes("<urlset") || !sitemapFunction.includes("/api/posts?limit=500&sitemap=1")) throw new Error("Sitemap động không hợp lệ");
 if (!admin.includes('class="seo-preview"')) throw new Error("Thiếu SEO preview trong trình soạn bài");
 if (admin.includes('pattern="[a-z0-9-]+"')) throw new Error("Pattern slug không hợp lệ với RegExp v flag");
-if (!admin.includes('assets/js/admin.js?v=20260726imagefix')) throw new Error("Cần cache-bust admin.js sau khi sửa upload ảnh");
+if (!admin.includes('assets/js/admin.js?v=20260726mergefix')) throw new Error("Cần cache-bust admin.js sau khi sửa upload ảnh");
+if (adminScript.includes("blobToDataUrl(thumbnailBlob)")) throw new Error("Thumbnail Data URL không được đọc lại như Blob");
 for (const id of ["product-edit-form", "post-form", "markdown-preview"]) {
   if (!admin.includes(`id="${id}"`)) throw new Error(`Thiếu phần tử admin #${id}`);
 }

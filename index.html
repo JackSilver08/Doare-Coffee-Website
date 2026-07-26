@@ -37,11 +37,16 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/css/styles.css?v=20260626cloud" />
-    <script src="assets/js/config.js?v=20260609" defer></script>
-    <script src="assets/js/catalog.js?v=20260609" defer></script>
-    <script src="assets/js/api.js?v=20260626cloud" defer></script>
-    <script src="assets/js/app.js?v=20260626cloud" defer></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=UnifrakturMaguntia&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/styles.css?v=20260717social" />
+    <script src="assets/js/config.js?v=20260717social" defer></script>
+    <script src="assets/js/catalog.js?v=20260717social" defer></script>
+    <script src="assets/js/api.js?v=20260717social" defer></script>
+    <script src="assets/js/auth.js?v=20260717social" defer></script>
+    <script src="assets/js/app.js?v=20260717social" defer></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -103,11 +108,22 @@
         <nav class="desktop-nav" aria-label="Điều hướng chính">
           <a href="#story">Câu chuyện</a>
           <a href="#process">Trải nghiệm</a>
-          <a href="#products">Sản phẩm</a>
+          <details class="nav-dropdown">
+            <summary>Sản phẩm</summary>
+            <div class="nav-dropdown-menu" role="menu" aria-label="Danh mục sản phẩm">
+              <a href="products.html?category=ground"><span></span><strong>Cà Phê Rang Xay</strong></a>
+              <a href="products.html?category=instant"><span></span><strong>Cà Phê Hòa Tan 3in1</strong></a>
+              <a href="products.html?category=other"><span></span><strong>Khác</strong></a>
+            </div>
+          </details>
           <a href="#journal">Tin tức</a>
         </nav>
         <div class="nav-actions">
           <a class="header-contact" href="#contact">Liên hệ</a>
+          <button class="auth-button" type="button" id="auth-button" data-auth-trigger aria-label="Đăng nhập hoặc xem tài khoản">
+            <span class="auth-button-icon" aria-hidden="true">◌</span>
+            <span id="auth-button-label">Đăng nhập</span>
+          </button>
           <button class="cart-button" type="button" aria-label="Mở giỏ hàng">
             Giỏ <span class="cart-count">0</span>
           </button>
@@ -129,7 +145,14 @@
       <div class="mobile-nav-links">
         <a href="#story"><span>01</span>Câu chuyện</a>
         <a href="#process"><span>02</span>Trải nghiệm</a>
-        <a href="#products"><span>03</span>Sản phẩm</a>
+        <details class="mobile-nav-group">
+          <summary><span>03</span>Sản phẩm</summary>
+          <div class="mobile-nav-submenu">
+            <a href="products.html?category=ground">Cà Phê Rang Xay</a>
+            <a href="products.html?category=instant">Cà Phê Hòa Tan 3in1</a>
+            <a href="products.html?category=other">Khác</a>
+          </div>
+        </details>
         <a href="#journal"><span>04</span>Tin tức</a>
         <a href="#contact"><span>05</span>Liên hệ</a>
       </div>
@@ -154,7 +177,7 @@
             </p>
             <div class="hero-actions">
               <a class="button button-primary" href="#story">Bắt đầu câu chuyện</a>
-              <a class="text-link" href="#products">Xem sản phẩm <span>↘</span></a>
+              <a class="text-link" href="products.html">Xem sản phẩm <span>↘</span></a>
             </div>
           </div>
           <div class="hero-brand-visual" aria-hidden="true">
@@ -195,6 +218,40 @@
         <div class="single-product-orbit orbit-one"></div>
         <div class="single-product-orbit orbit-two"></div>
         <p class="products-status" id="products-status" role="status">Đang tải danh sách cà phê…</p>
+        <div class="subscribe-save" id="subscribe-save">
+          <div class="subscribe-save-media" aria-hidden="true">
+            <video
+              class="subscribe-save-media-layer"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              poster="assets/images/ui/story-coffee-01.webp"
+            >
+              <source src="https://caramelly.in/cdn/shop/files/quinn_nqp5lie4z5gnj3er6xdp3y40.mp4#t=0.1" type="video/mp4" />
+            </video>
+          </div>
+          <div class="subscribe-save-overlay" aria-hidden="true"></div>
+          <div class="container subscribe-save-shell">
+            <div class="subscribe-save-content">
+              <p class="eyebrow light">DORAE COFFEE · ĐẶT ĐỊNH KỲ</p>
+              <h2 class="subscribe-save-title"><span>RANG MỚI</span><span>MỖI NGÀY</span></h2>
+              <p class="subscribe-save-copy">Cà phê Dorae được rang mới theo từng mẻ, đóng gói kín khí và cập nhật đều đặn để bạn luôn có một tách cà phê thơm, ổn định và tiện lợi cho mỗi sáng làm việc hay học tập. Đặt định kỳ để không bỏ lỡ những mẻ rang mới nhất.</p>
+              <a class="button subscribe-save-cta" href="products.html?category=ground">
+                Khám phá gói định kỳ
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="products-ambient" aria-hidden="true">
+          <span class="ambient-orb ambient-orb-a"></span>
+          <span class="ambient-orb ambient-orb-b"></span>
+          <span class="ambient-bean ambient-bean-a"></span>
+          <span class="ambient-bean ambient-bean-b"></span>
+          <span class="ambient-swish ambient-swish-a"></span>
+          <span class="ambient-swish ambient-swish-b"></span>
+        </div>
         <div class="container single-product" hidden>
           <div class="single-product-stage">
             <span class="stage-caption">8 LOẠI CÀ PHÊ · DORAE COFFEE</span>
@@ -281,7 +338,7 @@
               <div><strong>Tiện lợi</strong><span>Tìm hiểu và đặt hàng trực tuyến</span></div>
               <div><strong>Gần gũi</strong><span>Đồng hành cùng nhịp sống trẻ</span></div>
             </div>
-            <a class="text-link light" href="#products">Khám phá cà phê Dorae <span>↗</span></a>
+            <a class="text-link light" href="products.html">Khám phá cà phê Dorae <span>↗</span></a>
           </div>
         </div>
       </section>
@@ -372,7 +429,7 @@
         <nav class="footer-nav" aria-label="Liên kết cuối trang">
           <a href="#story">Câu chuyện</a>
           <a href="#process">Trải nghiệm</a>
-          <a href="#products">Sản phẩm</a>
+          <a href="products.html">Sản phẩm</a>
           <a href="#journal">Tin tức</a>
         </nav>
         <div class="footer-contact">
@@ -384,17 +441,43 @@
       <div class="container footer-bottom"><span>© 2026 Dorae Coffee.</span><span>doraecoffee.io.vn · Đồng Nai, Việt Nam</span></div>
     </footer>
 
-    <a
-      class="facebook-float"
-      href="https://www.facebook.com/share/1EUY8tWq4g/?mibextid=wwXIfr"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Truy cập fanpage Facebook của Dorae Coffee"
-    >
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M13.5 22v-9h3l.45-3.5H13.5V7.27c0-1.01.28-1.7 1.73-1.7H17V2.44a23.7 23.7 0 0 0-2.58-.14C11.87 2.3 10 3.86 10 6.73V9.5H7V13h3v9h3.5Z" />
-      </svg>
-    </a>
+    <div class="social-float" aria-label="Kết nối với Dorae Coffee">
+      <a
+        class="social-float__link social-float__link--facebook"
+        href="https://www.facebook.com/share/1EUY8tWq4g/?mibextid=wwXIfr"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Facebook Dorae Coffee"
+      >
+        <span class="social-float__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M13.5 22v-9h3l.45-3.5H13.5V7.27c0-1.01.28-1.7 1.73-1.7H17V2.44a23.7 23.7 0 0 0-2.58-.14C11.87 2.3 10 3.86 10 6.73V9.5H7V13h3v9h3.5Z" />
+          </svg>
+        </span>
+      </a>
+      <a
+        class="social-float__link social-float__link--zalo"
+        href="https://zalo.me/0902061241"
+        aria-label="Zalo Dorae Coffee"
+      >
+        <span class="social-float__icon social-float__icon--zalo" aria-hidden="true">
+          <img src="assets/images/zalo-app-icon.svg?v=20260719social" alt="" />
+        </span>
+      </a>
+      <a
+        class="social-float__link social-float__link--tiktok"
+        href="https://www.tiktok.com/@dorae.coffee?_r=1&_t=ZS-986fxoWWYhZ"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="TikTok Dorae Coffee"
+      >
+        <span class="social-float__icon social-float__icon--tiktok" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M16.5 3c.4 2.4 1.8 3.8 4.5 4v3.1c-1.7.1-3.2-.4-4.5-1.3v6.3c0 3.5-2.8 5.9-6.2 5.9-3.3 0-5.8-2.4-5.8-5.6 0-3.3 2.7-5.9 6.5-5.9.4 0 .8 0 1.1.1v3.1c-.3-.1-.7-.2-1.1-.2-1.7 0-3.1 1.2-3.1 3 0 1.7 1.3 3 3 3 1.9 0 3.2-1.3 3.2-3.6V3h2.4Z" />
+          </svg>
+        </span>
+      </a>
+    </div>
 
     <div class="drawer-backdrop" hidden></div>
     <aside class="cart-drawer" aria-hidden="true" aria-label="Giỏ hàng">
@@ -414,6 +497,42 @@
         <button class="button button-primary checkout-button" type="button">Tiến hành đặt hàng</button>
       </div>
     </aside>
+
+    <div class="auth-backdrop" id="auth-modal" hidden>
+      <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <button class="auth-close" type="button" aria-label="Đóng">×</button>
+        <div class="auth-tabs" role="tablist" aria-label="Tài khoản">
+          <button type="button" class="auth-tab active" data-mode="login">Đăng nhập</button>
+          <button type="button" class="auth-tab" data-mode="register">Đăng ký</button>
+          <button type="button" class="auth-tab" data-mode="forgot">Quên mật khẩu</button>
+        </div>
+        <div class="auth-body">
+          <form class="auth-panel" id="login-form" data-panel="login">
+            <h3 id="auth-title">Đăng nhập để mua hàng</h3>
+            <label>Email<input id="auth-email" name="email" type="email" required /></label>
+            <label>Mật khẩu<input name="password" type="password" required /></label>
+            <button class="button button-primary" type="submit">Đăng nhập</button>
+            <p><a href="#" id="auth-register-link">Tạo tài khoản</a> · <a href="#" id="auth-forgot-link">Quên mật khẩu?</a></p>
+          </form>
+          <form class="auth-panel" id="register-form" data-panel="register" hidden>
+            <h3>Tạo tài khoản mới</h3>
+            <label>Họ và tên<input name="name" required /></label>
+            <label>Email<input name="email" type="email" required /></label>
+            <label>Mật khẩu<input name="password" type="password" required /></label>
+            <button class="button button-primary" type="submit">Đăng ký</button>
+            <p><a href="#" class="auth-login-link">Đã có tài khoản? Đăng nhập</a></p>
+          </form>
+          <form class="auth-panel" id="forgot-form" data-panel="forgot" hidden>
+            <h3>Đặt lại mật khẩu</h3>
+            <label>Email<input name="email" type="email" required /></label>
+            <label>Mật khẩu mới<input name="password" type="password" required /></label>
+            <button class="button button-primary" type="submit">Cập nhật mật khẩu</button>
+            <p><a href="#" class="auth-login-link">Quay lại đăng nhập</a></p>
+          </form>
+          <p class="auth-status" id="auth-status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </div>
 
     <div class="modal-backdrop" hidden>
       <section class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
