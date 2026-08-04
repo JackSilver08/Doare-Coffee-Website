@@ -33,6 +33,9 @@ for (const file of ["assets/js/config.js", "assets/js/analytics.js", "assets/js/
 }
 
 const index = await readFile("index.html", "utf8");
+if (!index.includes('name="google-site-verification" content="IcdDqV0KNZGaNg-cbpA08LDlUf_L9HhuIU_FZgMLNwA"')) {
+  throw new Error("Missing Google Search Console verification meta tag");
+}
 const admin = await readFile("admin.html", "utf8");
 const adminScript = await readFile("assets/js/admin.js", "utf8");
 const blog = await readFile("blog.html", "utf8");
