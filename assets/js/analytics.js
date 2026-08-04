@@ -77,8 +77,10 @@
     if (loadGoogleTag.done || (!gtmId && !measurementId)) return;
     loadGoogleTag.done = true;
     if (gtmId) {
+      const src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(gtmId)}`;
+      if (document.querySelector(`script[src="${src}"]`)) return;
       window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
-      loadScript(`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(gtmId)}`);
+      loadScript(src);
       return;
     }
     loadScript(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`);

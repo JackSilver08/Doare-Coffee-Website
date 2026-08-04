@@ -33,6 +33,9 @@ for (const file of ["assets/js/config.js", "assets/js/analytics.js", "assets/js/
 }
 
 const index = await readFile("index.html", "utf8");
+if (!index.includes("GTM-TT5THCDJ") || !index.includes("googletagmanager.com/ns.html")) {
+  throw new Error("Missing Google Tag Manager container snippets");
+}
 if (!index.includes('name="google-site-verification" content="IcdDqV0KNZGaNg-cbpA08LDlUf_L9HhuIU_FZgMLNwA"')) {
   throw new Error("Missing Google Search Console verification meta tag");
 }

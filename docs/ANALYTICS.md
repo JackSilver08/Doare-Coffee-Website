@@ -2,8 +2,9 @@
 
 ## Configuration
 
-The production site currently uses direct GA4 with measurement ID
-`G-W6TVPDJGFL`. Set exactly one ID in `assets/js/config.js`:
+The production site currently uses Google Tag Manager container
+`GTM-TT5THCDJ`. GA4 measurement ID `G-W6TVPDJGFL` must be configured as a
+Google tag inside that container. Set exactly one ID in `assets/js/config.js`:
 
 - `GTM_CONTAINER_ID`: preferred when Google Tag Manager manages GA4.
 - `GA4_MEASUREMENT_ID`: direct Google tag fallback.
