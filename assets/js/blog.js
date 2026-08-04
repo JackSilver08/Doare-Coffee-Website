@@ -119,6 +119,11 @@
         </header>
         ${post.thumbnail_url ? `<img class="article-cover" src="${escapeHtml(post.thumbnail_url)}" alt="${escapeHtml(post.title)}" />` : ""}
         <div class="article-body">${window.DoareMarkdown.render(post.markdown)}</div>`;
+      window.DoareAnalytics?.track("article_viewed", {
+        article_slug: post.slug,
+        article_title: post.title,
+        published_date: publishedAt.slice(0, 10)
+      });
     } catch (error) {
       setNoIndex();
       article.innerHTML = `<h1>${escapeHtml(error.message || "Không thể tải bài viết.")}</h1>`;

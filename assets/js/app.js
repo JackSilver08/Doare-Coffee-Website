@@ -191,10 +191,16 @@
   }
 
   function addToCart(id, quantity = 1) {
+    const product = state.products.find((entry) => entry.id === id);
     const current = state.cart.find((item) => item.id === id);
     if (current) current.quantity += quantity;
     else state.cart.push({ id, quantity });
     saveCart();
+    window.DoareAnalytics?.track("add_to_cart", {
+      currency: "VND",
+      value: (Number(product?.price) || 0) * quantity,
+      items: [window.DoareAnalytics.productItem(product, quantity)]
+    });
     showToast("Đã thêm cà phê vào giỏ hàng.");
   }
 
@@ -243,6 +249,12 @@
     }
     closeCart();
     renderCheckout();
+    const items = cartDetails();
+    window.DoareAnalytics?.track("begin_checkout", {
+      currency: "VND",
+      value: cartSubtotal(),
+      items: items.map((item) => window.DoareAnalytics.productItem(item, item.quantity))
+    });
     $(".modal-backdrop").hidden = false;
     document.body.classList.add("no-scroll");
   }
@@ -290,6 +302,14 @@
         paymentMethod: "cod",
         items: state.cart.map(({ id, quantity }) => ({ productId: id, quantity })),
         pricingPreview: { subtotal, shipping, total: subtotal + shipping }
+      });
+
+      window.DoareAnalytics?.track("purchase", {
+        transaction_id: order.id,
+        currency: "VND",
+        value: subtotal + shipping,
+        shipping,
+        items: cartDetails().map((item) => window.DoareAnalytics.productItem(item, item.quantity))
       });
 
       state.cart = [];
@@ -446,6 +466,10 @@
           phone: data.phone.trim(),
           email: data.email.trim(),
           message: data.message.trim()
+        });
+        window.DoareAnalytics?.track("generate_lead", {
+          lead_source: "contact_form",
+          form_location: "homepage"
         });
         form.reset();
         status.textContent = result.emailSent

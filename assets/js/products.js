@@ -212,6 +212,11 @@
     renderHeroStats();
     renderCategoryMenus();
     renderGrid();
+    window.DoareAnalytics?.track("view_item_list", {
+      item_list_id: state.activeCategory,
+      item_list_name: categoryMeta(state.activeCategory).label,
+      items: products.map((product) => window.DoareAnalytics.productItem(product, 1))
+    });
   }
 
   function bindEvents() {
@@ -232,14 +237,28 @@
 
       if (addButton) {
         event.preventDefault();
-        requireLogin(() => addToCart(addButton.dataset.add, 1));
+        requireLogin(() => {
+          const product = state.products.find((item) => item.id === addButton.dataset.add);
+          addToCart(addButton.dataset.add, 1);
+          window.DoareAnalytics?.track("add_to_cart", {
+            currency: "VND",
+            value: Number(product?.price) || 0,
+            items: [window.DoareAnalytics.productItem(product, 1)]
+          });
+        });
         return;
       }
 
       if (buyButton) {
         event.preventDefault();
         const startPurchase = () => {
+          const product = state.products.find((item) => item.id === buyButton.dataset.buy);
           addToCart(buyButton.dataset.buy, 1);
+          window.DoareAnalytics?.track("add_to_cart", {
+            currency: "VND",
+            value: Number(product?.price) || 0,
+            items: [window.DoareAnalytics.productItem(product, 1)]
+          });
           window.dispatchEvent(new CustomEvent("doare:open-checkout"));
         };
         requireLogin(startPurchase);

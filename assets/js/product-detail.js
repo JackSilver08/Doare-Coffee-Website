@@ -151,6 +151,11 @@
     }
 
     renderProduct(product);
+    window.DoareAnalytics?.track("view_item", {
+      currency: "VND",
+      value: Number(product.price) || 0,
+      items: [window.DoareAnalytics.productItem(product, 1)]
+    });
 
     $$("[data-detail-quantity]").forEach((button) =>
       button.addEventListener("click", () => {
@@ -160,14 +165,26 @@
     );
 
     $("#detail-add").addEventListener("click", () => {
+      const quantity = state.quantity;
       addToCart(state.quantity);
+      window.DoareAnalytics?.track("add_to_cart", {
+        currency: "VND",
+        value: (Number(product.price) || 0) * quantity,
+        items: [window.DoareAnalytics.productItem(product, quantity)]
+      });
       state.quantity = 1;
       $("#detail-quantity").textContent = "1";
     });
 
     $("#detail-buy").addEventListener("click", () => {
       const startPurchase = () => {
+        const quantity = state.quantity;
         addToCart(state.quantity);
+        window.DoareAnalytics?.track("add_to_cart", {
+          currency: "VND",
+          value: (Number(product.price) || 0) * quantity,
+          items: [window.DoareAnalytics.productItem(product, quantity)]
+        });
         window.dispatchEvent(new CustomEvent("doare:open-checkout"));
       };
       requireLogin(startPurchase);
@@ -184,6 +201,11 @@
         if (current) current.quantity += 1;
         else state.cart.push({ id: item.id, quantity: 1 });
         saveCart();
+        window.DoareAnalytics?.track("add_to_cart", {
+          currency: "VND",
+          value: Number(item.price) || 0,
+          items: [window.DoareAnalytics.productItem(item, 1)]
+        });
         showToast("Đã thêm sản phẩm vào giỏ hàng.");
       });
     });

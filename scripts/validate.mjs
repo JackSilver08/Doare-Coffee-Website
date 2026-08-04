@@ -17,6 +17,7 @@ const required = [
   "assets/js/blog.js",
   "assets/js/markdown.js",
   "assets/js/api.js",
+  "assets/js/analytics.js",
   "assets/images/brand-logo.png",
   "assets/images/products/doare-pack-02.webp",
   "worker/src/index.js",
@@ -25,7 +26,7 @@ const required = [
 
 for (const file of required) await access(file);
 
-for (const file of ["assets/js/config.js", "assets/js/catalog.js", "assets/js/api.js", "assets/js/app.js", "assets/js/admin.js", "assets/js/blog.js", "assets/js/markdown.js", "functions/sitemap.xml.js", "functions/blog.js", "functions/google56a1ffd0a01024d4.html.js", "worker/src/index.js"]) {
+for (const file of ["assets/js/config.js", "assets/js/analytics.js", "assets/js/catalog.js", "assets/js/api.js", "assets/js/app.js", "assets/js/admin.js", "assets/js/blog.js", "assets/js/markdown.js", "functions/sitemap.xml.js", "functions/blog.js", "functions/google56a1ffd0a01024d4.html.js", "worker/src/index.js"]) {
   execFileSync(process.execPath, ["--check", file], { stdio: "inherit" });
 }
 

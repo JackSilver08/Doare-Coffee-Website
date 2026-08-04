@@ -91,6 +91,13 @@
       return;
     }
     await renderSummary();
+    const products = await getProducts();
+    const details = cartDetails(products);
+    window.DoareAnalytics?.track("begin_checkout", {
+      currency: "VND",
+      value: cartSubtotal(details),
+      items: details.map((item) => window.DoareAnalytics.productItem(item, item.quantity))
+    });
     modal.hidden = false;
     document.body.classList.add("no-scroll");
   }
@@ -147,6 +154,14 @@
         paymentMethod: "cod",
         items: getCart().map(({ id, quantity }) => ({ productId: id, quantity })),
         pricingPreview: { subtotal, shipping, total: subtotal + shipping }
+      });
+
+      window.DoareAnalytics?.track("purchase", {
+        transaction_id: order.id,
+        currency: "VND",
+        value: subtotal + shipping,
+        shipping,
+        items: details.map((item) => window.DoareAnalytics.productItem(item, item.quantity))
       });
 
       setCart([]);
