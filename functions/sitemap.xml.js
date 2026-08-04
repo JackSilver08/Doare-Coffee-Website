@@ -17,13 +17,20 @@ function dateOnly(value) {
 
 export async function onRequestGet() {
   let posts = [];
+  let products = [];
   try {
-    const response = await fetch(`${API_URL}/api/posts?limit=500&sitemap=1`, {
-      cf: { cacheTtl: 60, cacheEverything: true }
-    });
-    if (response.ok) posts = (await response.json()).posts || [];
+    const [postsResponse, productsResponse] = await Promise.all([
+      fetch(`${API_URL}/api/posts?limit=500&sitemap=1`, {
+        cf: { cacheTtl: 60, cacheEverything: true }
+      }),
+      fetch(`${API_URL}/api/products`, {
+        cf: { cacheTtl: 60, cacheEverything: true }
+      })
+    ]);
+    if (postsResponse.ok) posts = (await postsResponse.json()).posts || [];
+    if (productsResponse.ok) products = (await productsResponse.json()).products || [];
   } catch (error) {
-    console.error("Unable to build blog sitemap", error);
+    console.error("Unable to build sitemap", error);
   }
 
   const urls = [
@@ -32,6 +39,16 @@ export async function onRequestGet() {
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>`,
+    `  <url>
+    <loc>${SITE_URL}/products</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>`,
+    ...products.map((product) => `  <url>
+    <loc>${escapeXml(`${SITE_URL}/product?id=${encodeURIComponent(product.id)}`)}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`),
     ...posts.map((post) => {
       const lastmod = dateOnly(post.updated_at || post.published_at || post.created_at);
       return `  <url>

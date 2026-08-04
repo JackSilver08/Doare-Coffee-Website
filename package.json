@@ -5,6 +5,8 @@
   "description": "Static-first serverless coffee storefront",
   "scripts": {
     "dev": "npx serve . -l 8080",
-    "validate": "node scripts/validate.mjs"
+    "validate": "node scripts/validate.mjs",
+    "audit:kpi": "node scripts/kpi-audit.mjs",
+    "utm": "node scripts/build-utm.mjs"
   }
 }
