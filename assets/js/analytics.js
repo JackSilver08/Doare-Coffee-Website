@@ -53,7 +53,16 @@
 
   function track(eventName, parameters = {}) {
     if (!/^[a-z][a-z0-9_]{1,39}$/.test(eventName)) return;
-    window.dataLayer.push({ event: eventName, ...cleanObject(parameters) });
+    const cleanedParameters = cleanObject(parameters);
+    if (measurementId && !gtmId) {
+      // Direct gtag integrations require the event command. Do not queue
+      // behavioral events while analytics consent is denied.
+      if (localStorage.getItem(CONSENT_KEY) === "granted") {
+        gtag("event", eventName, cleanedParameters);
+      }
+      return;
+    }
+    window.dataLayer.push({ event: eventName, ...cleanedParameters });
   }
 
   function loadScript(src) {

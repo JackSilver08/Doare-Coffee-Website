@@ -3,7 +3,7 @@ window.DOARE_CONFIG = Object.freeze({
   // Set exactly one of these after creating the Google property/container.
   // GTM is preferred when both values are present.
   GTM_CONTAINER_ID: "",
-  GA4_MEASUREMENT_ID: "",
+  GA4_MEASUREMENT_ID: "G-YEHPD9BVK0",
   STORE_NAME: "Dorae Coffee",
   CURRENCY: "VND",
   FREE_SHIPPING_THRESHOLD: 500000,

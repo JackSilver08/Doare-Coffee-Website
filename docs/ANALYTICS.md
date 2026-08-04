@@ -2,7 +2,8 @@
 
 ## Configuration
 
-Set exactly one ID in `assets/js/config.js`:
+The production site currently uses direct GA4 with measurement ID
+`G-YEHPD9BVK0`. Set exactly one ID in `assets/js/config.js`:
 
 - `GTM_CONTAINER_ID`: preferred when Google Tag Manager manages GA4.
 - `GA4_MEASUREMENT_ID`: direct Google tag fallback.
