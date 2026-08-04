@@ -1,0 +1,205 @@
+{
+  "generatedAt": "2026-08-04T04:10:34.033Z",
+  "site": "https://doraecoffee.io.vn",
+  "measurementStatus": {
+    "traffic": "waiting_for_ga4_or_gtm",
+    "organicSocial": "waiting_for_ga4_or_gtm_and_utm_campaigns",
+    "backlinks": "waiting_for_search_console_or_backlink_provider",
+    "seoPosts": "measured_from_cms",
+    "internalLinks": "measured_by_site_crawl"
+  },
+  "targets": {
+    "2026-06": {
+      "traffic": 10,
+      "seoPosts": 4,
+      "backlinks": 5,
+      "organicSocial": 5
+    },
+    "2026-07": {
+      "traffic": 20,
+      "seoPosts": 4,
+      "backlinks": 5,
+      "organicSocial": 10
+    },
+    "2026-08": {
+      "traffic": 20,
+      "seoPosts": 4,
+      "backlinks": 5,
+      "organicSocial": 10
+    },
+    "threeMonth": {
+      "traffic": 50,
+      "seoPosts": 12,
+      "backlinks": 15,
+      "internalLinks": 41,
+      "organicSocial": 25
+    }
+  },
+  "actual": {
+    "publishedPosts": 16,
+    "postsByMonth": {
+      "2026-08": 1,
+      "2026-07": 12,
+      "2026-06": 3
+    },
+    "sitemapUrls": 30,
+    "crawledPages": 30,
+    "healthyPages": 30,
+    "brokenPages": [],
+    "internalLinkOccurrences": 229,
+    "uniqueInternalLinks": 76,
+    "uniqueInternalDestinations": 8
+  },
+  "pages": [
+    {
+      "url": "https://doraecoffee.io.vn/",
+      "status": 200,
+      "internalLinks": 12
+    },
+    {
+      "url": "https://doraecoffee.io.vn/products",
+      "status": 200,
+      "internalLinks": 24
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-nguyen-chat",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-dam-vi",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-thom-ngon",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-hat-chin",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-moi-ngay",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-tinh-hoa",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-rang-moc",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-mua-hoa",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-sua-dua",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-hoa-tan",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-cao-nguyen",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/product?id=dorae-di-san",
+      "status": 200,
+      "internalLinks": 11
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=ca-phe-pha-phin-bi-quyet-pha-dam-da-chuan-vi-viet",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=cach-thuong-thuc-ca-phe-dung-chuan-de-cam-nhan-tron-ven-huong-vi",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=ca-phe-rang-xay-nguyen-chat-la-gi-cach-chon-san-pham-chat-luong",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=top-cac-loai-ca-phe-rang-xay-duoc-yeu-thich-hien-nay",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=nguoi-moi-uong-ca-phe-nen-chon-loai-nao-huong-dan-tu-a-den-z",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=cach-chon-ca-phe-phu-hop-voi-khau-vi-cua-ban",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=ca-phe-nguyen-chat-co-tot-cho-suc-khoe-khong-7-loi-ich-ban-nen-biet",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=cach-bao-quan-ca-phe-rang-xay-luon-thom-ngon-nhu-moi",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=vi-sao-nen-uong-ca-phe-nguyen-chat-moi-ngay-8-loi-ich-ban-nen-biet",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=quy-trinh-rang-xay-ca-phe-chuan-giup-giu-tron-huong-vi-tu-nhien",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=cac-muc-rang-ca-phe-va-anh-huong-den-huong-vi-huong-dan-chon-dung-gu",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=phan-biet-ca-phe-arabica-va-robusta-loai-nao-phu-hop-voi-ban",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=ca-phe-nguyen-chat-la-gi-7-cach-nhan-biet-ca-phe-sach-chuan-nhat",
+      "status": 200,
+      "internalLinks": 4
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=cac-loai-ca-phe-pho-bien-va-cach-chon-loai-phu-hop",
+      "status": 200,
+      "internalLinks": 3
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=cach-chon-ca-phe-ngon-chuan-vi-cho-nguoi-moi-bat-dau",
+      "status": 200,
+      "internalLinks": 3
+    },
+    {
+      "url": "https://doraecoffee.io.vn/blog?slug=cach-pha-ca-phe-tai-nha-ngon",
+      "status": 200,
+      "internalLinks": 3
+    }
+  ]
+}
